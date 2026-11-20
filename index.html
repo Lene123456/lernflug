@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LernFlug 7 – Lernen für die 7. Klasse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1030;--bg2:#161a46;--card:#1d2257;--card2:#252b6b;--line:#2f3680;--txt:#eef0ff;--mut:#a3a8d9;--fire:#ff7a18;--fire2:#ffcc33;--ok:#2ee59d;--bad:#ff5d73;--acc:#7c6cff;--r:18px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--txt);font-family:Nunito,system-ui,sans-serif;min-height:100%}
+body{background:radial-gradient(1200px 600px at 80% -10%,#3a2a8a55,transparent),radial-gradient(900px 500px at -10% 110%,#ff7a1822,transparent),var(--bg);background-attachment:fixed}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:var(--txt);background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:none}
+input:focus,select:focus{border-color:var(--acc)}
+h1,h2,h3{font-weight:900;letter-spacing:-.02em}
+.wrap{max-width:860px;margin:0 auto;padding:0 14px 110px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:#0d1030e6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{max-width:860px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.logo{font-weight:900;font-size:20px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.logo span{background:linear-gradient(90deg,var(--fire2),var(--fire));-webkit-background-clip:text;color:transparent}
+.chips{margin-left:auto;display:flex;gap:6px;align-items:center}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.chip.fire{color:var(--fire2)} .chip.dead{filter:grayscale(1);opacity:.6}
+/* nav */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#12163ef2;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.nav button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;color:var(--mut);padding:6px 0;border-radius:12px}
+.nav button b{font-size:22px;line-height:1}
+.nav button.on{color:var(--txt);background:var(--card)}
+.nav button.lock{opacity:.35}
+/* cards */
+.card{background:linear-gradient(160deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.subj{border-radius:var(--r);padding:16px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;position:relative;overflow:hidden;border:1px solid #ffffff22;transition:transform .15s}
+.subj:active{transform:scale(.97)}
+.subj .ic{font-size:34px}
+.subj .nm{font-weight:900;font-size:18px}
+.subj .pr{font-size:12px;opacity:.9;font-weight:700}
+.bar{height:8px;background:#ffffff22;border-radius:9px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--fire2),var(--fire));border-radius:9px;transition:width .5s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--acc),#a35cff);padding:13px 20px;border-radius:14px;font-weight:900;font-size:16px;box-shadow:0 4px 0 #3b2fa0;transition:transform .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #3b2fa0}
+.btn.fire{background:linear-gradient(135deg,var(--fire2),var(--fire));color:#2a1200;box-shadow:0 4px 0 #a34a00}
+.btn.ok{background:linear-gradient(135deg,#5dffc0,var(--ok));color:#003320;box-shadow:0 4px 0 #0b8a5a}
+.btn.ghost{background:var(--card2);box-shadow:0 4px 0 #11143a}
+.btn.sm{padding:8px 13px;font-size:14px;border-radius:11px}
+.btn.full{width:100%}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mut{color:var(--mut)} .sm{font-size:13px}
+.hero{display:flex;gap:14px;align-items:center}
+.stat{flex:1;min-width:90px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;font-weight:900}
+.stat span{font-size:12px;color:var(--mut);font-weight:700}
+/* avatar */
+.ava{position:relative;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 -4px 0 #0003}
+.ava .acc{position:absolute;top:-18%;right:-14%;font-size:.55em;transform:rotate(15deg)}
+/* topic list */
+.tlist{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.titem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;width:100%}
+.titem .num{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;background:var(--card2);flex-shrink:0}
+.titem .tt{font-weight:800;flex:1}
+.star{font-size:13px;font-weight:800}
+/* tabs */
+.tabs{display:flex;gap:6px;background:var(--bg2);padding:5px;border-radius:14px;margin-top:14px;border:1px solid var(--line)}
+.tabs button{flex:1;padding:10px 4px;border-radius:10px;font-weight:800;font-size:14px;color:var(--mut)}
+.tabs button.on{background:var(--card2);color:var(--txt)}
+/* explanation */
+.exp{line-height:1.6;font-size:16px}
+.exp h4{margin:16px 0 6px;font-size:17px;color:var(--fire2)}
+.exp p{margin:8px 0}
+.exp ul,.exp ol{margin:6px 0 6px 22px}
+.exp li{margin:4px 0}
+.exp .ex{background:#7c6cff22;border-left:4px solid var(--acc);padding:10px 14px;border-radius:10px;margin:10px 0}
+.exp .tip{background:#ffcc3318;border-left:4px solid var(--fire2);padding:10px 14px;border-radius:10px;margin:12px 0}
+.tb{border-collapse:collapse;margin:10px 0;width:100%;font-size:15px}
+.tb td,.tb th{border:1px solid var(--line);padding:7px 9px;text-align:left}
+.tb th{background:var(--card2)}
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qtext{font-size:20px;font-weight:800;margin:14px 0;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:14px;text-align:left;font-weight:700;font-size:16px}
+.opt.sel{border-color:var(--acc);background:#7c6cff22}
+.opt.ok{border-color:var(--ok);background:#2ee59d22}
+.opt.bad{border-color:var(--bad);background:#ff5d7322}
+.fb{margin-top:14px;padding:14px;border-radius:14px;font-weight:700;line-height:1.45}
+.fb.ok{background:#2ee59d1f;border:1px solid var(--ok)}
+.fb.bad{background:#ff5d731f;border:1px solid var(--bad)}
+.big{font-size:54px;text-align:center}
+.center{text-align:center}
+.grade{font-size:72px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--fire2),var(--fire));-webkit-background-clip:text;color:transparent}
+/* flashcard */
+.fc{perspective:1000px;height:220px;margin-top:14px;cursor:pointer}
+.fci{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .fci{transform:rotateY(180deg)}
+.fcs{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:26px;font-weight:900;padding:20px;text-align:center;border:1px solid var(--line)}
+.fcs.f{background:linear-gradient(135deg,var(--card2),var(--card))}
+.fcs.b{background:linear-gradient(135deg,#3b2fa0,var(--acc));transform:rotateY(180deg)}
+.boxes{display:flex;gap:6px;margin-top:10px}
+.boxes div{flex:1;text-align:center;background:var(--bg2);border-radius:10px;padding:6px;font-size:12px;font-weight:800;border:1px solid var(--line)}
+/* toasts */
+#toasts{position:fixed;top:64px;left:0;right:0;z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:var(--card2);border:1px solid var(--acc);padding:10px 16px;border-radius:14px;font-weight:800;box-shadow:0 10px 30px #0008;animation:tin .3s;max-width:92%}
+@keyframes tin{from{transform:translateY(-20px);opacity:0}}
+/* modal */
+.modal{position:fixed;inset:0;z-index:90;background:#05061acc;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .card{max-width:440px;width:100%;margin:0;max-height:90vh;overflow:auto}
+/* flame anim */
+.flame{display:inline-block;animation:fl 1.2s infinite alternate}
+@keyframes fl{to{transform:scale(1.15) rotate(-4deg)}}
+.pop{animation:pop .6s}
+@keyframes pop{50%{transform:scale(1.4)}}
+/* flight */
+.sky{position:relative;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#0a0e3a,#27348f 60%,#ff9a5a);height:240px;margin-top:14px;border:1px solid var(--line)}
+.sky .cloud{position:absolute;font-size:40px;opacity:.7;animation:cl 18s linear infinite}
+@keyframes cl{from{transform:translateX(110vw)}to{transform:translateX(-30vw)}}
+.sky .plane{position:absolute;font-size:46px;transition:left 1s linear,top 1s linear;transform:translate(-50%,-50%) rotate(0deg)}
+.sky svg{position:absolute;inset:0}
+.flightbar{position:sticky;top:57px;z-index:19;background:linear-gradient(90deg,#3b2fa0,#7c6cff);padding:8px 14px;display:flex;align-items:center;gap:10px;font-weight:900;font-size:14px}
+.flightbar .t{font-variant-numeric:tabular-nums;font-size:16px}
+.pass{background:#fff;color:#16183a;border-radius:20px;padding:18px;margin-top:14px;position:relative;overflow:hidden}
+.pass:before{content:"";position:absolute;right:110px;top:-12px;bottom:-12px;border-left:3px dashed #c8cbe8}
+.pass .lbl{font-size:11px;color:#777b9e;font-weight:800;text-transform:uppercase}
+.pass .val{font-size:20px;font-weight:900}
+.seats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.seat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:6px 10px;display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:800;background:var(--card2)}
+.pill.on{background:#2ee59d33;color:var(--ok)}
+.list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.li{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.li .grow{flex:1;min-width:0}
+.li .nm{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:10px}
+.shop button{background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px}
+.shop button.own{border-color:var(--ok)} .shop button.eq{border-color:var(--fire2);background:#ffcc3318}
+.shop button .e{font-size:30px}
+.colors{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.colors button{width:38px;height:38px;border-radius:50%;border:3px solid transparent}
+.colors button.on{border-color:#fff}
+.week{display:flex;gap:6px;margin-top:10px}
+.week div{flex:1;text-align:center}
+.week .d{height:70px;background:var(--bg2);border-radius:10px;display:flex;align-items:flex-end;overflow:hidden;border:1px solid var(--line)}
+.week .d i{width:100%;background:linear-gradient(0deg,var(--fire),var(--fire2));display:block}
+.week span{font-size:11px;color:var(--mut);font-weight:800}
+.splash{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.splash .big{animation:fly 2s ease-in-out infinite}
+@keyframes fly{50%{transform:translateY(-14px) rotate(-6deg)}}
+.badge{display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:84px;font-size:11px;font-weight:800;text-align:center;color:var(--mut)}
+.badge b{font-size:30px;filter:grayscale(1);opacity:.35}
+.badge.got{color:var(--txt)} .badge.got b{filter:none;opacity:1}
+.timer{font-variant-numeric:tabular-nums;font-weight:900}
+.inp-row{display:flex;gap:8px}
+.inp-row input{flex:1}
+.sp{cursor:pointer;font-size:22px}
+@media(max-width:420px){.qtext{font-size:18px}.chip{padding:4px 8px;font-size:13px}.logo{font-size:17px}}
+</style>
+</head>
+<body>
+<div id="topbar"></div>
+<div id="fbar"></div>
+<div class="wrap" id="main"><div class="splash"><div class="big">✈️</div><h2>LernFlug 7</h2><p class="mut">Startklar machen …</p></div></div>
+<div id="nav"></div>
+<div id="toasts"></div>
+<div id="modal"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+// LernFlug 7 – Inhalte nach Rahmenlehrplan Berlin-Brandenburg, Jahrgangsstufe 7 (Gymnasium)
+// Frage-Format: [Frage, [Optionen], richtigerIndex, Erklärung]  oder  [Frage, "=Antwort|Variante", Erklärung]
+window.SUBJECTS = [
+{ id:"ma", name:"Mathe", icon:"📐", color:"#4f8cff", topics:[
+ {id:"m-rat", t:"Rationale Zahlen", gen:true, ex:`
+<p><b>Rationale Zahlen (ℚ)</b> sind alle positiven und negativen Zahlen, die man als Bruch schreiben kann: z. B. −3, 0, 2,5, −¾.</p>
+<p><b>Betrag:</b> Abstand zur 0 auf der Zahlengeraden. |−7| = 7, |4| = 4.</p>
+<h4>Addieren & Subtrahieren</h4>
+<ul><li><b>Gleiche Vorzeichen:</b> Beträge addieren, Vorzeichen behalten: (−3) + (−5) = −8</li>
+<li><b>Verschiedene Vorzeichen:</b> größeren minus kleineren Betrag, Vorzeichen der Zahl mit dem größeren Betrag: (−9) + 4 = −5</li>
+<li><b>Minus einer negativen Zahl = plus:</b> 6 − (−2) = 6 + 2 = 8</li></ul>
+<h4>Multiplizieren & Dividieren</h4>
+<ul><li>Gleiche Vorzeichen → Ergebnis <b>positiv</b>: (−4)·(−3) = 12</li>
+<li>Verschiedene Vorzeichen → Ergebnis <b>negativ</b>: (−20) : 5 = −4</li></ul>
+<div class="tip">💡 Merksatz: „Minus mal Minus ergibt Plus“. Punkt- vor Strichrechnung gilt weiter!</div>`,
+ q:[["(−7) + 4 = ?","=-3","Verschiedene Vorzeichen: 7 − 4 = 3. Die −7 hat den größeren Betrag → −3."],
+ ["5 − (−3) = ?","=8","Minus einer negativen Zahl wird zu Plus: 5 + 3 = 8."],
+ ["(−6) · (−4) = ?","=24","Gleiche Vorzeichen → positiv: 6 · 4 = 24."],
+ ["(−36) : 9 = ?","=-4","Verschiedene Vorzeichen → negativ: 36 : 9 = 4 → −4."],
+ ["Welche Zahl ist am kleinsten?",["−0,5","−2","−1,9","0"],1,"Je weiter links auf der Zahlengeraden, desto kleiner. −2 liegt am weitesten links."],
+ ["|−12| = ?","=12","Der Betrag ist immer der Abstand zur 0, also positiv."],
+ ["Es ist 3 °C. Die Temperatur fällt um 8 Grad. Wie viel Grad sind es jetzt?","=-5","3 − 8 = −5 °C."],
+ ["(−2) · 3 · (−5) = ?","=30","(−2)·3 = −6; (−6)·(−5) = 30."]]},
+ {id:"m-proz", t:"Prozentrechnung", gen:true, ex:`
+<p>Prozent heißt „von Hundert“: 1 % = 1/100 = 0,01.</p>
+<p><b>Grundwert G</b> = das Ganze · <b>Prozentwert W</b> = der Anteil · <b>Prozentsatz p %</b></p>
+<div class="ex"><b>W = G · p / 100</b><br><b>p = W / G · 100</b><br><b>G = W · 100 / p</b></div>
+<h4>Beispiel</h4><p>20 % von 150 €: W = 150 · 20 / 100 = <b>30 €</b>.</p>
+<h4>Erhöhen & Vermindern (Wachstumsfaktor)</h4>
+<ul><li>+15 % → mal <b>1,15</b></li><li>−25 % → mal <b>0,75</b></li></ul>
+<div class="tip">💡 Wichtige Brüche: 50 % = ½, 25 % = ¼, 20 % = ⅕, 10 % = 1/10, 75 % = ¾.</div>`,
+ q:[["20 % von 150 € = ? (in €)","=30","W = 150 · 20 / 100 = 30."],
+ ["18 von 72 Schülern fahren Rad. Wie viel Prozent sind das?","=25","p = 18 / 72 · 100 = 25 %."],
+ ["15 % sind 45 €. Wie groß ist der Grundwert? (in €)","=300","G = 45 · 100 / 15 = 300."],
+ ["Ein Pullover kostet 80 € und wird um 25 % reduziert. Neuer Preis in €?","=60","80 · 0,75 = 60."],
+ ["50 € werden um 10 % erhöht. Neuer Betrag in €?","=55","50 · 1,1 = 55."],
+ ["Was bedeutet der Faktor 1,2?",["20 % weniger","12 % mehr","20 % mehr","2 % mehr"],2,"1,2 = 100 % + 20 % → Erhöhung um 20 %."],
+ ["Wie viel sind 3/4 in Prozent?","=75","3/4 = 0,75 = 75 %."]]},
+ {id:"m-zins", t:"Zinsrechnung", gen:true, ex:`
+<p>Die Zinsrechnung ist Prozentrechnung mit Geld:</p>
+<ul><li><b>Kapital K</b> = Grundwert</li><li><b>Zinsen Z</b> = Prozentwert</li><li><b>Zinssatz p %</b> = Prozentsatz</li></ul>
+<div class="ex"><b>Jahreszinsen: Z = K · p / 100</b><br><b>Monatszinsen: Z = K · p / 100 · m / 12</b><br><b>Tageszinsen: Z = K · p / 100 · t / 360</b></div>
+<p>Bei Banken hat ein Jahr 360 Zinstage, ein Monat 30 Tage.</p>
+<h4>Zinseszins</h4><p>Bleiben die Zinsen auf dem Konto, werden sie im nächsten Jahr mitverzinst: K₂ = K · (1 + p/100)².</p>`,
+ q:[["2000 € werden 1 Jahr zu 3 % angelegt. Zinsen in €?","=60","Z = 2000 · 3 / 100 = 60."],
+ ["500 € werden 6 Monate zu 4 % angelegt. Zinsen in €?","=10","Z = 500 · 4/100 · 6/12 = 10."],
+ ["1200 € bringen in einem Jahr 36 € Zinsen. Zinssatz in %?","=3","p = 36 / 1200 · 100 = 3."],
+ ["1000 € zu 10 % für 2 Jahre mit Zinseszins. Endkapital in €?","=1210","1000 · 1,1 · 1,1 = 1210."],
+ ["Wie viele Zinstage hat ein Bankjahr?",["365","360","300","12"],1,"In der Zinsrechnung rechnet man mit 360 Tagen."],
+ ["Welches Kapital bringt bei 5 % in einem Jahr 40 € Zinsen? (in €)","=800","K = 40 · 100 / 5 = 800."]]},
+ {id:"m-zuo", t:"Zuordnungen & Dreisatz", gen:true, ex:`
+<h4>Proportional („je mehr, desto mehr“)</h4>
+<p>Doppelte Menge → doppelter Preis. Alle <b>Quotienten</b> y : x sind gleich. Graph: Gerade durch den Ursprung.</p>
+<h4>Antiproportional („je mehr, desto weniger“)</h4>
+<p>Doppelt so viele Arbeiter → halbe Zeit. Alle <b>Produkte</b> x · y sind gleich. Graph: Hyperbel.</p>
+<h4>Dreisatz</h4>
+<div class="ex">3 Hefte kosten 4,50 €.<br>1 Heft kostet 4,50 : 3 = 1,50 €.<br>7 Hefte kosten 7 · 1,50 = <b>10,50 €</b>.</div>
+<div class="ex">4 Maler brauchen 6 Tage.<br>1 Maler braucht 6 · 4 = 24 Tage.<br>3 Maler brauchen 24 : 3 = <b>8 Tage</b>.</div>`,
+ q:[["3 Hefte kosten 4,50 €. Was kosten 7 Hefte? (in €)","=10.5|10.50","Dreisatz: 4,50 : 3 = 1,50; 1,50 · 7 = 10,50."],
+ ["4 Maler brauchen 6 Tage. Wie viele Tage brauchen 3 Maler?","=8","Antiproportional: 4 · 6 = 24; 24 : 3 = 8."],
+ ["Welche Zuordnung ist proportional?",["Alter → Körpergröße","Anzahl Brötchen → Preis","Geschwindigkeit → Fahrzeit","Anzahl Personen → Pizza pro Person"],1,"Doppelt so viele Brötchen kosten doppelt so viel."],
+ ["Welcher Graph gehört zu einer antiproportionalen Zuordnung?",["Gerade durch den Ursprung","Hyperbel","Waagerechte Linie","Parabel"],1,"Antiproportionale Zuordnungen haben eine Hyperbel als Graphen."],
+ ["Ein Auto braucht 6 Liter auf 100 km. Wie viele Liter auf 250 km?","=15","6 : 100 · 250 = 15."],
+ ["Bei einer antiproportionalen Zuordnung ist immer gleich …",["die Summe","der Quotient","das Produkt","die Differenz"],2,"x · y = konstant."]]},
+ {id:"m-term", t:"Terme & Gleichungen", gen:true, ex:`
+<p>Ein <b>Term</b> ist ein Rechenausdruck mit Zahlen und Variablen, z. B. 3x + 5.</p>
+<h4>Terme vereinfachen</h4><ul><li>Gleichartige Glieder zusammenfassen: 3x + 5x − 2x = 6x</li>
+<li>Ausmultiplizieren: 2(x + 4) = 2x + 8</li><li>Minus vor der Klammer dreht alle Vorzeichen: −(a − 3) = −a + 3</li></ul>
+<h4>Gleichungen lösen (Äquivalenzumformung)</h4>
+<div class="ex">3x + 7 = 22 &nbsp;| −7<br>3x = 15 &nbsp;| : 3<br><b>x = 5</b><br>Probe: 3·5 + 7 = 22 ✔</div>
+<div class="tip">💡 Was du auf einer Seite machst, musst du auch auf der anderen Seite machen – wie bei einer Waage.</div>`,
+ q:[["Vereinfache: 3x + 5x − 2x","=6x","3 + 5 − 2 = 6 → 6x."],
+ ["Was ergibt 2(x + 4)?",["2x + 4","2x + 8","x + 8","2x + 6"],1,"Jedes Glied mal 2: 2·x + 2·4."],
+ ["Löse: 3x + 7 = 22. x = ?","=5","−7 → 3x = 15 → :3 → x = 5."],
+ ["Löse: 5x − 3 = 2x + 9. x = ?","=4","−2x → 3x − 3 = 9 → +3 → 3x = 12 → x = 4."],
+ ["Löse: x : 4 = 3. x = ?","=12","Mal 4 auf beiden Seiten → x = 12."],
+ ["Berechne 2a + 3 für a = −2.","=-1","2·(−2) + 3 = −4 + 3 = −1."],
+ ["−(a − 3) = ?",["−a − 3","a + 3","−a + 3","a − 3"],2,"Minus vor der Klammer ändert alle Vorzeichen."]]},
+ {id:"m-drei", t:"Dreiecke & Winkel", ex:`
+<h4>Winkelsätze</h4><ul><li><b>Innenwinkelsumme im Dreieck:</b> α + β + γ = 180°</li>
+<li><b>Nebenwinkel</b> ergänzen sich zu 180°</li><li><b>Scheitelwinkel</b> sind gleich groß</li>
+<li>An geschnittenen <b>Parallelen</b>: Stufenwinkel und Wechselwinkel sind gleich groß</li></ul>
+<h4>Dreiecksarten</h4><p>Nach Seiten: gleichseitig (alle Winkel 60°), gleichschenklig (zwei gleich große Basiswinkel), unregelmäßig. Nach Winkeln: spitz-, recht-, stumpfwinklig.</p>
+<h4>Kongruenzsätze</h4><p>Dreiecke sind deckungsgleich, wenn sie übereinstimmen in: <b>SSS</b>, <b>SWS</b>, <b>WSW</b> (bzw. SWW) oder <b>SsW</b> (Winkel liegt der größeren Seite gegenüber).</p>
+<h4>Besondere Linien</h4><ul><li>Mittelsenkrechten schneiden sich im <b>Umkreismittelpunkt</b></li><li>Winkelhalbierende schneiden sich im <b>Inkreismittelpunkt</b></li></ul>`,
+ q:[["α = 50°, β = 60°. Wie groß ist γ? (in °)","=70","180 − 50 − 60 = 70."],
+ ["Wie groß ist der Nebenwinkel von 35°? (in °)","=145","Nebenwinkel ergeben zusammen 180°."],
+ ["Ein Dreieck ist durch alle drei Seiten eindeutig bestimmt. Welcher Kongruenzsatz ist das?",["SWS","WSW","SSS","SsW"],2,"SSS = Seite-Seite-Seite."],
+ ["Wo schneiden sich die Mittelsenkrechten?",["Inkreismittelpunkt","Umkreismittelpunkt","Schwerpunkt","Höhenschnittpunkt"],1,"Der Schnittpunkt der Mittelsenkrechten ist von allen Ecken gleich weit entfernt → Umkreis."],
+ ["Gleichschenkliges Dreieck: Basiswinkel je 40°. Wie groß ist der Winkel an der Spitze? (in °)","=100","180 − 40 − 40 = 100."],
+ ["Scheitelwinkel sind …",["immer 90°","gleich groß","zusammen 180°","zusammen 360°"],1,"Scheitelwinkel liegen sich gegenüber und sind gleich groß."],
+ ["Wie groß ist jeder Winkel im gleichseitigen Dreieck? (in °)","=60","180 : 3 = 60."]]},
+ {id:"m-wahr", t:"Wahrscheinlichkeit & Daten", gen:true, ex:`
+<h4>Laplace-Experiment</h4><p>Alle Ergebnisse sind gleich wahrscheinlich (fairer Würfel, Münze).</p>
+<div class="ex"><b>P(E) = Anzahl günstige Ergebnisse / Anzahl mögliche Ergebnisse</b><br>P(Augenzahl 6) = 1/6 · P(gerade Zahl) = 3/6 = 1/2</div>
+<h4>Mehrstufige Zufallsexperimente</h4><p>Baumdiagramm: <b>Pfadregel:</b> Wahrscheinlichkeiten entlang eines Pfades multiplizieren. <b>Summenregel:</b> Pfade addieren. P(zweimal Kopf) = ½ · ½ = ¼.</p>
+<h4>Daten auswerten</h4><ul><li><b>Mittelwert:</b> Summe : Anzahl</li><li><b>Median:</b> mittlerer Wert der geordneten Liste</li><li><b>Spannweite:</b> größter − kleinster Wert</li></ul>`,
+ q:[["Wahrscheinlichkeit, mit einem Würfel eine 6 zu würfeln? (als Bruch)","=1/6","1 günstiges von 6 möglichen Ergebnissen."],
+ ["P(gerade Zahl) beim Würfel = ?",["1/6","1/3","1/2","2/3"],2,"2, 4, 6 → 3 von 6 = 1/2."],
+ ["Mittelwert von 2, 4, 6, 8?","=5","(2+4+6+8) : 4 = 20 : 4 = 5."],
+ ["Median von 3, 9, 1, 7, 5?","=5","Geordnet: 1, 3, 5, 7, 9 → Mitte ist 5."],
+ ["Eine Münze wird zweimal geworfen. P(zweimal Kopf)? (als Bruch)","=1/4","Pfadregel: ½ · ½ = ¼."],
+ ["Spannweite von 12, 5, 20, 8?","=15","20 − 5 = 15."]]}
+]},
+{ id:"de", name:"Deutsch", icon:"📚", color:"#ff6b6b", topics:[
+ {id:"d-wort", t:"Wortarten", ex:`
+<ul><li><b>Nomen</b> (Substantiv): Hund, Freude – großgeschrieben, mit Artikel</li>
+<li><b>Verb:</b> laufen, denken – wird konjugiert</li><li><b>Adjektiv:</b> schön, schnell – steigerbar</li>
+<li><b>Artikel:</b> der, die, das, ein, eine</li><li><b>Pronomen:</b> ich, ihr, sein, dieser, welcher</li>
+<li><b>Präposition:</b> auf, unter, wegen, mit – bestimmt den Fall</li>
+<li><b>Konjunktion:</b> und, aber, weil, dass, obwohl – verbindet</li>
+<li><b>Adverb:</b> gestern, dort, gern, sehr – nicht veränderbar</li></ul>
+<div class="tip">💡 Flektierbar (veränderbar): Nomen, Verb, Adjektiv, Artikel, Pronomen. Unveränderbar: Präposition, Konjunktion, Adverb.</div>`,
+ q:[["Welche Wortart ist „weil“?",["Präposition","Konjunktion","Adverb","Pronomen"],1,"„weil“ leitet einen Nebensatz ein → Konjunktion."],
+ ["Welche Wortart ist „unter“?",["Adverb","Präposition","Adjektiv","Konjunktion"],1,"„unter dem Tisch“ – Präposition."],
+ ["Welche Wortart ist „gestern“?",["Adverb","Nomen","Verb","Adjektiv"],0,"Zeitadverb, nicht veränderbar."],
+ ["„Ihr kommt morgen.“ – Welche Wortart ist „Ihr“?",["Artikel","Pronomen","Nomen","Konjunktion"],1,"Personalpronomen."],
+ ["Welches Wort ist ein Adjektiv?",["Freude","freuen","fröhlich","froh­lockend sein"],2,"„fröhlich“ ist steigerbar: fröhlicher, am fröhlichsten."],
+ ["Welche Wortarten sind NICHT veränderbar?",["Nomen & Verben","Adjektive & Artikel","Präpositionen, Konjunktionen, Adverbien","Pronomen & Nomen"],2,"Diese Wortarten werden nicht flektiert."]]},
+ {id:"d-satz", t:"Satzglieder", ex:`
+<p>Satzglieder findest du mit der <b>Umstellprobe</b>: Was zusammen verschoben werden kann, ist ein Satzglied.</p>
+<ul><li><b>Subjekt:</b> Wer oder was? – <i>Der Hund</i> bellt.</li>
+<li><b>Prädikat:</b> Was tut/geschieht? – Der Hund <i>bellt</i>.</li>
+<li><b>Dativobjekt:</b> Wem? – Er hilft <i>dem Mann</i>.</li>
+<li><b>Akkusativobjekt:</b> Wen oder was? – Sie liest <i>ein Buch</i>.</li>
+<li><b>Genitivobjekt:</b> Wessen? (selten)</li>
+<li><b>Adverbiale Bestimmungen:</b> Zeit (Wann?), Ort (Wo?), Art und Weise (Wie?), Grund (Warum?)</li></ul>
+<div class="ex">Am Morgen (Zeit) | bringt (Prädikat) | der Hund (Subjekt) | dem Jungen (Dativobj.) | den Ball (Akkusativobj.).</div>`,
+ q:[["„Der Hund bringt dem Jungen den Ball.“ – Was ist das Dativobjekt?",["Der Hund","dem Jungen","den Ball","bringt"],1,"Wem bringt er den Ball? – dem Jungen."],
+ ["Im selben Satz: Was ist das Akkusativobjekt?",["den Ball","dem Jungen","Der Hund","bringt"],0,"Wen oder was bringt er? – den Ball."],
+ ["„Am Morgen gehe ich joggen.“ – „Am Morgen“ ist …",["Subjekt","adverbiale Bestimmung der Zeit","Akkusativobjekt","Prädikat"],1,"Wann? – Am Morgen."],
+ ["Mit welcher Frage findest du das Subjekt?",["Wem?","Wen oder was?","Wer oder was?","Wo?"],2,"Das Subjekt antwortet auf „Wer oder was?“"],
+ ["„Wegen des Regens bleiben wir zu Hause.“ – „Wegen des Regens“ ist eine adverbiale Bestimmung des …",["Ortes","Grundes","der Zeit","der Art und Weise"],1,"Warum? – Wegen des Regens."],
+ ["Mit welcher Probe bestimmt man Satzglieder?",["Ersatzprobe","Umstellprobe","Weglassprobe","Klangprobe"],1,"Satzglieder lassen sich als Block umstellen."]]},
+ {id:"d-passiv", t:"Aktiv & Passiv", ex:`
+<p><b>Aktiv:</b> Wer tut etwas? – <i>Der Koch bereitet das Essen zu.</i><br><b>Passiv:</b> Was geschieht? – <i>Das Essen wird (vom Koch) zubereitet.</i></p>
+<h4>Vorgangspassiv: werden + Partizip II</h4>
+<ul><li>Präsens: Das Haus <b>wird gebaut</b>.</li><li>Präteritum: Das Haus <b>wurde gebaut</b>.</li>
+<li>Perfekt: Das Haus <b>ist gebaut worden</b>.</li><li>Futur: Das Haus <b>wird gebaut werden</b>.</li></ul>
+<h4>Zustandspassiv: sein + Partizip II</h4><p>Beschreibt das Ergebnis: <i>Das Fenster ist geöffnet.</i></p>
+<div class="tip">💡 Das Akkusativobjekt im Aktiv wird im Passiv zum Subjekt.</div>`,
+ q:[["„Der Lehrer korrigiert die Arbeit.“ im Passiv:",["Die Arbeit korrigiert den Lehrer.","Die Arbeit wird vom Lehrer korrigiert.","Die Arbeit ist vom Lehrer korrigierend.","Der Lehrer wird korrigiert."],1,"werden + Partizip II; Akkusativobjekt wird Subjekt."],
+ ["„Das Haus wurde gebaut.“ – Welche Zeitform?",["Präsens","Präteritum","Perfekt","Futur"],1,"„wurde“ = Präteritum von werden."],
+ ["„Der Brief ist geschrieben worden.“ – Welche Zeitform?",["Perfekt","Präteritum","Plusquamperfekt","Präsens"],0,"ist … worden = Perfekt Passiv."],
+ ["Welcher Satz steht im Zustandspassiv?",["Die Tür wird geöffnet.","Die Tür ist geöffnet.","Er öffnet die Tür.","Die Tür wurde geöffnet."],1,"sein + Partizip II = Zustandspassiv."],
+ ["Das Passiv bildet man mit …",["haben + Infinitiv","werden + Partizip II","sein + Infinitiv","werden + Infinitiv"],1,"Vorgangspassiv: werden + Partizip II."]]},
+ {id:"d-dass", t:"das/dass & Kommas", ex:`
+<h4>das oder dass?</h4><ul><li><b>das</b> = Artikel, Relativpronomen oder Demonstrativpronomen → lässt sich durch <b>dieses, jenes, welches</b> ersetzen.</li>
+<li><b>dass</b> = Konjunktion, leitet einen Nebensatz ein → Ersatzprobe klappt nicht.</li></ul>
+<div class="ex">Das Buch, <b>das</b> (welches) ich lese, ist spannend.<br>Ich hoffe, <b>dass</b> du kommst.</div>
+<h4>Kommaregeln</h4><ul><li>Zwischen Haupt- und Nebensatz (weil, dass, obwohl, wenn, als …)</li>
+<li>Relativsätze werden eingeschlossen</li><li>Aufzählungen – aber <b>nicht vor „und“/„oder“</b></li>
+<li>Vor <b>aber, sondern, doch</b></li><li>Appositionen: Herr Lu, <i>unser Lehrer</i>, ist krank.</li>
+<li>Infinitivgruppen mit <b>um, ohne, statt, anstatt</b> zu</li></ul>`,
+ q:[["Ich hoffe, ___ du morgen kommst.",["das","dass"],1,"Ersatzprobe mit „welches“ klappt nicht → Konjunktion „dass“."],
+ ["Das Buch, ___ ich lese, ist spannend.",["das","dass"],0,"„welches ich lese“ → Relativpronomen „das“."],
+ ["Ich glaube, ___ ___ stimmt.",["das – dass","dass – das","dass – dass","das – das"],1,"Ich glaube, dass das (dieses) stimmt."],
+ ["Welcher Satz ist richtig?",["Ich gehe nach Hause weil ich müde bin.","Ich gehe, nach Hause weil ich müde bin.","Ich gehe nach Hause, weil ich müde bin.","Ich gehe nach Hause weil, ich müde bin."],2,"Komma vor dem Nebensatz mit „weil“."],
+ ["Welcher Satz ist richtig?",["Wir kaufen Äpfel, Birnen, und Bananen.","Wir kaufen Äpfel, Birnen und Bananen.","Wir kaufen Äpfel Birnen, und Bananen.","Wir kaufen, Äpfel, Birnen und Bananen."],1,"Kein Komma vor „und“ in Aufzählungen."],
+ ["Welcher Satz ist richtig?",["Er lernt um, die Arbeit zu bestehen.","Er lernt, um die Arbeit zu bestehen.","Er lernt um die Arbeit, zu bestehen.","Er, lernt um die Arbeit zu bestehen."],1,"Komma vor Infinitivgruppe mit „um … zu“."]]},
+ {id:"d-ball", t:"Balladen", ex:`
+<p>Eine <b>Ballade</b> ist ein erzählendes Gedicht mit spannender, oft dramatischer Handlung. Sie verbindet alle drei Gattungen: <b>Lyrik</b> (Verse, Strophen, Reim), <b>Epik</b> (es wird erzählt) und <b>Dramatik</b> (Spannung, wörtliche Rede). Goethe nannte sie das „Ur-Ei“ der Dichtung.</p>
+<h4>Fachbegriffe</h4><ul><li><b>Vers</b> = Gedichtzeile · <b>Strophe</b> = Abschnitt</li>
+<li><b>Paarreim</b> aabb · <b>Kreuzreim</b> abab · <b>umarmender Reim</b> abba</li>
+<li>Lyrisches Ich / Erzähler, Spannungsbogen, Höhepunkt, Wendepunkt</li></ul>
+<h4>Bekannte Balladen</h4><ul><li>Goethe: „Erlkönig“, „Der Zauberlehrling“</li><li>Schiller: „Der Handschuh“, „Die Bürgschaft“</li><li>Fontane: „John Maynard“, „Die Brück’ am Tay“, „Herr von Ribbeck auf Ribbeck im Havelland“ (Brandenburg!)</li></ul>
+<div class="tip">💡 Bei der Analyse: Inhalt kurz zusammenfassen → Aufbau & Spannung → sprachliche Mittel (Personifikation, Vergleich, Wiederholung) → Wirkung.</div>`,
+ q:[["Welches Reimschema ist ein Kreuzreim?",["aabb","abab","abba","abcd"],1,"Kreuzreim: abab."],
+ ["Welche drei Gattungen vereint die Ballade?",["Roman, Drama, Märchen","Lyrik, Epik, Dramatik","Sage, Fabel, Legende","Bericht, Brief, Gedicht"],1,"Goethe: Ballade = „Ur-Ei“ mit allen drei Gattungen."],
+ ["Wer schrieb den „Erlkönig“?",["Schiller","Fontane","Goethe","Heine"],2,"Johann Wolfgang von Goethe, 1782."],
+ ["Wer schrieb „John Maynard“?",["Theodor Fontane","Friedrich Schiller","Goethe","Brecht"],0,"Theodor Fontane – geboren in Neuruppin, Brandenburg."],
+ ["Was ist ein Vers?",["Eine Strophe","Eine Gedichtzeile","Ein Reim","Der Titel"],1,"Ein Vers ist eine Zeile im Gedicht."],
+ ["aabb ist ein …",["Kreuzreim","umarmender Reim","Paarreim","Schweifreim"],2,"Zwei aufeinanderfolgende Verse reimen sich."]]},
+ {id:"d-inhalt", t:"Inhaltsangabe", ex:`
+<p>Eine <b>Inhaltsangabe</b> informiert sachlich und knapp über das Wichtigste eines Textes.</p>
+<h4>Aufbau</h4><ul><li><b>Einleitung (TATTE):</b> Titel, Autor, Textsorte, Thema, Erscheinungsjahr</li>
+<li><b>Hauptteil:</b> wichtigste Handlungsschritte in richtiger Reihenfolge, Zusammenhänge (weil, deshalb)</li>
+<li><b>Schluss</b> (optional): kurze Deutung / Absicht des Textes</li></ul>
+<h4>Regeln</h4><ul><li>Tempus: <b>Präsens</b> (Vorzeitiges im Perfekt)</li><li><b>Keine wörtliche Rede</b> – indirekte Rede oder umschreiben</li>
+<li>Sachlich, keine Spannung, keine eigene Meinung, eigene Worte</li></ul>
+<div class="ex">In der Ballade „John Maynard“ von Theodor Fontane aus dem Jahr 1886 geht es um einen Steuermann, der sein Leben opfert, um die Passagiere eines brennenden Schiffes zu retten.</div>`,
+ q:[["In welcher Zeitform schreibt man eine Inhaltsangabe?",["Präteritum","Präsens","Futur","Plusquamperfekt"],1,"Inhaltsangaben stehen im Präsens."],
+ ["Was gehört NICHT in eine Inhaltsangabe?",["Titel und Autor","wörtliche Rede","wichtigste Handlungsschritte","Thema"],1,"Wörtliche Rede wird umschrieben oder in indirekte Rede gesetzt."],
+ ["Wofür steht das erste T in TATTE?",["Thema","Text","Titel","Teil"],2,"Titel, Autor, Textsorte, Thema, Erscheinungsjahr."],
+ ["Wie soll eine Inhaltsangabe geschrieben sein?",["spannend und ausgeschmückt","sachlich und knapp","mit vielen Zitaten","aus der Ich-Perspektive"],1,"Sachlich, knapp, in eigenen Worten."],
+ ["Was gehört in die Einleitung?",["Die eigene Meinung","Der Höhepunkt","Titel, Autor, Textsorte, Thema, Jahr","Das Ende der Geschichte"],2,"TATTE-Satz."]]},
+ {id:"d-argu", t:"Argumentieren & Erörtern", ex:`
+<p>Beim Argumentieren überzeugst du andere von deiner Meinung.</p>
+<h4>Das 3B-Modell</h4><ul><li><b>Behauptung</b> (These): Handys sollten in der Pause erlaubt sein.</li>
+<li><b>Begründung</b> (Argument): …, weil Schüler sich so mit Eltern absprechen können.</li>
+<li><b>Beispiel / Beleg:</b> Wenn ein Bus ausfällt, kann man sofort Bescheid geben.</li></ul>
+<h4>Aufbau einer Erörterung</h4><ul><li>Einleitung: Anlass, Thema, Frage</li><li>Hauptteil: Argumente <b>steigernd</b> anordnen (stärkstes zuletzt). <i>Linear</i> = eine Seite, <i>dialektisch</i> = Pro und Contra</li><li>Schluss: eigene Meinung, Fazit</li></ul>
+<div class="tip">💡 Verknüpfungswörter: außerdem, darüber hinaus, deshalb, folglich, jedoch, einerseits – andererseits, am wichtigsten ist …</div>`,
+ q:[["Wofür stehen die 3 B?",["Bild, Buch, Brief","Behauptung, Begründung, Beispiel","Beginn, Bericht, Bewertung","Bitte, Bedingung, Beweis"],1,"Behauptung – Begründung – Beispiel."],
+ ["Wie ordnet man Argumente am besten?",["Stärkstes zuerst","Zufällig","Steigernd – stärkstes zuletzt","Alphabetisch"],2,"Das stärkste Argument bleibt am Ende im Gedächtnis."],
+ ["Eine Erörterung mit Pro und Contra heißt …",["linear","dialektisch","chronologisch","kreativ"],1,"Dialektisch = beide Seiten abwägen."],
+ ["Was gehört in den Schluss?",["neue Argumente","eigene Meinung / Fazit","die Einleitung","ein Gedicht"],1,"Im Schluss ziehst du ein Fazit."],
+ ["„Hausaufgaben sollten abgeschafft werden.“ ist eine …",["These","Begründung","Beispiel","Einleitung"],0,"Eine Behauptung/These."]]}
+]},
+{ id:"en", name:"Englisch", icon:"🇬🇧", color:"#a66bff", topics:[
+ {id:"e-pp", t:"Present Perfect vs. Simple Past", ex:`
+<h4>Simple Past</h4><p>Abgeschlossene Handlung zu einem <b>bestimmten Zeitpunkt in der Vergangenheit</b>.<br>Signalwörter: <b>yesterday, last week, ago, in 2020, when</b><br><i>I visited London last year.</i></p>
+<h4>Present Perfect: have/has + 3. Form</h4><p>Ergebnis ist <b>jetzt wichtig</b> oder Zeitpunkt egal / Handlung dauert an.<br>Signalwörter: <b>ever, never, already, yet, just, so far, since, for</b><br><i>I have never been to Paris. She has just finished.</i></p>
+<div class="ex"><b>since</b> + Zeitpunkt (since 2020, since Monday)<br><b>for</b> + Zeitraum (for three years, for two hours)</div>`,
+ q:[["I ___ (visit) London last year.","=visited","„last year“ → Simple Past."],
+ ["She ___ (never/be) to Paris.","=has never been","„never“ → Present Perfect: has never been."],
+ ["We ___ (just/finish) our homework.","=have just finished","„just“ → have just finished."],
+ ["I have lived here ___ 2020.",["for","since","ago","yet"],1,"since + Zeitpunkt."],
+ ["They have known each other ___ three years.",["since","for","ago","already"],1,"for + Zeitraum."],
+ ["Have you ___ seen a whale?",["ever","yesterday","ago","last"],0,"ever = jemals → Present Perfect."],
+ ["Two days ago, he ___ (lose) his phone.","=lost","„ago“ → Simple Past; lose – lost – lost."]]},
+ {id:"e-prog", t:"Past Progressive", ex:`
+<p>Bildung: <b>was/were + Verb-ing</b>.</p>
+<p>Benutzung: Eine Handlung war <b>gerade im Gange</b>, als etwas anderes passierte (Simple Past).</p>
+<div class="ex">I <b>was reading</b> when the phone <b>rang</b>.<br>While we <b>were playing</b> football, it started to rain.</div>
+<ul><li><b>while</b> + Past Progressive (lange Handlung)</li><li><b>when</b> + Simple Past (kurze, neue Handlung)</li></ul>`,
+ q:[["I ___ (read) when the phone rang.","=was reading","Laufende Handlung: was + -ing."],
+ ["They ___ (play) football when it started to rain.","=were playing","they → were playing."],
+ ["While she was cooking, the lights ___ (go) out.","=went","Kurze, neue Handlung → Simple Past."],
+ ["What ___ you doing at 8 o’clock yesterday?",["was","were","did","are"],1,"you → were."],
+ ["Welches Wort leitet meist die lange Handlung ein?",["when","while","ago","yet"],1,"while + Past Progressive."]]},
+ {id:"e-fut", t:"Future: will & going to", ex:`
+<ul><li><b>will</b> + Infinitiv: Vorhersagen, Vermutungen, spontane Entscheidungen, Versprechen<br><i>I think it will rain. – I’ll help you!</i></li>
+<li><b>going to</b> + Infinitiv: Pläne & Absichten, sichere Anzeichen<br><i>I’m going to visit my aunt. Look at the clouds! It’s going to rain.</i></li>
+<li><b>Present Progressive</b>: feste Verabredungen<br><i>I’m meeting Tom at 5.</i></li>
+<li><b>Simple Present</b>: Fahrpläne<br><i>The train leaves at 7.</i></li></ul>`,
+ q:[["Look at those black clouds! It ___ rain.",["will","is going to","rains","is raining"],1,"Sicheres Anzeichen → going to."],
+ ["„The phone is ringing.“ – „I ___ answer it!“",["am going to","will","answer","am answering"],1,"Spontane Entscheidung → will."],
+ ["I think Germany ___ win the match.",["will","is going to be","wins","win"],0,"Vermutung (I think) → will."],
+ ["Next summer we ___ (travel) to Spain – we have already booked.","=are going to travel|are travelling|are traveling","Plan → going to (oder feste Abmachung: Present Progressive)."],
+ ["The bus ___ at 7:15 every morning.",["will leave","leaves","is going to leave","is leaving"],1,"Fahrplan → Simple Present."]]},
+ {id:"e-if", t:"If-Sätze (Typ 1 & 2)", ex:`
+<h4>Typ 1 – realistisch</h4><div class="ex">If + <b>Simple Present</b>, … <b>will</b> + Infinitiv<br><i>If it rains, we will stay at home.</i></div>
+<h4>Typ 2 – unwahrscheinlich / gedacht</h4><div class="ex">If + <b>Simple Past</b>, … <b>would</b> + Infinitiv<br><i>If I had more money, I would buy a bike.</i></div>
+<div class="tip">💡 Kein „will“ und kein „would“ im If-Teil! Bei Typ 2 sagt man oft „If I were you …“. Steht der If-Satz vorne, setzt man ein Komma.</div>`,
+ q:[["If it rains, we ___ (stay) at home.","=will stay|'ll stay","Typ 1: will + Infinitiv."],
+ ["If I ___ (have) more money, I would buy a bike.","=had","Typ 2: Simple Past im If-Satz."],
+ ["If you ___ (study), you will pass the test.","=study","Typ 1: Simple Present im If-Satz."],
+ ["If I ___ you, I would apologize.",["am","was","were","will be"],2,"Feste Wendung: If I were you."],
+ ["Which sentence is correct?",["If he will come, we play.","If he comes, we will play.","If he came, we will play.","If he comes, we would play."],1,"Typ 1: Present + will."]]},
+ {id:"e-rel", t:"Relative Clauses", ex:`
+<ul><li><b>who</b> → Personen: <i>The girl who lives next door is nice.</i></li>
+<li><b>which</b> → Dinge/Tiere: <i>The book which I read was great.</i></li>
+<li><b>that</b> → Personen und Dinge (in notwendigen Relativsätzen)</li>
+<li><b>whose</b> → Besitz: <i>The boy whose bike was stolen …</i></li></ul>
+<h4>Contact clauses</h4><p>Ist das Relativpronomen <b>Objekt</b>, kann man es weglassen: <i>The film (that) we saw was funny.</i> Ist es Subjekt, nicht: <i>The man who called …</i></p>`,
+ q:[["The girl ___ lives next door is my friend.",["which","who","whose","where"],1,"Person → who."],
+ ["The book ___ I bought is exciting.",["who","which","whose","what"],1,"Ding → which (oder that)."],
+ ["That’s the boy ___ dog bit me.",["who","which","whose","that"],2,"Besitz → whose."],
+ ["In welchem Satz kann man das Relativpronomen weglassen?",["The man who called was angry.","The cake that we baked was tasty.","The dog which barks is loud.","The girl who won is happy."],1,"„that“ ist hier Objekt (we baked the cake) → contact clause möglich."],
+ ["Welches Pronomen passt für Personen UND Dinge?",["who","which","that","whose"],2,"that geht für beides."]]},
+ {id:"e-pass", t:"Passive", ex:`
+<p>Bildung: <b>form of „be“ + past participle (3. Form)</b>. Der Handelnde wird mit <b>by</b> angeschlossen (falls wichtig).</p>
+<div class="ex">Simple Present: English <b>is spoken</b> all over the world.<br>Simple Past: The bridge <b>was built</b> in 1890.<br>Plural: Cars <b>are made</b> in this factory.</div>
+<div class="tip">💡 Das Passiv benutzt man, wenn die Handlung wichtiger ist als die Person – typisch in Nachrichten und Sachtexten.</div>`,
+ q:[["English ___ (speak) all over the world.","=is spoken","Simple Present Passive: is + spoken."],
+ ["The bridge ___ (build) in 1890.","=was built","Simple Past Passive: was + built."],
+ ["These cars ___ (make) in Germany.","=are made","Plural → are made."],
+ ["„Romeo and Juliet“ was written ___ Shakespeare.",["from","of","by","with"],2,"Handelnder → by."],
+ ["Which sentence is passive?",["Tom cleaned the room.","The room was cleaned.","Tom is cleaning.","Tom has cleaned."],1,"be + past participle."]]},
+ {id:"e-adv", t:"Adverbs & Comparison", ex:`
+<h4>Adjektiv oder Adverb?</h4><p>Adjektiv beschreibt ein <b>Nomen</b>: <i>a careful driver</i>. Adverb beschreibt ein <b>Verb</b>: <i>He drives carefully.</i></p>
+<ul><li>Bildung: Adjektiv + <b>-ly</b> (quick → quickly, happy → happily)</li><li>Ausnahmen: good → <b>well</b>, fast → fast, hard → hard</li></ul>
+<h4>Steigerung</h4><ul><li>kurze Adjektive: tall – taller – the tallest</li><li>lange: interesting – more interesting – the most interesting</li>
+<li>unregelmäßig: good – better – best · bad – worse – worst · many – more – most</li><li>Vergleich: <b>than</b> (größer als), <b>as … as</b> (genauso … wie)</li></ul>`,
+ q:[["She sings very ___ (good).","=well","good → well (Adverb)."],
+ ["He drives ___ (careful).","=carefully","Adverb: careful + ly."],
+ ["This book is ___ (interesting) than that one.","=more interesting","Lange Adjektive: more …"],
+ ["Steigerung von „bad“?",["badder – baddest","worse – worst","more bad – most bad","worse – baddest"],1,"bad – worse – worst."],
+ ["Tom is as tall ___ his brother.",["than","as","like","then"],1,"as … as."],
+ ["Mount Everest is the ___ (high) mountain in the world.","=highest","Superlativ: the highest."]]}
+]},
+{ id:"fr", name:"Französisch", icon:"🇫🇷", color:"#2ec4b6", topics:[
+ {id:"f-salut", t:"Se présenter – sich vorstellen", ex:`
+<ul><li><b>Bonjour !</b> Guten Tag! · <b>Salut !</b> Hallo/Tschüss · <b>Au revoir !</b> Auf Wiedersehen</li>
+<li><b>Comment tu t’appelles ?</b> – <b>Je m’appelle</b> Lene.</li>
+<li><b>Ça va ?</b> – Ça va bien, merci. / Ça ne va pas.</li>
+<li><b>Tu as quel âge ?</b> – <b>J’ai</b> douze ans. (Alter mit <i>avoir</i>!)</li>
+<li><b>Tu habites où ?</b> – <b>J’habite à</b> Potsdam.</li>
+<li><b>Qui est-ce ?</b> – C’est Paul.</li></ul>
+<div class="tip">💡 Im Französischen steht vor ? ! : ; ein Leerzeichen.</div>`,
+ q:[["Wie fragst du nach dem Namen?",["Ça va ?","Comment tu t’appelles ?","Tu habites où ?","Qui est-ce ?"],1,"Comment tu t’appelles ? = Wie heißt du?"],
+ ["„Ich bin zwölf Jahre alt.“",["Je suis douze ans.","J’ai douze ans.","J’habite douze ans.","Je m’appelle douze."],1,"Alter mit avoir: J’ai … ans."],
+ ["Was heißt „J’habite à Berlin“?",["Ich heiße Berlin.","Ich wohne in Berlin.","Ich mag Berlin.","Ich fahre nach Berlin."],1,"habiter = wohnen."],
+ ["Antwort auf „Ça va ?“",["Je m’appelle Tom.","Ça va bien, merci.","J’ai treize ans.","Au revoir."],1,"Mir geht’s gut, danke."],
+ ["Was sagst du zum Abschied?",["Bonjour","Au revoir","Merci","Oui"],1,"Au revoir = Auf Wiedersehen."]]},
+ {id:"f-art", t:"Artikel & Plural", ex:`
+<table class="tb"><tr><th></th><th>männlich</th><th>weiblich</th><th>Plural</th></tr>
+<tr><td>bestimmt</td><td><b>le</b> copain</td><td><b>la</b> copine</td><td><b>les</b> copains</td></tr>
+<tr><td>unbestimmt</td><td><b>un</b> livre</td><td><b>une</b> maison</td><td><b>des</b> livres</td></tr></table>
+<p>Vor Vokal oder stummem h: <b>l’</b> → l’ami, l’école, l’hôtel.</p>
+<p>Plural meist mit <b>-s</b> (das man nicht hört): le chat → les chats.</p>
+<h4>Zusammenziehung</h4><div class="ex">à + le = <b>au</b> (au cinéma) · à + les = <b>aux</b><br>de + le = <b>du</b> (le livre du prof) · de + les = <b>des</b></div>`,
+ q:[["___ maison (das Haus)",["le","la","l’","les"],1,"maison ist weiblich → la."],
+ ["___ ami",["le","la","l’","un’"],2,"Vor Vokal → l’."],
+ ["___ livres (die Bücher)",["le","la","les","des"],2,"Bestimmter Artikel Plural → les."],
+ ["à + le = ?","=au","Je vais au cinéma."],
+ ["de + le = ?","=du","le livre du professeur."],
+ ["Unbestimmter Artikel Plural?",["les","des","de","du"],1,"un/une → des."]]},
+ {id:"f-etre", t:"être & avoir", ex:`
+<table class="tb"><tr><th>être (sein)</th><th>avoir (haben)</th></tr>
+<tr><td>je <b>suis</b></td><td>j’<b>ai</b></td></tr><tr><td>tu <b>es</b></td><td>tu <b>as</b></td></tr>
+<tr><td>il/elle/on <b>est</b></td><td>il/elle/on <b>a</b></td></tr><tr><td>nous <b>sommes</b></td><td>nous <b>avons</b></td></tr>
+<tr><td>vous <b>êtes</b></td><td>vous <b>avez</b></td></tr><tr><td>ils/elles <b>sont</b></td><td>ils/elles <b>ont</b></td></tr></table>
+<div class="tip">💡 „ils ont“ (haben) wird mit gebundenem s gesprochen [ilzõ], „ils sont“ (sind) mit scharfem s [ilsõ].</div>`,
+ q:[["nous ___ (être)","=sommes","nous sommes."],["ils ___ (avoir)","=ont","ils ont."],["tu ___ (être)","=es","tu es."],["j’___ (avoir)","=ai","j’ai."],["vous ___ (être)","=êtes|etes","vous êtes."],["elle ___ (avoir)","=a","elle a."],["Ils ___ en classe. (Sie sind in der Klasse)",["ont","sont","est","sommes"],1,"sein → être → ils sont."]]},
+ {id:"f-er", t:"Verben auf -er", ex:`
+<p>Die meisten Verben enden auf <b>-er</b>. Stamm + Endung:</p>
+<table class="tb"><tr><th>parler (sprechen)</th><th>Endung</th></tr>
+<tr><td>je parl<b>e</b></td><td>-e</td></tr><tr><td>tu parl<b>es</b></td><td>-es</td></tr><tr><td>il/elle parl<b>e</b></td><td>-e</td></tr>
+<tr><td>nous parl<b>ons</b></td><td>-ons</td></tr><tr><td>vous parl<b>ez</b></td><td>-ez</td></tr><tr><td>ils/elles parl<b>ent</b></td><td>-ent (stumm!)</td></tr></table>
+<p>Weitere: aimer, jouer, regarder, écouter, habiter, chercher, danser, chanter.</p>
+<div class="tip">💡 Besonderheit: manger → nous mang<b>e</b>ons, commencer → nous commen<b>ç</b>ons.</div>`,
+ q:[["nous ___ (aimer)","=aimons","nous + -ons."],["ils ___ (jouer)","=jouent","ils + -ent."],["tu ___ (regarder)","=regardes","tu + -es."],["vous ___ (écouter)","=écoutez|ecoutez","vous + -ez."],["nous ___ (manger)","=mangeons","Achtung: e bleibt → mangeons."],["je ___ (danser)","=danse","je + -e."]]},
+ {id:"f-neg", t:"Verneinung & Fragen", ex:`
+<h4>Verneinung: ne … pas</h4><div class="ex">Je <b>ne</b> joue <b>pas</b>. · Il <b>n’</b>aime <b>pas</b> le foot. (vor Vokal n’)</div>
+<p>Auch: ne … <b>plus</b> (nicht mehr), ne … <b>jamais</b> (nie), ne … <b>rien</b> (nichts).</p>
+<h4>Fragen stellen</h4><ul><li>Intonation: Tu viens ?</li><li><b>Est-ce que</b> tu viens ?</li></ul>
+<p>Fragewörter: <b>où</b> (wo), <b>quand</b> (wann), <b>qui</b> (wer), <b>qu’est-ce que</b> (was), <b>comment</b> (wie), <b>pourquoi</b> (warum) – Antwort: <b>parce que</b> (weil), <b>combien</b> (wie viel).</p>`,
+ q:[["Verneine: „Je joue au foot.“",["Je pas joue au foot.","Je ne joue pas au foot.","Je joue ne pas au foot.","Ne je joue pas au foot."],1,"ne vor dem Verb, pas danach."],
+ ["„Il aime le chocolat“ verneint:",["Il ne aime pas le chocolat.","Il n’aime pas le chocolat.","Il n’aime le chocolat.","Il aime pas ne le chocolat."],1,"Vor Vokal: n’."],
+ ["Was heißt „pourquoi“?",["wo","wann","warum","wie"],2,"pourquoi = warum, Antwort: parce que."],
+ ["Was heißt „où“?",["oder","wo","wer","was"],1,"où (mit Akzent) = wo; ou = oder."],
+ ["„ne … jamais“ bedeutet …",["nicht mehr","nie","nichts","noch nicht"],1,"jamais = nie."]]},
+ {id:"f-poss", t:"La famille & Possessivbegleiter", ex:`
+<p><b>Familie:</b> le père, la mère, les parents, le frère, la sœur, le grand-père, la grand-mère, l’oncle, la tante, le cousin, la cousine, le chien, le chat.</p>
+<table class="tb"><tr><th></th><th>m</th><th>f</th><th>Plural</th></tr>
+<tr><td>mein</td><td>mon</td><td>ma</td><td>mes</td></tr><tr><td>dein</td><td>ton</td><td>ta</td><td>tes</td></tr>
+<tr><td>sein/ihr</td><td>son</td><td>sa</td><td>ses</td></tr><tr><td>unser</td><td colspan="2">notre</td><td>nos</td></tr>
+<tr><td>euer</td><td colspan="2">votre</td><td>vos</td></tr><tr><td>ihr (Pl.)</td><td colspan="2">leur</td><td>leurs</td></tr></table>
+<div class="tip">💡 Vor weiblichen Wörtern mit Vokal: <b>mon</b> amie, ton école. „son/sa“ richtet sich nach dem Besitz, nicht nach dem Besitzer: sa mère = seine ODER ihre Mutter.</div>`,
+ q:[["___ sœur (meine Schwester)",["mon","ma","mes","me"],1,"sœur ist weiblich → ma."],
+ ["___ parents (deine Eltern)",["ton","ta","tes","tu"],2,"Plural → tes."],
+ ["___ amie (meine Freundin)",["ma","mon","mes","m’"],1,"Weiblich mit Vokal → mon."],
+ ["Was heißt „la tante“?",["die Oma","die Tante","die Cousine","die Mutter"],1,"la tante = die Tante."],
+ ["„sa mère“ kann heißen …",["nur seine Mutter","nur ihre Mutter","seine oder ihre Mutter","unsere Mutter"],2,"sa richtet sich nach „mère“, nicht nach dem Besitzer."],
+ ["___ maison (unser Haus)",["nos","notre","votre","leur"],1,"unser (Singular) → notre."]]},
+ {id:"f-aller", t:"aller, faire & futur composé", ex:`
+<table class="tb"><tr><th>aller (gehen)</th><th>faire (machen)</th></tr>
+<tr><td>je vais</td><td>je fais</td></tr><tr><td>tu vas</td><td>tu fais</td></tr><tr><td>il va</td><td>il fait</td></tr>
+<tr><td>nous allons</td><td>nous faisons</td></tr><tr><td>vous allez</td><td>vous faites</td></tr><tr><td>ils vont</td><td>ils font</td></tr></table>
+<h4>Futur composé (nahe Zukunft)</h4><div class="ex"><b>aller + Infinitiv</b><br>Demain, je <b>vais jouer</b> au foot. – Nous <b>allons regarder</b> un film.</div>
+<p>Wendungen mit faire: faire du sport, faire du vélo, faire les devoirs, faire les courses.</p>`,
+ q:[["nous ___ (aller)","=allons","nous allons."],["ils ___ (aller)","=vont","ils vont."],["vous ___ (faire)","=faites","vous faites."],["ils ___ (faire)","=font","ils font."],
+ ["„Morgen werde ich tanzen.“",["Demain, je danse.","Demain, je vais danser.","Demain, je vais dansé.","Demain, je fais danser."],1,"Futur composé: aller + Infinitiv."],["tu ___ (aller)","=vas","tu vas."]]},
+ {id:"f-nb", t:"Zahlen & Uhrzeit", ex:`
+<p>1 un, 2 deux, 3 trois, 4 quatre, 5 cinq, 6 six, 7 sept, 8 huit, 9 neuf, 10 dix, 11 onze, 12 douze, 13 treize, 14 quatorze, 15 quinze, 16 seize, 17 dix-sept, 20 vingt, 21 vingt et un, 30 trente, 40 quarante, 50 cinquante, 60 soixante</p>
+<p><b>70</b> soixante-dix (60+10) · <b>80</b> quatre-vingts (4·20) · <b>90</b> quatre-vingt-dix · <b>100</b> cent</p>
+<h4>Uhrzeit: Il est …</h4><ul><li>3:00 trois heures · 3:15 trois heures <b>et quart</b></li><li>3:30 trois heures <b>et demie</b> · 3:45 quatre heures <b>moins le quart</b></li><li>12:00 midi · 0:00 minuit</li></ul>
+<p>Quelle heure est-il ? = Wie spät ist es?</p>`,
+ q:[["Was ist „soixante-dix“?","=70","60 + 10 = 70."],["Was ist „quatre-vingts“?","=80","4 · 20 = 80."],["Was ist „quatre-vingt-dix“?","=90","4 · 20 + 10."],
+ ["„Il est trois heures et demie“ =",["3:15","3:30","3:45","2:30"],1,"et demie = halb → 3:30."],
+ ["„Il est quatre heures moins le quart“ =",["4:15","3:45","4:45","3:15"],1,"4 Uhr minus Viertel = 3:45."],["Wie heißt 15 auf Französisch?","=quinze","15 = quinze."]]}
+]},
+{ id:"ek", name:"Erdkunde", icon:"🌍", color:"#3ddc84", topics:[
+ {id:"g-zonen", t:"Klima- & Vegetationszonen", ex:`
+<p>Weil die Sonnenstrahlen am Äquator <b>steil</b> und an den Polen <b>flach</b> auftreffen, ist es am Äquator warm und an den Polen kalt. So entstehen <b>Klimazonen</b>:</p>
+<ul><li><b>Polare Zone</b> → Eiswüste, Tundra</li><li><b>Subpolare/kalt-gemäßigte Zone</b> → Tundra, Taiga (borealer Nadelwald)</li>
+<li><b>Gemäßigte Zone</b> (Deutschland) → Laub- und Mischwald, Steppe</li>
+<li><b>Subtropen</b> → Hartlaubvegetation (Mittelmeer), Wüsten</li>
+<li><b>Tropen</b> → Savanne, tropischer Regenwald</li></ul>
+<div class="tip">💡 Klimazone = Temperatur & Niederschlag · Vegetationszone = die natürliche Pflanzenwelt, die dazu passt.</div>`,
+ q:[["Warum ist es am Äquator wärmer als an den Polen?",["Er ist näher an der Sonne","Die Sonnenstrahlen treffen steiler auf","Es gibt mehr Wolken","Wegen des Meeres"],1,"Steile Strahlen = mehr Energie pro Fläche."],
+ ["In welcher Klimazone liegt Deutschland?",["Tropen","Subtropen","Gemäßigte Zone","Polare Zone"],2,"Gemäßigte Zone mit Laub- und Mischwald."],
+ ["Welche Vegetation findet man in der Taiga?",["Regenwald","Nadelwald","Savanne","Hartlaubgewächse"],1,"Taiga = borealer Nadelwald."],
+ ["Hartlaubvegetation (Oliven, Korkeichen) gibt es …",["in den Subtropen am Mittelmeer","in der Tundra","am Äquator","in der Taiga"],0,"Trockene, heiße Sommer und milde, feuchte Winter."],
+ ["Welche Vegetationszone liegt direkt am Äquator?",["Savanne","Wüste","tropischer Regenwald","Steppe"],2,"Immerfeucht und heiß."]]},
+ {id:"g-diagr", t:"Klimadiagramme lesen", ex:`
+<ul><li><b>Rote Linie:</b> Temperatur in °C (linke Achse)</li><li><b>Blaue Säulen:</b> Niederschlag in mm (rechte Achse)</li>
+<li>Maßstab: <b>10 °C entsprechen 20 mm</b></li></ul>
+<h4>humid & arid</h4><ul><li><b>humid</b> (feucht): Niederschlagssäulen liegen <b>über</b> der Temperaturkurve</li>
+<li><b>arid</b> (trocken): Temperaturkurve liegt <b>über</b> den Säulen</li></ul>
+<h4>So wertest du aus</h4><ol><li>Station, Lage, Höhe</li><li>Jahresmitteltemperatur & Jahresniederschlag</li><li>wärmster/kältester Monat, Temperaturamplitude</li><li>humide und aride Monate</li><li>Klimazone bestimmen</li></ol>`,
+ q:[["Was zeigt die rote Linie im Klimadiagramm?",["Niederschlag","Temperatur","Wind","Höhe"],1,"Rot = Temperatur."],
+ ["Ein Monat ist humid, wenn …",["die Temperaturkurve über den Säulen liegt","die Niederschlagssäule über der Temperaturkurve liegt","es über 20 °C hat","es Schnee gibt"],1,"Mehr Niederschlag als Verdunstung."],
+ ["Welcher Maßstab gilt?",["10 °C = 10 mm","10 °C = 20 mm","20 °C = 10 mm","1 °C = 100 mm"],1,"Standard nach Walter/Lieth."],
+ ["Wärmster Monat 24 °C, kältester −6 °C. Temperaturamplitude in °C?","=30","24 − (−6) = 30."],
+ ["Was bedeutet „arid“?",["feucht","trocken","kalt","windig"],1,"arid = trocken."]]},
+ {id:"g-regen", t:"Tropischer Regenwald", ex:`
+<ul><li><b>Klima:</b> ganzjährig heiß (ca. 25–27 °C) und sehr feucht, <b>Tageszeitenklima</b> (Unterschiede zwischen Tag und Nacht größer als zwischen Monaten)</li>
+<li>Täglicher Zenitalregen am Nachmittag</li><li><b>Stockwerkbau:</b> Bodenschicht, Krautschicht, Strauchschicht, Baumschicht, Urwaldriesen (bis 60 m)</li>
+<li><b>Kurzgeschlossener Nährstoffkreislauf:</b> Nährstoffe stecken in den Pflanzen, der Boden ist arm. Pilze zersetzen Laub sehr schnell.</li>
+<li><b>Bedrohung:</b> Brandrodung und Abholzung für Rinderweiden, Soja, Palmöl, Holz, Bergbau → Artensterben, Klimawandel, Bodenerosion</li></ul>
+<div class="tip">💡 Der Regenwald beherbergt über die Hälfte aller Tier- und Pflanzenarten.</div>`,
+ q:[["Was bedeutet Tageszeitenklima?",["Es gibt vier Jahreszeiten","Die Temperatur schwankt am Tag stärker als im Jahr","Es regnet nur nachts","Es ist immer kalt"],1,"Typisch für die immerfeuchten Tropen."],
+ ["Warum ist der Regenwaldboden nährstoffarm?",["Wegen der Kälte","Die Nährstoffe stecken in den Pflanzen","Es regnet zu wenig","Es gibt keine Tiere"],1,"Kurzgeschlossener Nährstoffkreislauf."],
+ ["Welche Nutzung führt zu Abholzung?",["Rinderweiden und Soja","Skitourismus","Fischerei","Windkraft"],0,"Rinder, Soja, Palmöl."],
+ ["Wie heißt die Rodung durch Feuer?","=brandrodung","Wald wird abgebrannt, Asche düngt kurz."],
+ ["Wie hoch werden Urwaldriesen ungefähr?",["10 m","20 m","bis 60 m","200 m"],2,"Sie ragen über das Kronendach hinaus."]]},
+ {id:"g-arm", t:"Armut & Reichtum", ex:`
+<p>Länder werden oft eingeteilt in <b>Industrieländer</b>, <b>Schwellenländer</b> (z. B. Brasilien, Indien) und <b>Entwicklungsländer</b> (Länder des Globalen Südens).</p>
+<h4>Indikatoren</h4><ul><li><b>BIP pro Kopf</b> (Wirtschaftsleistung pro Einwohner)</li>
+<li><b>HDI</b> (Human Development Index): Lebenserwartung + Bildung + Einkommen</li><li>Kindersterblichkeit, Zugang zu Wasser, Alphabetisierung</li></ul>
+<h4>Ursachen von Armut</h4><p>Koloniale Vergangenheit, Kriege, Korruption, Abhängigkeit vom Export von Rohstoffen, Klimaextreme, Verschuldung.</p>
+<h4>Lösungsansätze</h4><p>Bildung, Fairer Handel, Entwicklungszusammenarbeit, Mikrokredite, <b>17 Nachhaltigkeitsziele (SDGs)</b> der UN bis 2030.</p>`,
+ q:[["Woraus setzt sich der HDI zusammen?",["Fläche, Einwohner, Klima","Lebenserwartung, Bildung, Einkommen","Exporte und Importe","Anzahl der Städte"],1,"Human Development Index."],
+ ["Was misst das BIP pro Kopf?",["Wirtschaftsleistung pro Einwohner","Zahl der Ärzte","Lebenserwartung","Einwohner pro km²"],0,"Bruttoinlandsprodukt geteilt durch Einwohner."],
+ ["Welches Land ist ein Schwellenland?",["Deutschland","Brasilien","Norwegen","Japan"],1,"Brasilien gilt als Schwellenland."],
+ ["Was ist ein Ziel des Fairen Handels?",["Billigere Waren","Gerechte Löhne für Produzenten","Mehr Plastik","Weniger Steuern"],1,"Faire Preise und Arbeitsbedingungen."],
+ ["Wie viele Nachhaltigkeitsziele (SDGs) hat die UN?","=17","17 Ziele bis 2030."]]},
+ {id:"g-bev", t:"Bevölkerung & Migration", ex:`
+<ul><li><b>Bevölkerungswachstum</b> = Geburtenrate − Sterberate (+ Zuwanderung − Abwanderung). Weltbevölkerung: über 8 Milliarden.</li>
+<li><b>Bevölkerungsdiagramme:</b> <i>Pyramide</i> (viele Kinder, wachsend – z. B. Niger), <i>Glocke</i> (stabil), <i>Urne</i> (wenig Kinder, schrumpfend/alternd – z. B. Deutschland)</li></ul>
+<h4>Migration</h4><ul><li><b>Push-Faktoren</b> (drücken weg): Krieg, Armut, Arbeitslosigkeit, Dürre</li>
+<li><b>Pull-Faktoren</b> (ziehen an): Arbeit, Sicherheit, Bildung, Familie</li>
+<li>Binnenmigration (im Land), internationale Migration, Flucht</li><li><b>Landflucht</b> → Verstädterung, Megastädte, Slums</li></ul>`,
+ q:[["Welche Form hat das Bevölkerungsdiagramm Deutschlands?",["Pyramide","Glocke","Urne","Rechteck"],2,"Wenige Geburten, viele Ältere."],
+ ["Was ist ein Push-Faktor?",["gute Schulen","Krieg","hohe Löhne","Sicherheit"],1,"Push = Grund, das Land zu verlassen."],
+ ["Was ist ein Pull-Faktor?",["Dürre","Arbeitsplätze","Verfolgung","Hunger"],1,"Pull = Anziehung des Ziellandes."],
+ ["Wanderung vom Land in die Stadt heißt …",["Landflucht","Stadtflucht","Auswanderung","Tourismus"],0,"Führt zur Verstädterung."],
+ ["Eine Pyramidenform zeigt …",["eine alternde Bevölkerung","eine junge, wachsende Bevölkerung","eine schrumpfende Bevölkerung","gleich viele Alte und Junge"],1,"Breite Basis = viele Kinder."]]},
+ {id:"g-glob", t:"Globalisierung", ex:`
+<p><b>Globalisierung</b> = die weltweite Verflechtung von Wirtschaft, Politik, Kultur und Kommunikation.</p>
+<h4>Ursachen</h4><ul><li>günstiger Transport (Containerschiffe)</li><li>Internet & Kommunikation</li><li>Abbau von Zöllen, Freihandel</li></ul>
+<h4>Beispiel: Die Reise einer Jeans</h4><p>Baumwolle aus Indien → gesponnen in China → gefärbt in Bangladesch → genäht in Tunesien → verkauft in Deutschland. Sie legt oft über 50 000 km zurück.</p>
+<h4>Chancen & Risiken</h4><p>+ günstige Waren, Austausch, Arbeitsplätze in Schwellenländern<br>− Ausbeutung, Umweltschäden, Abhängigkeiten, Arbeitsplatzverlust in Industrieländern</p>
+<div class="tip">💡 „Global Player“ = große internationale Konzerne, die weltweit produzieren und verkaufen.</div>`,
+ q:[["Was ist Globalisierung?",["Eine Erdkunde-Karte","Weltweite Verflechtung von Wirtschaft und Gesellschaft","Ein Klimaphänomen","Eine Partei"],1,"Weltweite Vernetzung."],
+ ["Welche Erfindung machte weltweiten Warentransport billig?",["Dampflok","Container","Fahrrad","Telefon"],1,"Standardisierte Container."],
+ ["Ein Nachteil der Globalisierung:",["Günstige Waren","Ausbeutung von Arbeitern","Kultureller Austausch","Mehr Auswahl"],1,"Niedrige Löhne, schlechte Arbeitsbedingungen."],
+ ["Große weltweit tätige Konzerne nennt man …",["Global Player","Local Heroes","Start-ups","Kleinbetriebe"],0,"Global Player."],
+ ["Warum werden Kleidungsstücke oft in Asien genäht?",["Wegen des Wetters","Wegen niedriger Lohnkosten","Weil es dort keine Baumwolle gibt","Wegen der Mode"],1,"Lohnkosten sind niedriger."]]}
+]},
+{ id:"bi", name:"Biologie", icon:"🧬", color:"#ffb703", topics:[
+ {id:"b-zelle", t:"Zelle & Mikroskop", ex:`
+<p>Alle Lebewesen bestehen aus <b>Zellen</b>.</p>
+<table class="tb"><tr><th>Tier- & Pflanzenzelle</th><th>nur Pflanzenzelle</th></tr>
+<tr><td>Zellmembran, Zellkern (Steuerzentrale, Erbinfo), Zellplasma, Mitochondrien (Energie)</td><td><b>Zellwand</b> (Stabilität), <b>Vakuole</b> (Zellsaft), <b>Chloroplasten</b> (Fotosynthese)</td></tr></table>
+<h4>Mikroskop</h4><p>Okular, Objektiv, Objekttisch, Blende, Lichtquelle, Grob- und Feintrieb.<br><b>Gesamtvergrößerung = Okular · Objektiv</b> (10× · 40× = 400×)</p>
+<div class="tip">💡 Immer mit der kleinsten Vergrößerung beginnen! Einzeller (z. B. Pantoffeltierchen) bestehen aus nur einer Zelle.</div>`,
+ q:[["Welche Zellbestandteile hat NUR die Pflanzenzelle?",["Zellkern, Zellplasma","Zellwand, Vakuole, Chloroplasten","Mitochondrien","Zellmembran"],1,"Diese fehlen bei Tierzellen."],
+ ["Okular 10×, Objektiv 40×. Gesamtvergrößerung?","=400","10 · 40 = 400."],
+ ["Was ist die „Steuerzentrale“ der Zelle?",["Vakuole","Zellkern","Zellwand","Chloroplast"],1,"Der Zellkern enthält die Erbinformation."],
+ ["Wo findet die Fotosynthese statt?",["Mitochondrien","Chloroplasten","Zellkern","Vakuole"],1,"Chloroplasten enthalten Chlorophyll."],
+ ["Mit welcher Vergrößerung beginnt man beim Mikroskopieren?",["größte","kleinste","mittlere","egal"],1,"So findet man das Objekt leichter."],
+ ["Ein Pantoffeltierchen ist ein …",["Vielzeller","Einzeller","Pilz","Virus"],1,"Es besteht aus nur einer Zelle."]]},
+ {id:"b-foto", t:"Fotosynthese & Zellatmung", ex:`
+<p>Pflanzen stellen mit <b>Lichtenergie</b> ihre Nahrung selbst her (sie sind <b>Produzenten</b>).</p>
+<div class="ex"><b>Fotosynthese</b> (in den Chloroplasten):<br>Kohlenstoffdioxid + Wasser → (Licht, Chlorophyll) → Traubenzucker + Sauerstoff<br>6 CO₂ + 6 H₂O → C₆H₁₂O₆ + 6 O₂</div>
+<ul><li>CO₂ kommt über die <b>Spaltöffnungen</b> der Blätter, Wasser über die Wurzeln</li><li>Traubenzucker wird zu Stärke umgebaut und gespeichert</li></ul>
+<div class="ex"><b>Zellatmung</b> (in den Mitochondrien, bei Pflanzen UND Tieren):<br>Traubenzucker + Sauerstoff → Kohlenstoffdioxid + Wasser + <b>Energie</b></div>
+<div class="tip">💡 Die Zellatmung ist die Umkehrung der Fotosynthese.</div>`,
+ q:[["Welche Ausgangsstoffe braucht die Fotosynthese?",["Sauerstoff und Zucker","Kohlenstoffdioxid und Wasser","Stickstoff und Wasser","Stärke und Licht"],1,"CO₂ + H₂O."],
+ ["Welches Gas entsteht bei der Fotosynthese?",["Kohlenstoffdioxid","Sauerstoff","Stickstoff","Methan"],1,"Sauerstoff wird abgegeben."],
+ ["Wo findet die Zellatmung statt?",["Chloroplasten","Mitochondrien","Zellwand","Vakuole"],1,"Die „Kraftwerke“ der Zelle."],
+ ["Wie gelangt CO₂ in das Blatt?",["über die Wurzeln","über die Spaltöffnungen","über die Blüte","über den Stängel"],1,"Spaltöffnungen an der Blattunterseite."],
+ ["Was liefert die Energie für die Fotosynthese?",["Wärme","Licht","Wasser","Erde"],1,"Lichtenergie wird vom Chlorophyll aufgenommen."]]},
+ {id:"b-wald", t:"Ökosystem Wald", ex:`
+<p><b>Ökosystem</b> = <b>Biotop</b> (Lebensraum) + <b>Biozönose</b> (Lebensgemeinschaft).</p>
+<ul><li><b>Abiotische Faktoren:</b> Licht, Temperatur, Wasser, Boden, Wind</li><li><b>Biotische Faktoren:</b> Einflüsse durch Lebewesen (Fressfeinde, Konkurrenz)</li></ul>
+<h4>Stockwerke des Waldes</h4><p>Moosschicht – Krautschicht – Strauchschicht – Baumschicht (+ Wurzelschicht)</p>
+<h4>Nahrungsbeziehungen</h4><div class="ex">Eiche (Produzent) → Raupe (Konsument 1. Ordnung) → Meise (2. Ordnung) → Habicht (3. Ordnung)</div>
+<p><b>Destruenten</b> (Bakterien, Pilze, Regenwürmer) zersetzen tote Stoffe zu Mineralstoffen → Stoffkreislauf. Viele Nahrungsketten bilden ein <b>Nahrungsnetz</b>.</p>`,
+ q:[["Ökosystem = Biotop + …",["Biologie","Biozönose","Biomasse","Biosphäre"],1,"Biozönose = Lebensgemeinschaft."],
+ ["Welcher ist ein abiotischer Faktor?",["Fuchs","Licht","Pilz","Konkurrenz"],1,"Unbelebte Umweltfaktoren."],
+ ["Welche Rolle hat die Eiche in der Nahrungskette?",["Konsument","Destruent","Produzent","Räuber"],2,"Sie stellt durch Fotosynthese Nahrung her."],
+ ["Wer zersetzt tote Pflanzen und Tiere?",["Produzenten","Konsumenten","Destruenten","Räuber"],2,"Pilze, Bakterien, Regenwürmer."],
+ ["Welche Schicht liegt direkt über der Moosschicht?",["Baumschicht","Krautschicht","Strauchschicht","Wurzelschicht"],1,"Moos – Kraut – Strauch – Baum."],
+ ["Mehrere verknüpfte Nahrungsketten bilden ein …","=nahrungsnetz","Nahrungsnetz."]]},
+ {id:"b-ern", t:"Ernährung & Verdauung", ex:`
+<h4>Nährstoffe</h4><ul><li><b>Kohlenhydrate</b> (Brot, Nudeln) → Energie</li><li><b>Fette</b> → Energie, Speicher</li><li><b>Eiweiße</b> (Proteine) → Baustoffe für Muskeln & Zellen</li></ul>
+<p>Dazu: Vitamine, Mineralstoffe, Ballaststoffe und Wasser.</p>
+<h4>Weg der Nahrung</h4><ol><li><b>Mund:</b> Zähne zerkleinern, Speichel (Amylase) spaltet Stärke</li><li><b>Speiseröhre</b> → Transport</li>
+<li><b>Magen:</b> Salzsäure tötet Keime, Pepsin spaltet Eiweiß</li><li><b>Dünndarm:</b> Galle (Fette) & Bauchspeicheldrüse; Darmzotten nehmen Nährstoffe ins <b>Blut</b> auf</li>
+<li><b>Dickdarm:</b> Wasser wird entzogen</li><li>Enddarm, After</li></ol>
+<div class="tip">💡 Enzyme spalten Nährstoffe in kleinste Bausteine – wie Schlüssel, die nur in ein Schloss passen (Schlüssel-Schloss-Prinzip).</div>`,
+ q:[["Welcher Nährstoff ist vor allem Baustoff für Muskeln?",["Fett","Eiweiß","Kohlenhydrate","Wasser"],1,"Eiweiße/Proteine."],
+ ["Wo beginnt die Verdauung von Stärke?",["Magen","Mund","Dünndarm","Dickdarm"],1,"Speichel enthält Amylase."],
+ ["Wo werden die meisten Nährstoffe ins Blut aufgenommen?",["Magen","Dünndarm","Dickdarm","Speiseröhre"],1,"Über die Darmzotten."],
+ ["Welche Aufgabe hat der Dickdarm?",["Eiweiß spalten","Wasser entziehen","Stärke spalten","Fett speichern"],1,"Er dickt den Nahrungsbrei ein."],
+ ["Was tötet im Magen Keime ab?",["Galle","Salzsäure","Speichel","Insulin"],1,"Magensäure."],
+ ["Welche Lebensmittel sind reich an Kohlenhydraten?",["Nudeln und Brot","Fisch und Eier","Butter und Öl","Wasser und Tee"],0,"Getreideprodukte."]]},
+ {id:"b-pub", t:"Pubertät & Entwicklung", ex:`
+<p>In der <b>Pubertät</b> (ca. 10–16 Jahre) wird der Körper geschlechtsreif. Gesteuert wird das von <b>Hormonen</b>: Die Hirnanhangdrüse (<b>Hypophyse</b>) gibt Signale an Hoden bzw. Eierstöcke.</p>
+<ul><li>Hormone: <b>Testosteron</b> (v. a. Jungen), <b>Östrogen</b> & Progesteron (v. a. Mädchen)</li>
+<li><b>Primäre Geschlechtsmerkmale:</b> von Geburt an vorhandene Geschlechtsorgane</li>
+<li><b>Sekundäre Geschlechtsmerkmale:</b> entwickeln sich in der Pubertät: Brustwachstum, Bartwuchs, Stimmbruch, Körperbehaarung</li></ul>
+<h4>Menstruationszyklus</h4><p>Dauer ca. 28 Tage. Etwa in der Zyklusmitte findet der <b>Eisprung</b> statt. Wird die Eizelle nicht befruchtet, wird die Gebärmutterschleimhaut abgestoßen → Menstruation (Periode).</p>
+<div class="tip">💡 Gefühle schwanken in dieser Zeit oft – das ist normal. Körperpflege wird wichtiger.</div>`,
+ q:[["Welche Drüse steuert die Pubertät?",["Schilddrüse","Hypophyse","Speicheldrüse","Leber"],1,"Die Hirnanhangdrüse."],
+ ["Stimmbruch ist ein …",["primäres Geschlechtsmerkmal","sekundäres Geschlechtsmerkmal","Hormon","Organ"],1,"Entwickelt sich in der Pubertät."],
+ ["Wie lange dauert ein Menstruationszyklus etwa?",["7 Tage","14 Tage","28 Tage","60 Tage"],2,"Ca. 28 Tage, schwankt individuell."],
+ ["Welches Hormon wird vor allem in den Hoden gebildet?",["Östrogen","Testosteron","Insulin","Adrenalin"],1,"Testosteron."],
+ ["Wann findet der Eisprung ungefähr statt?",["am 1. Tag","etwa in der Zyklusmitte","am letzten Tag","gar nicht"],1,"Etwa um Tag 14."]]}
+]},
+{ id:"ge", name:"Geschichte", icon:"🏰", color:"#ff9f1c", topics:[
+ {id:"h-stand", t:"Ständegesellschaft & Lehnswesen", ex:`
+<p>Im <b>Mittelalter</b> (ca. 500–1500) galt die Gesellschaft als <b>gottgewollte Ordnung</b> aus drei Ständen:</p>
+<ul><li><b>1. Stand – Klerus</b> (Geistliche): „Ich bete für euch alle.“</li><li><b>2. Stand – Adel</b> (König, Fürsten, Ritter): „Ich schütze euch alle.“</li><li><b>3. Stand – Bauern</b> (über 90 %): „Ich arbeite für euch alle.“</li></ul>
+<h4>Lehnswesen</h4><p>Der <b>König</b> (Lehnsherr) vergibt <b>Lehen</b> (Land, Ämter) an <b>Kronvasallen</b> (Herzöge, Grafen, Bischöfe). Diese geben Teile an <b>Untervasallen</b> (Ritter) weiter. Gegenleistung: <b>Treue und Kriegsdienst</b>; der Herr gibt Schutz.</p>
+<div class="tip">💡 Wichtige Daten: 800 Kaiserkrönung Karls des Großen · 962 Kaiserkrönung Ottos I.</div>`,
+ q:[["Welcher Stand war der größte?",["Klerus","Adel","Bauern","Kaufleute"],2,"Über 90 % der Menschen waren Bauern."],
+ ["Was bekam ein Vasall vom Lehnsherrn?",["Geld","Ein Lehen (Land)","Ein Schiff","Nichts"],1,"Lehen = geliehenes Land/Amt."],
+ ["Was musste der Vasall leisten?",["Steuern zahlen","Treue und Kriegsdienst","Kirchen bauen","Handel treiben"],1,"Treue und Heerfolge."],
+ ["Wer gehörte zum 1. Stand?",["Ritter","Geistliche","Bauern","Bürger"],1,"Der Klerus."],
+ ["Wann wurde Karl der Große zum Kaiser gekrönt?","=800","Weihnachten 800 in Rom."],
+ ["Wie wurde die Ständeordnung begründet?",["Durch Wahlen","Als gottgewollt","Durch Verträge","Gar nicht"],1,"Man glaubte, Gott habe jedem seinen Platz gegeben."]]},
+ {id:"h-grund", t:"Grundherrschaft, Burg & Ritter", ex:`
+<h4>Grundherrschaft</h4><p>Ein <b>Grundherr</b> (Adliger, Kloster) besitzt Land und gibt es Bauern zur Bewirtschaftung. Die Bauern sind oft <b>Hörige/Leibeigene</b>: Sie leisten <b>Frondienste</b> (Arbeit auf dem Herrenhof) und geben <b>Abgaben</b> (z. B. den „Zehnt“). Der Grundherr gewährt Schutz und spricht Recht.</p>
+<h4>Dreifelderwirtschaft</h4><p>Feld 1 Wintergetreide, Feld 2 Sommergetreide, Feld 3 <b>Brache</b> (Erholung) – jährlich wechselnd → höhere Erträge.</p>
+<h4>Ritter</h4><p>Ausbildung: <b>Page</b> (ab 7) → <b>Knappe</b> (ab 14) → <b>Ritterschlag</b> (ca. 21). Ritterideale: Tapferkeit, Treue, Schutz der Schwachen. Burgen: Bergfried, Palas, Ringmauer, Zugbrücke.</p>`,
+ q:[["Was sind Frondienste?",["Gebete","Arbeit auf dem Hof des Grundherrn","Kriegszüge","Handel"],1,"Unbezahlte Arbeit für den Grundherrn."],
+ ["Was ist bei der Dreifelderwirtschaft die Brache?",["Ein Feld mit Weizen","Ein Feld, das sich erholt","Ein Wald","Ein Garten"],1,"Brachliegendes Feld."],
+ ["Reihenfolge der Ritterausbildung?",["Knappe – Page – Ritter","Page – Knappe – Ritter","Ritter – Knappe – Page","Page – Ritter – Knappe"],1,"Page → Knappe → Ritterschlag."],
+ ["Der höchste Turm einer Burg heißt …","=bergfried","Der Bergfried war letzte Zuflucht."],
+ ["Was war der „Zehnt“?",["Eine Abgabe","Ein Ritter","Ein Feld","Ein Fest"],0,"Ursprünglich ein Zehntel der Ernte."]]},
+ {id:"h-stadt", t:"Die Stadt im Mittelalter & Hanse", ex:`
+<p>Ab dem 12. Jh. entstanden viele <b>Städte</b> – an Handelswegen, Flussübergängen, bei Burgen oder Klöstern. Der Stadtherr verlieh das <b>Stadtrecht</b> (Markt, Mauer, eigene Gerichte).</p>
+<p><b>„Stadtluft macht frei“</b>: Ein Leibeigener, der ein Jahr und einen Tag in der Stadt lebte, wurde frei.</p>
+<h4>Stadtgesellschaft</h4><ul><li>Oberschicht: <b>Patrizier</b> (reiche Kaufleute) – im Stadtrat</li><li>Mittelschicht: <b>Handwerker</b>, organisiert in <b>Zünften</b> (Kaufleute in <b>Gilden</b>)</li><li>Unterschicht: Mägde, Knechte, Tagelöhner, Bettler</li></ul>
+<h4>Die Hanse</h4><p>Bund von Kaufleuten und Städten (Hauptort <b>Lübeck</b>), Handel über Nord- und Ostsee mit der <b>Kogge</b>. Auch Brandenburger Städte wie Frankfurt (Oder) waren Mitglied.</p>
+<p>1347–1351: Die <b>Pest</b> („Schwarzer Tod“) tötete etwa ein Drittel der Menschen Europas.</p>`,
+ q:[["Was bedeutete „Stadtluft macht frei“?",["Saubere Luft","Leibeigene wurden nach Jahr und Tag frei","Kostenlose Wohnung","Keine Steuern"],1,"Nach 1 Jahr und 1 Tag frei."],
+ ["Wie hießen Zusammenschlüsse der Handwerker?",["Gilden","Zünfte","Hansen","Stände"],1,"Zünfte regelten Preise, Qualität, Ausbildung."],
+ ["Was war der Hauptort der Hanse?",["Berlin","Köln","Lübeck","München"],2,"Lübeck – „Königin der Hanse“."],
+ ["Mit welchem Schiffstyp handelte die Hanse?","=kogge","Die Kogge."],
+ ["Wer bildete die städtische Oberschicht?",["Bettler","Patrizier","Mägde","Bauern"],1,"Reiche Kaufmannsfamilien."],
+ ["Wann wütete die große Pest in Europa?",["800–850","1347–1351","1517–1525","1618–1648"],1,"Der Schwarze Tod."]]},
+ {id:"h-kreuz", t:"Kreuzzüge & Begegnung mit dem Islam", ex:`
+<p><b>1095</b> rief Papst <b>Urban II.</b> in Clermont zum Kreuzzug auf, um Jerusalem von den Muslimen zu „befreien“ („Gott will es!“).</p>
+<ul><li><b>1099</b> Eroberung Jerusalems mit einem Massaker an Muslimen und Juden</li><li>Motive: Glaube & Sündenerlass, Abenteuer, Land und Reichtum, Handel</li><li>Auch Judenverfolgungen in Europa (z. B. in Worms, Mainz)</li></ul>
+<h4>Begegnung der Kulturen</h4><p>Die islamische Welt war in Wissenschaft weit voraus: <b>arabische Ziffern</b> und die Null, Algebra, Medizin, Astronomie, antike Schriften. In <b>al-Andalus</b> (Spanien, Córdoba) lebten Muslime, Christen und Juden lange zusammen.</p>
+<p>Wörter aus dem Arabischen: Zucker, Kaffee, Algebra, Matratze, Ziffer.</p>`,
+ q:[["Wer rief 1095 zum ersten Kreuzzug auf?",["Karl der Große","Papst Urban II.","Martin Luther","Otto I."],1,"Auf dem Konzil von Clermont."],
+ ["Wann wurde Jerusalem von den Kreuzfahrern erobert?","=1099","1099."],
+ ["Was übernahm Europa aus der arabischen Welt?",["Das Papier und die arabischen Ziffern","Die Dampfmaschine","Das Telefon","Das Schießpulver aus Amerika"],0,"Ziffern, Null, Papier, Medizinwissen."],
+ ["Wie hieß das muslimische Spanien?",["Byzanz","al-Andalus","Konstantinopel","Kastilien"],1,"Zentrum: Córdoba."],
+ ["Welches Wort stammt aus dem Arabischen?",["Fenster","Zucker","Kirche","Burg"],1,"sukkar → Zucker."]]},
+ {id:"h-entd", t:"Entdeckungen & Eroberungen", ex:`
+<h4>Ursachen</h4><p>Europäer wollten einen <b>Seeweg nach Indien</b> (Gewürze, Seide). Seit <b>1453</b> kontrollierten die Osmanen Konstantinopel und den Landweg.</p>
+<h4>Neue Technik</h4><p>Kompass, Astrolabium, die wendige <b>Karavelle</b>, bessere Karten; Buchdruck durch <b>Gutenberg</b> (um 1450) verbreitete Wissen.</p>
+<h4>Entdecker</h4><ul><li><b>1492</b> Christoph Kolumbus erreicht Amerika (dachte, es sei Indien)</li><li><b>1498</b> Vasco da Gama: Seeweg nach Indien um Afrika</li><li><b>1519–1522</b> Magellans Flotte umsegelt die Welt</li></ul>
+<h4>Eroberungen</h4><p>Hernán <b>Cortés</b> zerstörte das Reich der <b>Azteken</b> (1521), Francisco <b>Pizarro</b> das der <b>Inka</b>. Folgen: Millionen Tote durch Gewalt und eingeschleppte Krankheiten, Kolonien, später Sklavenhandel aus Afrika.</p>`,
+ q:[["Wann erreichte Kolumbus Amerika?","=1492","12. Oktober 1492."],
+ ["Was suchten die Entdecker hauptsächlich?",["Einen Seeweg nach Indien","Den Nordpol","Neue Religionen","Eis"],0,"Für den Gewürzhandel."],
+ ["Wer zerstörte das Aztekenreich?",["Pizarro","Cortés","Magellan","da Gama"],1,"Hernán Cortés, 1521."],
+ ["Wer fand den Seeweg nach Indien um Afrika?",["Kolumbus","Vasco da Gama","Cortés","Gutenberg"],1,"1498."],
+ ["Wodurch starben die meisten Ureinwohner Amerikas?",["Hunger","eingeschleppte Krankheiten","Erdbeben","Kälte"],1,"Pocken, Masern u. a."],
+ ["Wer erfand den Buchdruck mit beweglichen Lettern?","=gutenberg|johannes gutenberg","Johannes Gutenberg, Mainz."]]},
+ {id:"h-ref", t:"Reformation", ex:`
+<p>Die Kirche verkaufte <b>Ablassbriefe</b> (Sündenerlass gegen Geld) – Prediger Johann <b>Tetzel</b>: „Wenn das Geld im Kasten klingt, die Seele aus dem Fegefeuer springt.“</p>
+<ul><li><b>1517</b> Martin <b>Luther</b> veröffentlicht in Wittenberg seine <b>95 Thesen</b> gegen den Ablass</li>
+<li>Luthers Lehre: Gnade Gottes nur durch Glauben, die Bibel allein zählt</li><li><b>1521</b> Reichstag zu Worms: Luther widerruft nicht → Reichsacht; Versteck auf der <b>Wartburg</b>, dort übersetzt er das Neue Testament ins Deutsche</li>
+<li><b>1525</b> Bauernkrieg</li><li><b>1555</b> Augsburger Religionsfrieden: Der Landesherr bestimmt die Religion („Wessen Land, dessen Religion“)</li>
+<li><b>1618–1648</b> Dreißigjähriger Krieg, beendet durch den Westfälischen Frieden</li></ul>
+<div class="tip">💡 Wittenberg liegt nahe an Brandenburg – Brandenburg wurde 1539 evangelisch.</div>`,
+ q:[["Wann veröffentlichte Luther seine 95 Thesen?","=1517","31. Oktober 1517 (Reformationstag)."],
+ ["Wogegen richteten sich die Thesen vor allem?",["Gegen den Kaiser","Gegen den Ablasshandel","Gegen die Bauern","Gegen Juden"],1,"Gegen den Verkauf von Ablassbriefen."],
+ ["Wo übersetzte Luther das Neue Testament?",["In Rom","Auf der Wartburg","In Worms","In Berlin"],1,"Als „Junker Jörg“ versteckt."],
+ ["Was regelte der Augsburger Religionsfrieden 1555?",["Jeder wählt frei","Der Landesherr bestimmt die Religion","Alle werden katholisch","Kirchen werden abgeschafft"],1,"cuius regio, eius religio."],
+ ["Wie lange dauerte der Dreißigjährige Krieg?",["1600–1630","1618–1648","1517–1547","1789–1819"],1,"1618–1648."]]},
+ {id:"h-abs", t:"Absolutismus & Preußen", ex:`
+<p>Im <b>Absolutismus</b> hat der Herrscher die <b>uneingeschränkte Macht</b> (legibus absolutus = von den Gesetzen gelöst) – er beruft sich auf Gottes Gnade.</p>
+<h4>Ludwig XIV. – der Sonnenkönig (Frankreich, reg. 1643/61–1715)</h4><ul><li>Ihm zugeschrieben: „Der Staat bin ich“</li><li>Schloss <b>Versailles</b> als Machtzentrum, strenges Hofzeremoniell</li>
+<li>Säulen der Macht: <b>stehendes Heer</b>, Beamte, Kirche, <b>Merkantilismus</b> (Minister Colbert: viel exportieren, wenig importieren, Manufakturen)</li></ul>
+<h4>Brandenburg-Preußen</h4><p>1701 krönt sich Kurfürst Friedrich III. zum König in Preußen. <b>Friedrich II.</b> („der Große“, reg. 1740–1786) gilt als <b>aufgeklärter Absolutist</b>: „erster Diener des Staates“, Religionstoleranz, Abschaffung der Folter, Förderung der Kartoffel, Schloss Sanssouci in Potsdam.</p>`,
+ q:[["Wer war der „Sonnenkönig“?",["Friedrich II.","Ludwig XIV.","Karl V.","Napoleon"],1,"Ludwig XIV. von Frankreich."],
+ ["Was ist Merkantilismus?",["Eine Religion","Wirtschaftspolitik: viel Export, wenig Import","Eine Kunstform","Ein Gesetzbuch"],1,"Um den Staat reich zu machen."],
+ ["Wie nannte sich Friedrich II.?",["Sonnenkönig","Erster Diener des Staates","Kaiser der Welt","Vater der Bauern"],1,"Aufgeklärter Absolutismus."],
+ ["Wo liegt Schloss Sanssouci?",["Paris","Potsdam","Wien","Dresden"],1,"In Potsdam, Brandenburg."],
+ ["Was bedeutet „absolut“ im Absolutismus?",["Perfekt","Von den Gesetzen gelöst / uneingeschränkt","Demokratisch","Kurzlebig"],1,"legibus absolutus."],
+ ["In welchem Schloss residierte Ludwig XIV.?","=versailles","Versailles bei Paris."]]}
+]}
+];
+
+// Vokabeln
+window.VOCAB = {
+ en: { name:"Englisch", lang:"en-GB", flag:"🇬🇧", sets:[
+  {id:"en1", t:"School & Everyday", w:[["die Hausaufgaben","homework"],["der Stundenplan","timetable"],["die Pause","break"],["das Fach","subject"],["pünktlich","on time"],["vergessen","forget"],["sich erinnern","remember"],["erklären","explain"],["der Fehler","mistake"],["üben","practise"],["die Klassenarbeit","test"],["ausleihen","borrow"],["verstehen","understand"],["schwierig","difficult"],["einfach","easy"]]},
+  {id:"en2", t:"Travel & Holidays", w:[["die Reise","journey"],["das Gepäck","luggage"],["der Flughafen","airport"],["der Bahnhof","station"],["die Unterkunft","accommodation"],["der Strand","beach"],["das Ausland","abroad"],["buchen","book"],["ankommen","arrive"],["abfahren","leave"],["die Sehenswürdigkeit","sight"],["die Landschaft","landscape"],["das Abenteuer","adventure"],["überrascht","surprised"],["der Reisepass","passport"]]},
+  {id:"en3", t:"Feelings & People", w:[["wütend","angry"],["stolz","proud"],["gelangweilt","bored"],["nervös","nervous"],["enttäuscht","disappointed"],["ehrlich","honest"],["freundlich","friendly"],["schüchtern","shy"],["mutig","brave"],["eifersüchtig","jealous"],["sich Sorgen machen","worry"],["vertrauen","trust"],["der Streit","argument"],["sich entschuldigen","apologize"],["die Freundschaft","friendship"]]},
+  {id:"en4", t:"Irregular Verbs", w:[["go → past / past participle","went gone"],["see →","saw seen"],["take →","took taken"],["write →","wrote written"],["buy →","bought bought"],["think →","thought thought"],["break →","broke broken"],["eat →","ate eaten"],["give →","gave given"],["speak →","spoke spoken"],["know →","knew known"],["bring →","brought brought"],["find →","found found"],["begin →","began begun"],["choose →","chose chosen"]]},
+  {id:"en5", t:"Environment & Media", w:[["die Umwelt","environment"],["verschmutzen","pollute"],["wiederverwerten","recycle"],["der Müll","rubbish"],["das Klima","climate"],["sparen","save"],["die Werbung","advertisement"],["herunterladen","download"],["die Nachrichten","news"],["der Bildschirm","screen"],["teilen","share"],["die Zeitung","newspaper"],["die Meinung","opinion"],["zustimmen","agree"],["verbieten","ban"]]}
+ ]},
+ fr: { name:"Französisch", lang:"fr-FR", flag:"🇫🇷", sets:[
+  {id:"fr1", t:"Salut ! – Begrüßung & ich", w:[["Hallo / Tschüss","salut"],["Guten Tag","bonjour"],["Auf Wiedersehen","au revoir"],["danke","merci"],["bitte (Bitte um etwas)","s'il te plaît"],["ja","oui"],["nein","non"],["der Freund","l'ami"],["die Freundin","l'amie"],["heißen","s'appeler"],["wohnen","habiter"],["und","et"],["auch","aussi"],["wer","qui"],["wo","où"]]},
+  {id:"fr2", t:"La famille", w:[["der Vater","le père"],["die Mutter","la mère"],["die Eltern","les parents"],["der Bruder","le frère"],["die Schwester","la sœur"],["der Großvater","le grand-père"],["die Großmutter","la grand-mère"],["der Onkel","l'oncle"],["die Tante","la tante"],["der Hund","le chien"],["die Katze","le chat"],["das Kind","l'enfant"],["der Cousin","le cousin"],["das Haus","la maison"],["das Zimmer","la chambre"]]},
+  {id:"fr3", t:"À l'école", w:[["die Schule","l'école"],["der Lehrer","le professeur"],["das Heft","le cahier"],["das Buch","le livre"],["der Stift","le stylo"],["die Tafel","le tableau"],["der Unterricht","le cours"],["die Hausaufgaben","les devoirs"],["die Pause","la récré"],["arbeiten","travailler"],["suchen","chercher"],["finden","trouver"],["die Kantine","la cantine"],["das Fach","la matière"],["der Schüler","l'élève"]]},
+  {id:"fr4", t:"Les loisirs", w:[["spielen","jouer"],["singen","chanter"],["tanzen","danser"],["hören","écouter"],["ansehen","regarder"],["mögen / lieben","aimer"],["das Kino","le cinéma"],["das Fahrrad","le vélo"],["das Schwimmbad","la piscine"],["der Sport","le sport"],["die Musik","la musique"],["das Wochenende","le week-end"],["mit","avec"],["heute","aujourd'hui"],["morgen","demain"]]},
+  {id:"fr5", t:"Manger & la ville", w:[["das Brot","le pain"],["der Käse","le fromage"],["das Wasser","l'eau"],["der Apfel","la pomme"],["das Croissant","le croissant"],["einkaufen","faire les courses"],["die Bäckerei","la boulangerie"],["die Straße","la rue"],["der Platz","la place"],["der Bahnhof","la gare"],["links","à gauche"],["rechts","à droite"],["geradeaus","tout droit"],["wie viel","combien"],["kosten","coûter"]]}
+ ]}
+};
+
+</script>
+<script>
+"use strict";
+/* ========== Helpers ========== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const dayKey=(d=new Date())=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const addDays=(k,n)=>{const [y,m,d]=k.split("-").map(Number);const x=new Date(y,m-1,d+n);return dayKey(x)};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const fmtMin=s=>{s=Math.floor(s/60);if(s<60)return s+" Min";return Math.floor(s/60)+" Std "+(s%60)+" Min"};
+const norm=s=>String(s).toLowerCase().replace(/[−–]/g,"-").replace(/[’`´]/g,"'").replace(/,/g,".").replace(/€|%|°c|°|grad|tage|liter|jahre/g,"").replace(/\s+/g," ").trim().replace(/\.$/,"");
+const lsGet=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const toast=(m,ms=2600)=>{const t=document.createElement("div");t.className="toast";t.innerHTML=m;$("#toasts").appendChild(t);setTimeout(()=>t.remove(),ms)};
+const SUBJ=window.SUBJECTS, VOC=window.VOCAB;
+const TOPIC={};SUBJ.forEach(s=>s.topics.forEach(t=>{t.sid=s.id;TOPIC[t.id]=t}));
+const subj=id=>SUBJ.find(s=>s.id===id);
+
+/* ========== Avatar / Shop ========== */
+const ANIMALS=["🦊","🐼","🐯","🐸","🐱","🐶","🦁","🐨","🐵","🐧","🐰","🦉"];
+const PREMIUM={"🦄":400,"🐉":800,"🦖":600,"🐙":300};
+const COLORS=["#7c6cff","#ff7a18","#2ee59d","#ff5d73","#3fa9ff","#ffcc33","#d36bff","#00c2c7"];
+const ACCS=[["⭐",100],["🧢",150],["🕶️",200],["🎧",250],["🎩",300],["🌈",400],["👑",500],["🚀",600]];
+function avaHTML(a,size=44){a=a||{};const c=COLORS[a.c||0]||COLORS[0];return `<span class="ava" style="width:${size}px;height:${size}px;font-size:${size*.58}px;background:radial-gradient(circle at 30% 25%,#fff4,transparent 60%),${c}">${esc(a.e||"🦊")}${a.acc?`<span class="acc">${esc(a.acc)}</span>`:""}</span>`}
+
+/* ========== Levels & badges ========== */
+const lvlOf=xp=>Math.floor(Math.sqrt(xp/40))+1;
+const lvlXp=l=>Math.pow(l-1,2)*40;
+const RANKS=["Startklar","Passagier","Co-Pilot","Pilot","Kapitän","Überflieger","Ass","Legende"];
+const rankName=l=>RANKS[Math.min(RANKS.length-1,Math.floor((l-1)/3))];
+const BADGES=[
+ ["first","🎯","Erster Test",p=>Object.keys(p.topics||{}).length>0],
+ ["s3","🔥","3 Tage Flamme",p=>(p.best||0)>=3],
+ ["s7","🌋","7 Tage Flamme",p=>(p.best||0)>=7],
+ ["s30","☄️","30 Tage Flamme",p=>(p.best||0)>=30],
+ ["h1","⏱️","1 Stunde gelernt",p=>(p.totalSec||0)>=3600],
+ ["h10","🏅","10 Stunden",p=>(p.totalSec||0)>=36000],
+ ["perf","💯","Perfekter Test",p=>Object.values(p.topics||{}).some(t=>t.best===100)],
+ ["exam","📝","Probe-Arbeit",p=>(p.exams||[]).length>0],
+ ["one","🥇","Note 1",p=>(p.exams||[]).some(e=>e.g===1)],
+ ["fly","✈️","Erster Flug",p=>(p.flights||0)>=1],
+ ["fly10","🛫","10 Flüge",p=>(p.flights||0)>=10],
+ ["all","🌍","Alle Fächer",p=>SUBJ.every(s=>s.topics.some(t=>(p.topics||{})[t.id]))],
+ ["voc","🗂️","50 Vokabeln",p=>Object.values(p.vocab||{}).reduce((n,s)=>n+Object.values(s).filter(b=>b>=3).length,0)>=50],
+ ["friend","🤝","Freund geaddet",p=>(p.friends||[]).length>0],
+];
+
+/* ========== State ========== */
+let P=null, MODE="local", DB=null, USER=null, ROOM=null, UID=null, LOCALKEY=null, CLOUD_RO=false;
+let ALLP={}, ONLINE={};
+let V={v:"home"};
+let lastAct=Date.now(), dirty=false, saving=false, cloudTimer=null;
+const LEARN_VIEWS=["topic","quiz","exam","vocab","vocset","flight"];
+function newProfile(name,ava){return{v:1,name:name,ava:ava,xp:0,coins:0,streak:0,best:0,lastGoal:"",freezes:0,totalSec:0,days:{},goal:10,friends:[],code:Math.random().toString(36).slice(2,8).toUpperCase(),topics:{},exams:[],owned:[],vocab:{},flights:0,created:Date.now(),upd:Date.now()}}
+
+/* ========== Persistence ========== */
+function saveLocal(){if(!P)return;P.upd=Date.now();lsSet(LOCALKEY,P)}
+function save(){saveLocal();dirty=true;if(MODE==="cloud"&&!CLOUD_RO){clearTimeout(cloudTimer);cloudTimer=setTimeout(cloudSave,3000)}}
+async function cloudSave(){if(!DB||!UID||saving||!dirty||CLOUD_RO)return;saving=true;dirty=false;
+ try{const days={};Object.keys(P.days).sort().slice(-60).forEach(k=>days[k]=P.days[k]);P.days=days;
+  await DB.doc("players/"+UID).set(JSON.parse(JSON.stringify(P)));}
+ catch(e){if(e&&(e.code==="invalid_argument"||e.code==="permission-denied")){CLOUD_RO=true;toast("☁️ Cloud-Speichern ist für dich nicht freigeschaltet – dein Fortschritt wird auf diesem Gerät gespeichert.",6000)}else{dirty=true}}
+ saving=false;if(dirty){clearTimeout(cloudTimer);cloudTimer=setTimeout(cloudSave,4000)}}
+window.addEventListener("pagehide",()=>{saveLocal();cloudSave()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){saveLocal();cloudSave();if(FL())FL().turb=(FL().turb||0)+1,lsSet(flKey(),FL()),FL().hiddenAt=Date.now()}else if(FL()&&FL().hiddenAt&&Date.now()-FL().hiddenAt<36e5){FL().hiddenAt=0;toast("🌪️ Turbulenzen! Du hast den Flug verlassen. Bleib dran für den vollen Bonus.",3500)}});
+
+/* ========== Gamification ========== */
+function today(){return dayKey()}
+function todaySec(){return (P.days||{})[today()]||0}
+function streakAlive(){const t=today();if(!P.lastGoal)return 0;if(P.lastGoal===t||P.lastGoal===addDays(t,-1))return P.streak;if(P.freezes>0&&P.lastGoal===addDays(t,-2))return P.streak;return 0}
+function checkStreakOnLoad(){const t=today();if(!P.lastGoal)return;if(P.lastGoal===t||P.lastGoal===addDays(t,-1))return;
+ if(P.freezes>0&&P.lastGoal===addDays(t,-2)){return}
+ if(P.streak>0){toast("💨 Deine Flamme ist erloschen. Heute startet eine neue Serie!",4000)}P.streak=0;save()}
+function goalReached(){const t=today();if(P.lastGoal===t)return;const y=addDays(t,-1);
+ if(P.lastGoal===y)P.streak++;else if(P.freezes>0&&P.lastGoal===addDays(t,-2)){P.freezes--;P.streak++;toast("🧊 Flammen-Schutz benutzt – Serie gerettet!")}else P.streak=1;
+ P.lastGoal=t;P.best=Math.max(P.best||0,P.streak);addXP(20,true);
+ showModal(`<div class="center"><div class="big flame">🔥</div><h2>${P.streak} ${P.streak===1?"Tag":"Tage"} Flamme!</h2><p class="mut" style="margin:8px 0 16px">Tagesziel geschafft (${P.goal} Min). Komm morgen wieder, damit deine Flamme weiterbrennt!</p><button class="btn fire full" data-a="closeModal">Weiter so! +20 XP</button></div>`);save();renderTop()}
+function addXP(n,silent){const before=lvlOf(P.xp);P.xp+=n;P.coins+=n;const after=lvlOf(P.xp);
+ if(!silent)toast(`+${n} XP ⚡`,1400);
+ if(after>before){setTimeout(()=>showModal(`<div class="center"><div class="big">🎉</div><h2>Level ${after}!</h2><p class="mut" style="margin:8px 0 16px">Rang: <b>${rankName(after)}</b></p><button class="btn full" data-a="closeModal">Yeah!</button></div>`),400)}
+ checkBadges();save();renderTop()}
+function checkBadges(){P.badges=P.badges||[];BADGES.forEach(b=>{if(!P.badges.includes(b[0])&&b[3](P)){P.badges.push(b[0]);setTimeout(()=>toast(`🏆 Abzeichen: ${b[1]} ${b[2]}`,3500),800)}})}
+
+/* ========== Time tracking ========== */
+["click","keydown","touchstart","scroll"].forEach(e=>window.addEventListener(e,()=>lastAct=Date.now(),{passive:true}));
+let tick=0;
+setInterval(()=>{if(!P)return;
+ const fl=FL();
+ const learning=LEARN_VIEWS.includes(V.v)||!!fl;
+ if(document.visibilityState==="visible"&&learning&&(Date.now()-lastAct<120000||fl)){
+  const t=today();P.days[t]=(P.days[t]||0)+1;P.totalSec=(P.totalSec||0)+1;tick++;
+  if(P.lastGoal!==t&&P.days[t]>=P.goal*60)goalReached();
+  if(tick%15===0)save();
+  if(tick%5===0)renderTop();
+ }
+ if(fl)flightTick();
+},1000);
+
+/* ========== Init ========== */
+/* ===== Firebase-Anbindung ===== */
+function makeRoom(fs,uid,name){const col=fs.collection("rooms").doc(name).collection("peers");let state=null,hb=null,unsub=null;
+ return{presence(o){state=o;col.doc(uid).set(Object.assign({},o,{t:Date.now()})).catch(()=>{});if(!hb)hb=setInterval(()=>{if(state&&document.visibilityState==="visible")col.doc(uid).set(Object.assign({},state,{t:Date.now()})).catch(()=>{})},45000)},
+ onPeers(fn){const run=s=>{const now=Date.now();fn(s.docs.map(d=>d.data()).filter(p=>now-(p.t||0)<150000).map(p=>({presence:p})))};let last=null;unsub=col.onSnapshot(s=>{last=s;run(s)},()=>{});setInterval(()=>{if(last)run(last)},30000);return unsub},
+ join(n){return makeRoom(fs,uid,n)},
+ leave(){clearInterval(hb);hb=null;state=null;try{unsub&&unsub()}catch(e){}col.doc(uid).delete().catch(()=>{})}}}
+function fbReady(){return window.firebase&&window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.apiKey&&!/HIER/.test(window.FIREBASE_CONFIG.apiKey)}
+function renderLogin(msg){$("#topbar").innerHTML=`<div class="top"><div class="topin"><div class="logo">✈️<span>LernFlug 7</span></div></div></div>`;$("#nav").innerHTML="";
+ $("#main").innerHTML=`<div class="card center" style="margin-top:30px"><div class="big">✈️🔥</div><h1>Willkommen bei LernFlug 7</h1><p class="mut" style="margin:8px 0 18px">Lernen für die 7. Klasse · Gymnasium Brandenburg<br>Mit Flammen, Freunden und Fokus-Flügen.</p>
+ <button class="btn fire full" data-a="gLogin" style="font-size:18px">🔐 Mit Google anmelden</button>${msg?`<p class="sm" style="color:var(--bad);margin-top:12px">${esc(msg)}</p>`:""}
+ <p class="mut sm" style="margin-top:14px">Dein Fortschritt wird online gespeichert – auf jedem Gerät gleich.</p></div>
+ <div class="card"><p class="sm mut">Kein Google-Konto? <button class="btn ghost sm" data-a="localMode">Ohne Anmeldung lernen (nur dieses Gerät)</button></p></div>`}
+let FB_NAME="";
+async function init(){
+ if(!fbReady()){$("#main").innerHTML=`<div class="card" style="margin-top:30px"><h2>⚙️ Fast fertig!</h2><p style="margin-top:8px">Die Firebase-Daten fehlen noch in der Datei <b>config.js</b>. Trage dort deine Firebase-Konfiguration ein.</p><p class="mut sm" style="margin-top:10px">Bis dahin kannst du im Geräte-Modus lernen.</p><button class="btn full" style="margin-top:12px" data-a="localMode">Im Geräte-Modus starten</button></div>`;return}
+ MODE="fb"; try{firebase.initializeApp(window.FIREBASE_CONFIG)}catch(e){}
+ const auth=firebase.auth();
+ auth.onAuthStateChanged(async u=>{
+  if(!u){if(MODE!=="local")renderLogin();return}
+  if(P&&UID===u.uid)return;
+  MODE="cloud";UID=u.uid;FB_NAME=(u.displayName||"").split(" ")[0];DB=firebase.firestore();LOCALKEY="lf7_c_"+UID;ROOM=makeRoom(DB,UID,"lobby");
+  $("#main").innerHTML=`<div class="splash"><div class="big">✈️</div><p class="mut">Lade deinen Fortschritt …</p></div>`;
+  let cloud=null;try{const sn=await Promise.race([DB.doc("players/"+UID).get(),new Promise((_,j)=>setTimeout(()=>j("to"),10000))]);if(sn&&sn.exists)cloud=sn.data()}catch(e){}
+  const loc=lsGet(LOCALKEY);const best=cloud&&loc?(loc.upd>(cloud.upd||0)?loc:cloud):(cloud||loc);
+  if(best){P=JSON.parse(JSON.stringify(best));startApp();if(loc&&best===loc){dirty=true;cloudSave()}}
+  else{V={v:"onboard",ava:{e:"🦊",c:0}};renderOnboard();const i=$("#oname");if(i&&FB_NAME)i.value=FB_NAME}
+  try{DB.collection("players").onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{m[d.id]=d.data()});ALLP=m;if(["friends","home"].includes(V.v)&&P&&!$("#modal").innerHTML)rerender()},()=>{})}catch(e){}
+  try{ROOM.onPeers(peers=>{const o={};(peers||[]).forEach(p=>{const s=p&&(p.presence||p);if(s&&s.pid)o[s.pid]=s});ONLINE=o;if(V.v==="friends")rerender()})}catch(e){}
+ });
+}
+async function gLogin(){try{const pr=new firebase.auth.GoogleAuthProvider();pr.setCustomParameters({prompt:"select_account"});await firebase.auth().signInWithPopup(pr)}
+ catch(e){const m=e&&e.code==="auth/unauthorized-domain"?"Diese Website ist in Firebase noch nicht freigeschaltet (Authorized domains).":e&&e.code==="auth/popup-blocked"?"Popup blockiert – bitte Popups für diese Seite erlauben.":e&&e.code==="auth/popup-closed-by-user"?"":"Anmeldung fehlgeschlagen: "+(e&&e.code||e);if(m)renderLogin(m)}}
+function startApp(){P.days=P.days||{};P.topics=P.topics||{};P.vocab=P.vocab||{};P.friends=P.friends||[];P.owned=P.owned||[];P.exams=P.exams||[];P.badges=P.badges||[];if(!P.code)P.code=Math.random().toString(36).slice(2,8).toUpperCase();
+ checkStreakOnLoad();V={v:FL()?"flight":"home"};render();presence();if(FL())joinFlight(false);
+ if(MODE==="cloud"&&!P.created2){P.created2=1;save()}}
+function presence(act){if(!ROOM||!P)return;try{ROOM.presence({pid:MODE==="cloud"?UID:"l_"+P.name,n:P.name,e:P.ava.e,c:P.ava.c,act:act||V.v,fl:FL()?1:0})}catch(e){}}
+
+/* ---------- Local login ---------- */
+function renderLocalLogin(){const acc=lsGet("lf7_accounts")||{};const names=Object.keys(acc);
+ $("#topbar").innerHTML=`<div class="top"><div class="topin"><div class="logo">✈️<span>LernFlug 7</span></div></div></div>`;$("#nav").innerHTML="";
+ $("#main").innerHTML=`<div class="card center" style="margin-top:30px"><div class="big">✈️🔥</div><h1>Willkommen bei LernFlug 7</h1><p class="mut" style="margin:8px 0">Lernen für die 7. Klasse · Gymnasium Brandenburg</p></div>
+ ${names.length?`<div class="card"><h3>Einloggen</h3><div class="list">${names.map(n=>`<button class="li" data-a="localPick" data-x="${esc(n)}">${avaHTML(acc[n].ava,40)}<div class="grow nm" style="text-align:left">${esc(n)}</div><span class="pill">🔥 ${acc[n].streak||0}</span></button>`).join("")}</div></div>`:""}
+ <div class="card"><h3>Neues Profil</h3><p class="mut sm" style="margin:6px 0 10px">Gespeichert auf diesem Gerät. Optional mit 4-stelliger PIN.</p>
+ <input id="lname" placeholder="Dein Name" maxlength="20"><div style="height:8px"></div><input id="lpin" placeholder="PIN (optional)" inputmode="numeric" maxlength="4"><div style="height:12px"></div>
+ <button class="btn fire full" data-a="localNew">Profil erstellen 🚀</button></div>`}
+function localUse(name){LOCALKEY="lf7_l_"+name;P=lsGet(LOCALKEY)||newProfile(name,{e:"🦊",c:0});
+ const sync=()=>{const a=lsGet("lf7_accounts")||{};a[P.name]={ava:P.ava,streak:P.streak,pin:(a[P.name]||{}).pin||""};lsSet("lf7_accounts",a)};
+ setInterval(sync,15000);sync();startApp()}
+
+/* ---------- Onboarding (cloud) ---------- */
+function renderOnboard(){const a=V.ava;
+ $("#topbar").innerHTML=`<div class="top"><div class="topin"><div class="logo">✈️<span>LernFlug 7</span></div></div></div>`;$("#nav").innerHTML="";
+ $("#main").innerHTML=`<div class="card center" style="margin-top:24px"><h1>Willkommen an Bord! ✈️</h1><p class="mut" style="margin-top:6px">Du bist mit Google angemeldet. Erstelle jetzt deinen Lern-Avatar.</p>
+ <div style="margin:18px 0">${avaHTML(a,110)}</div></div>
+ <div class="card"><h3>Dein Name</h3><input id="oname" placeholder="z. B. Lene" maxlength="20" style="margin-top:8px">
+ <h3 style="margin-top:16px">Tier wählen</h3><div class="shop">${ANIMALS.map(e=>`<button class="${a.e===e?"eq":""}" data-a="obAni" data-x="${e}"><span class="e">${e}</span></button>`).join("")}</div>
+ <h3 style="margin-top:16px">Farbe</h3><div class="colors">${COLORS.map((c,i)=>`<button style="background:${c}" class="${a.c===i?"on":""}" data-a="obCol" data-x="${i}"></button>`).join("")}</div>
+ <div style="height:16px"></div><button class="btn fire full" data-a="obGo">Los geht’s 🚀</button></div>`}
+
+/* ========== Render ========== */
+function render(){if(!P)return;renderTop();renderNav();renderFbar();const f=VIEWS[V.v]||VIEWS.home;$("#main").innerHTML=f();window.scrollTo(0,0);after()}
+function rerender(){const y=window.scrollY;renderTop();renderFbar();$("#main").innerHTML=(VIEWS[V.v]||VIEWS.home)();window.scrollTo(0,y);after()}
+function after(){const i=$("#ans");if(i&&!V.answered)setTimeout(()=>{try{i.focus()}catch(e){}},50);if(V.v==="flight")drawSky()}
+function renderTop(){if(!P)return;const s=streakAlive();const lv=lvlOf(P.xp);
+ $("#topbar").innerHTML=`<div class="top"><div class="topin"><div class="logo" data-a="go" data-x="home">✈️<span>LernFlug</span></div>
+ <div class="chips"><div class="chip fire ${s?"":"dead"}" title="Flammen-Serie"><span class="${s?"flame":""}">🔥</span>${s}</div>
+ <div class="chip" title="Heute gelernt">⏱ <span class="timer">${Math.floor(todaySec()/60)}</span>m</div>
+ <div class="chip" title="Münzen">🪙 ${P.coins}</div>
+ <button data-a="go" data-x="me">${avaHTML(P.ava,34)}</button></div></div></div>`}
+function renderNav(){const fl=FL();const it=[["home","🏠","Start"],["learn","📚","Lernen"],["vocab","🗂️","Vokabeln"],["flight","✈️","Flug"],["friends","👥","Freunde"]];
+ const cur=V.v==="subject"||V.v==="topic"||V.v==="quiz"||V.v==="exam"?"learn":V.v==="vocset"?"vocab":V.v;
+ $("#nav").innerHTML=`<div class="nav">${it.map(([k,i,l])=>`<button class="${cur===k?"on":""} ${fl&&(k==="friends"||k==="home")?"lock":""}" data-a="go" data-x="${k}"><b>${i}</b>${l}</button>`).join("")}</div>`}
+
+const VIEWS={};
+/* ---------- Home ---------- */
+VIEWS.home=()=>{const s=streakAlive();const lv=lvlOf(P.xp);const lo=lvlXp(lv),hi=lvlXp(lv+1);const pct=Math.min(100,Math.round((P.xp-lo)/(hi-lo)*100));
+ const tm=Math.floor(todaySec()/60);const gp=Math.min(100,Math.round(todaySec()/(P.goal*60)*100));const done=P.lastGoal===today();
+ const days=[];for(let i=6;i>=0;i--){const k=addDays(today(),-i);days.push([k,(P.days||{})[k]||0])}const mx=Math.max(P.goal*60,...days.map(d=>d[1]));
+ const wd=["So","Mo","Di","Mi","Do","Fr","Sa"];
+ const lastT=Object.entries(P.topics).sort((a,b)=>(b[1].d||0)-(a[1].d||0))[0];
+ return `<div class="card"><div class="hero">${avaHTML(P.ava,70)}<div style="flex:1"><div class="mut sm">Hallo,</div><h2>${esc(P.name)} 👋</h2>
+ <div class="sm mut">Level ${lv} · ${rankName(lv)}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="sm mut" style="margin-top:3px">${P.xp-lo} / ${hi-lo} XP bis Level ${lv+1}</div></div></div>
+ <div class="row" style="margin-top:14px"><div class="stat"><b class="${s?"flame":""}" style="color:var(--fire2)">🔥 ${s}</b><span>Flammen-Tage</span></div><div class="stat"><b>${fmtMin(P.totalSec||0).replace(" Min","m").replace(" Std ","h ")}</b><span>Gesamt gelernt</span></div><div class="stat"><b>${P.best||0}</b><span>Rekord-Serie</span></div></div></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h3>${done?"✅ Tagesziel geschafft!":"🎯 Tagesziel"}</h3><button class="btn ghost sm" data-a="goalSet">⚙️ ${P.goal} Min</button></div>
+ <div class="bar" style="height:14px;margin-top:10px"><i style="width:${gp}%"></i></div><p class="mut sm" style="margin-top:6px">${tm} von ${P.goal} Minuten heute · ${done?"Deine Flamme brennt für heute 🔥":"Lerne noch "+Math.max(0,P.goal-tm)+" Min, damit deine Flamme brennt!"}</p>
+ <div class="week">${days.map(([k,v])=>`<div><div class="d"><i style="height:${Math.round(v/mx*100)}%"></i></div><span>${wd[new Date(k+"T12:00").getDay()]}</span></div>`).join("")}</div></div>
+ <div class="row" style="margin-top:14px"><button class="btn fire" style="flex:1" data-a="go" data-x="learn">📚 Lernen</button><button class="btn" style="flex:1" data-a="go" data-x="flight">✈️ Fokus-Flug</button></div>
+ ${lastT&&TOPIC[lastT[0]]?`<div class="card"><div class="mut sm">Weitermachen</div><button class="titem" style="margin-top:8px" data-a="topic" data-x="${lastT[0]}"><span class="num">${subj(TOPIC[lastT[0]].sid).icon}</span><span class="tt">${esc(TOPIC[lastT[0]].t)}</span><span class="star">${lastT[1].best}%</span></button></div>`:""}
+ <h3 style="margin-top:22px">Deine Fächer</h3>${subjGrid()}
+ <div class="card"><h3>🏆 Abzeichen</h3><div class="row" style="margin-top:10px;gap:6px">${BADGES.map(b=>`<div class="badge ${(P.badges||[]).includes(b[0])?"got":""}"><b>${b[1]}</b>${b[2]}</div>`).join("")}</div></div>`};
+function subjProg(s){const n=s.topics.length;const d=s.topics.filter(t=>P.topics[t.id]&&P.topics[t.id].best>=60).length;return[d,n]}
+function subjGrid(){return `<div class="grid">${SUBJ.map(s=>{const[d,n]=subjProg(s);return `<button class="subj" style="background:linear-gradient(145deg,${s.color},${s.color}88)" data-a="subject" data-x="${s.id}"><span class="ic">${s.icon}</span><div><div class="nm">${s.name}</div><div class="pr">${d}/${n} Themen geschafft</div><div class="bar"><i style="width:${d/n*100}%;background:#fff"></i></div></div></button>`}).join("")}</div>`}
+/* ---------- Learn ---------- */
+VIEWS.learn=()=>`<h2 style="margin-top:18px">📚 Was willst du lernen?</h2><p class="mut">Alle Themen der 7. Klasse nach dem Rahmenlehrplan Berlin-Brandenburg.</p>${subjGrid()}`;
+VIEWS.subject=()=>{const s=subj(V.sid);const fl=FL();
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="go" data-x="learn">← Fächer</button>
+ <div class="card" style="background:linear-gradient(145deg,${s.color},${s.color}66)"><div class="row"><span style="font-size:44px">${s.icon}</span><div><h2>${s.name}</h2><div class="sm">${s.topics.length} Themen · Klasse 7</div></div></div>
+ <button class="btn fire full" style="margin-top:14px" data-a="examStart" data-x="${s.id}">📝 Probe-Klassenarbeit schreiben</button></div>
+ <div class="tlist">${s.topics.map((t,i)=>{const st=P.topics[t.id];const b=st?st.best:null;return `<button class="titem" data-a="topic" data-x="${t.id}"><span class="num" style="${b>=80?"background:var(--ok);color:#003":b>=50?"background:var(--fire2);color:#321":""}">${b>=80?"✓":i+1}</span><span class="tt">${esc(t.t)}${t.gen?' <span class="pill">∞ Training</span>':""}</span><span class="star">${b==null?"neu":b+"%"}</span></button>`}).join("")}</div>
+ ${VOC[s.id]?`<button class="btn full" style="margin-top:14px" data-a="go" data-x="vocab">🗂️ Zum Vokabeltrainer</button>`:""}`};
+VIEWS.topic=()=>{const t=TOPIC[V.tid];const s=subj(t.sid);const tab=V.tab||"exp";const st=P.topics[t.id];
+ let body="";
+ if(tab==="exp")body=`<div class="card exp">${t.ex}</div><div class="row" style="margin-top:14px"><button class="btn" style="flex:1" data-a="tab" data-x="prac">✏️ Jetzt üben</button><button class="btn fire" style="flex:1" data-a="quizStart" data-x="test">📝 Mini-Test</button></div>`;
+ else if(tab==="prac")body=quizBody();
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="subject" data-x="${s.id}">← ${s.name}</button>
+ <h2 style="margin-top:12px">${s.icon} ${esc(t.t)}</h2>${st?`<p class="mut sm">Bester Mini-Test: ${st.best}% · ${st.n||1}× gemacht</p>`:""}
+ <div class="tabs"><button class="${tab==="exp"?"on":""}" data-a="tab" data-x="exp">📖 Erklärung</button><button class="${tab==="prac"?"on":""}" data-a="tab" data-x="prac">✏️ Üben</button><button data-a="quizStart" data-x="test">📝 Test</button></div>${body}`};
+
+/* ---------- Generators (Mathe-Endlostraining) ---------- */
+const GEN={
+ "m-rat":()=>{const a=rnd(-15,15)||3,b=rnd(-12,12)||-4;const op=rnd(0,3);const f=x=>x<0?`(−${-x})`:x;
+  if(op===0)return[`${f(a)} + ${f(b)} = ?`,"="+(a+b),`Vorzeichenregeln der Addition → ${a+b}`];
+  if(op===1)return[`${f(a)} − ${f(b)} = ?`,"="+(a-b),`Minus einer Zahl = Plus der Gegenzahl → ${a-b}`];
+  if(op===2)return[`${f(a)} · ${f(b)} = ?`,"="+(a*b),`Gleiche Vorzeichen +, verschiedene − → ${a*b}`];
+  const p=a*b;return[`${f(p)} : ${f(b)} = ?`,"="+a,`${p} : ${b} = ${a}`]},
+ "m-proz":()=>{const G=rnd(2,40)*10,p=[5,10,15,20,25,30,40,50,60,75][rnd(0,9)],W=G*p/100;const k=rnd(0,2);
+  if(k===0)return[`${p} % von ${G} = ?`,"="+W,`W = ${G} · ${p} / 100 = ${W}`];
+  if(k===1)return[`${W} von ${G} sind wie viel Prozent?`,"="+p,`p = ${W} / ${G} · 100 = ${p}`];
+  return[`${p} % sind ${W}. Wie groß ist der Grundwert?`,"="+G,`G = ${W} · 100 / ${p} = ${G}`]},
+ "m-zins":()=>{const K=rnd(2,50)*100,p=rnd(1,6);const m=[12,6,3,9][rnd(0,3)];const Z=Math.round(K*p/100*m/12*100)/100;
+  return[`${K} € werden ${m===12?"1 Jahr":m+" Monate"} zu ${p} % angelegt. Zinsen in €?`,"="+String(Z),`Z = ${K} · ${p}/100 · ${m}/12 = ${String(Z).replace(".",",")} €`]},
+ "m-zuo":()=>{if(rnd(0,1)){const n=rnd(2,6),pr=rnd(2,9)*(n),m=rnd(2,12);const e=pr/n;return[`${n} Stück kosten ${pr} €. Was kosten ${m} Stück? (in €)`,"="+(e*m),`1 Stück: ${pr} : ${n} = ${e} → ${m} · ${e} = ${e*m}`]}
+  const a=[2,3,4,6][rnd(0,3)],d=[6,8,12][rnd(0,2)],tot=a*d;const b=[2,3,4,6,8,12].filter(x=>x!==a&&tot%x===0);const bb=b[rnd(0,b.length-1)]||2;
+  return[`${a} Arbeiter brauchen ${d} Tage. Wie viele Tage brauchen ${bb} Arbeiter?`,"="+(tot/bb),`Antiproportional: ${a}·${d} = ${tot}; ${tot} : ${bb} = ${tot/bb}`]},
+ "m-term":()=>{const x=rnd(-6,9),a=rnd(2,7),b=rnd(-12,15);const c=a*x+b;const bs=b<0?`− ${-b}`:`+ ${b}`;
+  return[`Löse: ${a}x ${bs} = ${c}. x = ?`,"="+x,`${b<0?"+"+(-b):"−"+b} → ${a}x = ${c-b} → : ${a} → x = ${x}`]},
+ "m-wahr":()=>{const n=rnd(4,5);let a=[];for(let i=0;i<n;i++)a.push(rnd(1,20));let s=a.reduce((x,y)=>x+y,0);const r=s%n;if(r){a[0]+=n-r;s+=n-r}
+  return[`Mittelwert von ${a.join(", ")}?`,"="+(s/n),`Summe ${s} : ${n} = ${s/n}`]}
+};
+
+/* ---------- Quiz engine ---------- */
+function mkQ(raw){if(typeof raw[1]==="string")return{q:raw[0],inp:raw[1].slice(1).split("|"),e:raw[2]};return{q:raw[0],o:raw[1],a:raw[2],e:raw[3]}}
+function startPractice(){const t=TOPIC[V.tid];V.tab="prac";V.mode="prac";V.qs=shuffle(t.q).map(mkQ);V.qi=0;V.answered=false;V.sel=null;V.right=0;V.total=0}
+function nextPracQ(){const t=TOPIC[V.tid];V.qi++;V.answered=false;V.sel=null;
+ if(V.qi>=V.qs.length){if(t.gen&&GEN[t.id]){V.qs.push(mkQ(GEN[t.id]()))}else{V.qs=V.qs.concat(shuffle(t.q).map(mkQ))}}}
+function curQ(){return V.qs[V.qi]}
+function qCard(q,showFb){let h=`<div class="qtext">${esc(q.q)}</div>`;
+ if(q.o){h+=`<div class="opts">${q.o.map((o,i)=>{let c="";if(showFb&&V.answered){if(i===q.a)c="ok";else if(i===V.sel)c="bad"}else if(V.sel===i)c="sel";return `<button class="opt ${c}" data-a="pick" data-x="${i}" ${V.answered?"disabled":""}>${esc(o)}</button>`}).join("")}</div>`}
+ else{h+=`<form data-f="ans" class="inp-row"><input id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Antwort eingeben" value="${esc(V.typed||"")}" ${V.answered?"disabled":""}>${V.answered?"":`<button class="btn sm" type="submit">OK</button>`}</form>`;
+  if(V.v!=="exam")h+=`<p class="mut sm" style="margin-top:6px">Tipp: Kommazahlen mit Komma, negative Zahlen mit Minus.</p>`}
+ return h}
+const deacc=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function isRight(q){if(q.o)return V.sel===q.a;const u=deacc(norm(V.typed||""));return q.inp.some(a=>{const n=deacc(norm(a));if(n===u||n.replace(/\s/g,"")===u.replace(/\s/g,""))return true;const x=parseFloat(n),y=parseFloat(u.replace(/\s/g,""));return /^-?[\d.]+$/.test(n)&&/^-?[\d.]+$/.test(u.replace(/\s/g,""))&&Math.abs(x-y)<1e-9})}
+function quizBody(){const q=curQ();if(!q)return "";
+ let fb="";if(V.answered){const ok=V.lastOk;fb=`<div class="fb ${ok?"ok":"bad"}">${ok?"✅ Richtig!":"❌ Nicht ganz."+(q.inp?` Richtig: <b>${esc(q.inp[0])}</b>`:"")}<div style="font-weight:600;margin-top:6px">${esc(q.e)}</div></div><button class="btn full" style="margin-top:12px" data-a="pracNext">Weiter →</button>`}
+ return `<div class="card"><div class="qhead"><span class="pill">✏️ Übung ${V.total?`· ${V.right}/${V.total} richtig`:""}</span><span class="pill">+10 XP pro richtige</span></div>${qCard(q,true)}${fb}</div>`}
+function answer(){const q=curQ();if(V.answered)return;if(q.o&&V.sel==null)return;
+ const ok=isRight(q);V.answered=true;V.lastOk=ok;
+ if(V.v==="topic"){V.total++;if(ok){V.right++;addXP(10,true);toast("+10 XP ⚡",900)}}
+ rerender()}
+/* Mini-Test */
+function startTest(){const t=TOPIC[V.tid];let pool=shuffle(t.q).map(mkQ);if(t.gen&&GEN[t.id]){pool=pool.slice(0,4).concat([mkQ(GEN[t.id]()),mkQ(GEN[t.id]())])}else pool=pool.slice(0,6);
+ V={v:"quiz",tid:t.id,qs:pool,qi:0,res:[],answered:false,sel:null,typed:""}}
+VIEWS.quiz=()=>{const t=TOPIC[V.tid];if(V.done)return resultView(t);const q=curQ();
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="topic" data-x="${t.id}">✕ Abbrechen</button>
+ <div class="card"><div class="qhead"><span class="pill">📝 Mini-Test: ${esc(t.t)}</span><span class="pill">${V.qi+1}/${V.qs.length}</span></div><div class="bar"><i style="width:${V.qi/V.qs.length*100}%"></i></div>
+ ${qCard(q,false)}${q.o?`<button class="btn fire full" style="margin-top:14px" data-a="testNext" ${V.sel==null?"disabled":""}>${V.qi+1<V.qs.length?"Weiter →":"Abgeben ✔"}</button>`:""}</div>`};
+function testNext(){const q=curQ();if(!q.o){const i=$("#ans");V.typed=i?i.value:""}V.res.push({q,ok:isRight(q),your:q.o?q.o[V.sel]:V.typed});V.qi++;V.sel=null;V.typed="";
+ if(V.qi>=V.qs.length){finishTest()}render()}
+function finishTest(){const r=V.res.filter(x=>x.ok).length;const pct=Math.round(r/V.res.length*100);V.done=true;V.pct=pct;
+ if(V.v==="quiz"){const st=P.topics[V.tid]||{best:0,n:0};st.best=Math.max(st.best,pct);st.n=(st.n||0)+1;st.d=Date.now();P.topics[V.tid]=st;
+  addXP(r*10+(pct===100?30:0));}
+ else{const g=gradeOf(pct);V.grade=g;P.exams.unshift({s:V.sid,g:g,p:pct,d:today()});P.exams=P.exams.slice(0,30);addXP(50+r*10)}
+ save()}
+const gradeOf=p=>p>=92?1:p>=81?2:p>=67?3:p>=50?4:p>=30?5:6;
+function resultView(t){const pct=V.pct;const r=V.res.filter(x=>x.ok).length;
+ const em=pct===100?"🏆":pct>=80?"🎉":pct>=50?"💪":"📖";
+ return `<div class="card center" style="margin-top:18px"><div class="big">${em}</div>${V.v==="exam"?`<div class="mut">Deine Note</div><div class="grade">${V.grade}</div>`:""}<h2>${r} von ${V.res.length} richtig (${pct}%)</h2>
+ <p class="mut" style="margin-top:6px">${pct>=80?"Super, das sitzt!":pct>=50?"Gut! Schau dir die Fehler nochmal an.":"Lies dir die Erklärung nochmal durch und übe weiter."}</p></div>
+ <div class="card"><h3>Auswertung</h3><div class="list">${V.res.map(x=>`<div class="li" style="align-items:flex-start"><span style="font-size:20px">${x.ok?"✅":"❌"}</span><div class="grow"><div style="font-weight:800">${esc(x.q.q)}</div>${x.ok?"":`<div class="sm" style="color:var(--bad)">Deine Antwort: ${esc(x.your||"–")}</div><div class="sm" style="color:var(--ok)">Richtig: ${esc(x.q.o?x.q.o[x.q.a]:x.q.inp[0])}</div>`}<div class="sm mut">${esc(x.q.e)}</div></div></div>`).join("")}</div></div>
+ <div class="row" style="margin-top:14px">${V.v==="exam"?`<button class="btn fire" style="flex:1" data-a="examStart" data-x="${V.sid}">🔁 Neue Probe-Arbeit</button><button class="btn ghost" style="flex:1" data-a="subject" data-x="${V.sid}">Zum Fach</button>`:`<button class="btn fire" style="flex:1" data-a="quizStart" data-x="again">🔁 Nochmal</button><button class="btn ghost" style="flex:1" data-a="topic" data-x="${t.id}">📖 Zum Thema</button>`}</div>`}
+/* Probe-Klassenarbeit */
+function startExam(sid){const s=subj(sid);V={v:"examSetup",sid,sel:s.topics.map(t=>t.id),n:12,min:30};}
+VIEWS.examSetup=()=>{const s=subj(V.sid);return `<button class="btn ghost sm" style="margin-top:14px" data-a="subject" data-x="${s.id}">← ${s.name}</button>
+ <div class="card"><h2>📝 Probe-Klassenarbeit ${s.icon}</h2><p class="mut" style="margin:6px 0">Wähle die Themen, die in deiner Arbeit drankommen. Du bekommst gemischte Aufgaben, eine Zeitvorgabe und am Ende eine Note.</p>
+ <div class="list">${s.topics.map(t=>`<button class="li" data-a="exTog" data-x="${t.id}"><span style="font-size:20px">${V.sel.includes(t.id)?"☑️":"⬜"}</span><span class="grow nm" style="text-align:left">${esc(t.t)}</span></button>`).join("")}</div>
+ <div class="row" style="margin-top:12px"><div style="flex:1"><div class="sm mut">Aufgaben</div><select id="exn">${[8,12,16,20].map(n=>`<option ${n===V.n?"selected":""}>${n}</option>`).join("")}</select></div><div style="flex:1"><div class="sm mut">Zeit (Min)</div><select id="exm">${[15,20,30,45].map(n=>`<option ${n===V.min?"selected":""}>${n}</option>`).join("")}</select></div></div>
+ <button class="btn fire full" style="margin-top:14px" data-a="exGo" ${V.sel.length?"":"disabled"}>Arbeit beginnen ⏱</button></div>`};
+function examGo(){const n=+$("#exn").value,min=+$("#exm").value;let pool=[];V.sel.forEach(id=>{const t=TOPIC[id];pool=pool.concat(t.q.map(q=>mkQ(q)));if(t.gen&&GEN[id])for(let i=0;i<2;i++)pool.push(mkQ(GEN[id]()))});
+ pool=shuffle(pool).slice(0,n);V={v:"exam",sid:V.sid,qs:pool,qi:0,res:[],sel:null,typed:"",end:Date.now()+min*60000}}
+VIEWS.exam=()=>{if(V.done)return resultView(null);const q=curQ();const left=Math.max(0,Math.round((V.end-Date.now())/1000));
+ return `<div class="card" style="margin-top:14px"><div class="qhead"><span class="pill">📝 Probe-Arbeit ${subj(V.sid).icon}</span><span class="pill timer" id="extimer">⏱ ${Math.floor(left/60)}:${pad(left%60)}</span></div>
+ <div class="bar"><i style="width:${V.qi/V.qs.length*100}%"></i></div><p class="mut sm" style="margin-top:6px">Aufgabe ${V.qi+1} von ${V.qs.length}</p>
+ ${qCard(q,false)}${q.o?`<button class="btn fire full" style="margin-top:14px" data-a="testNext" ${V.sel==null?"disabled":""}>${V.qi+1<V.qs.length?"Nächste Aufgabe →":"Abgeben ✔"}</button>`:""}</div>
+ <button class="btn ghost sm" style="margin-top:10px" data-a="subject" data-x="${V.sid}">Arbeit abbrechen</button>`};
+setInterval(()=>{if(V.v==="exam"&&!V.done){const left=Math.max(0,Math.round((V.end-Date.now())/1000));const el=$("#extimer");if(el)el.textContent=`⏱ ${Math.floor(left/60)}:${pad(left%60)}`;
+ if(left<=0){toast("⏰ Zeit ist um!");while(V.qi<V.qs.length){V.res.push({q:V.qs[V.qi],ok:false,your:"(keine Zeit)"});V.qi++}finishTest();render()}}},1000);
+
+/* ---------- Vocab ---------- */
+VIEWS.vocab=()=>`<h2 style="margin-top:18px">🗂️ Vokabeltrainer</h2><p class="mut">Karteikasten-System: Gewusste Wörter wandern ins nächste Fach – Fach 5 = sitzt sicher!</p>
+ ${["en","fr"].map(L=>{const l=VOC[L];return `<div class="card"><h3>${l.flag} ${l.name}</h3><div class="tlist">${l.sets.map(s=>{const bx=(P.vocab[s.id]||{});const known=Object.values(bx).filter(b=>b>=3).length;return `<button class="titem" data-a="vset" data-x="${L}|${s.id}"><span class="num">${l.flag}</span><span class="tt">${esc(s.t)}<div class="bar"><i style="width:${known/s.w.length*100}%"></i></div></span><span class="star">${known}/${s.w.length}</span></button>`}).join("")}</div></div>`}).join("")}`;
+function vStart(L,sid,mode){const l=VOC[L];const s=l.sets.find(x=>x.id===sid);const bx=P.vocab[sid]||{};
+ let order=s.w.map((w,i)=>i);order=shuffle(order).sort((a,b)=>(bx[a]||0)-(bx[b]||0));
+ V={v:"vocset",L,sid,mode:mode||V.mode||"card",dir:V.dir||"de",order,i:0,flip:false,answered:false,typed:"",right:0,tot:0}}
+function vWord(){const s=VOC[V.L].sets.find(x=>x.id===V.sid);return[s,s.w[V.order[V.i%V.order.length]],V.order[V.i%V.order.length]]}
+VIEWS.vocset=()=>{const[s,w,idx]=vWord();const l=VOC[V.L];const bx=P.vocab[s.id]||{};const front=V.dir==="de"?w[0]:w[1],back=V.dir==="de"?w[1]:w[0];
+ const counts=[1,2,3,4,5].map(b=>s.w.filter((_,i)=>Math.max(1,(bx[i]||0))===b).length);
+ let body="";
+ if(V.mode==="card")body=`<div class="fc ${V.flip?"flip":""}" data-a="vflip"><div class="fci"><div class="fcs f"><div class="sm mut">${V.dir==="de"?"Deutsch":l.name}</div>${esc(front)}<div class="sm mut" style="margin-top:10px">Tippen zum Umdrehen</div></div><div class="fcs b"><div class="sm" style="opacity:.8">${V.dir==="de"?l.name:"Deutsch"}</div>${esc(back)}</div></div></div>
+ ${V.flip?`<div class="row" style="margin-top:12px"><button class="btn ghost" style="flex:1" data-a="vres" data-x="0">😕 Nicht gewusst</button><button class="btn ok" style="flex:1" data-a="vres" data-x="1">😎 Gewusst</button></div>`:""}`;
+ else if(V.mode==="write"){const ok=V.answered?vCheck(back):null;
+  body=`<div class="card center"><div class="sm mut">Übersetze</div><div class="qtext">${esc(front)}</div><form data-f="vans" class="inp-row"><input id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Übersetzung" value="${esc(V.typed)}" ${V.answered?"disabled":""}>${V.answered?"":`<button class="btn sm">OK</button>`}</form>
+  ${V.L==="fr"&&!V.answered?`<div class="row" style="margin-top:8px;justify-content:center">${["é","è","ê","à","ç","ô","œ","ù"].map(c=>`<button class="btn ghost sm" data-a="vchar" data-x="${c}">${c}</button>`).join("")}</div>`:""}
+  ${V.answered?`<div class="fb ${ok?"ok":"bad"}">${ok?"✅ Richtig!":"❌ Richtig wäre:"} <b>${esc(back)}</b></div><button class="btn full" style="margin-top:10px" data-a="vnext">Weiter →</button>`:`<button class="btn ghost sm" style="margin-top:10px" data-a="vskip">Weiß ich nicht</button>`}</div>`}
+ else{if(!V.opts){const others=shuffle(s.w.filter(x=>x!==w)).slice(0,3).map(x=>V.dir==="de"?x[1]:x[0]);V.opts=shuffle(others.concat([back]))}
+  body=`<div class="card"><div class="sm mut center">Was heißt …</div><div class="qtext center">${esc(front)}</div><div class="opts">${V.opts.map(o=>{let c="";if(V.answered){if(o===back)c="ok";else if(o===V.pick)c="bad"}return `<button class="opt ${c}" data-a="vpick" data-x="${esc(o)}" ${V.answered?"disabled":""}>${esc(o)}</button>`}).join("")}</div>${V.answered?`<button class="btn full" style="margin-top:12px" data-a="vnext">Weiter →</button>`:""}</div>`}
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="go" data-x="vocab">← Vokabeln</button>
+ <div class="row" style="margin-top:10px;justify-content:space-between"><h2>${l.flag} ${esc(s.t)}</h2><span class="sp" data-a="speak" title="Vorlesen">🔊</span></div>
+ <div class="tabs"><button class="${V.mode==="card"?"on":""}" data-a="vmode" data-x="card">🃏 Karten</button><button class="${V.mode==="write"?"on":""}" data-a="vmode" data-x="write">⌨️ Schreiben</button><button class="${V.mode==="mc"?"on":""}" data-a="vmode" data-x="mc">🔘 Auswahl</button></div>
+ <div class="row" style="margin-top:10px;justify-content:space-between"><button class="btn ghost sm" data-a="vdir">🔄 ${V.dir==="de"?"Deutsch → "+l.name:l.name+" → Deutsch"}</button><span class="pill">${V.tot?`${V.right}/${V.tot} richtig`:"Los geht’s!"}</span></div>
+ ${body}<div class="boxes">${counts.map((c,i)=>`<div>Fach ${i+1}<br>${c}</div>`).join("")}</div>`};
+function vCheck(back){const u=deacc(norm(V.typed)).replace(/^(le|la|les|l'|un|une|the|to) /,"");const opts=back.split(/[\/,]/).map(x=>deacc(norm(x)));return opts.some(o=>o===deacc(norm(V.typed))||o.replace(/^(le|la|les|l'|un|une|the|to) /,"")===u||o.replace(/^l'/,"")===u.replace(/^l'/,""))}
+function vRecord(ok){const[s,w,idx]=vWord();const bx=P.vocab[s.id]||{};const b=bx[idx]||0;bx[idx]=ok?Math.min(5,b+1):1;P.vocab[s.id]=bx;V.tot++;if(ok){V.right++;addXP(5,true)}save()}
+function vNext(){V.i++;V.flip=false;V.answered=false;V.typed="";V.opts=null;V.pick=null;if(V.i%V.order.length===0){const L=V.L,sid=V.sid,r=V.right,t=V.tot,m=V.mode,d=V.dir;vStart(L,sid,m);V.dir=d;V.right=r;V.tot=t;toast("🔁 Runde geschafft! Neue Runde – schwierige Wörter zuerst.")}}
+function speak(){try{const[s,w]=vWord();const u=new SpeechSynthesisUtterance(w[1]);u.lang=VOC[V.L].lang;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast("🔇 Vorlesen geht in diesem Browser nicht.")}}
+
+/* ---------- Flight ---------- */
+const flKey=()=>"lf7_flight_"+(UID||(P&&P.name));
+function FL(){if(!P)return null;const f=window.__fl!==undefined?window.__fl:(window.__fl=lsGet(flKey()));return f}
+function setFL(f){window.__fl=f;lsSet(flKey(),f)}
+const ROUTES=[[10,"Berlin","Leipzig"],[20,"Berlin","Hamburg"],[30,"Berlin","Prag"],[45,"Berlin","Wien"],[60,"Berlin","Paris"],[90,"Berlin","London"],[120,"Berlin","Rom"]];
+let flRoom=null,flPeers=[];
+VIEWS.flight=()=>{const f=FL();
+ if(!f){const d=V.dur||25;const r=ROUTES.reduce((a,x)=>d>=x[0]?x:a,ROUTES[0]);
+  return `<h2 style="margin-top:18px">✈️ Fokus-Flug</h2><p class="mut">Stell ein, wie lange du lernen willst. Während des Fluges bist du im Lernmodus: keine Ablenkung, nur dein Fach. Verlässt du die App, gibt’s Turbulenzen und weniger Bonus!</p>
+  <div class="card"><h3>Flugdauer: <span style="color:var(--fire2)" id="durl">${d} Min</span></h3><input type="range" min="5" max="120" step="5" value="${d}" data-in="dur" style="padding:0;margin-top:10px;accent-color:#ff7a18">
+  <div class="row" style="margin-top:10px">${[15,25,45,60].map(n=>`<button class="btn ghost sm" data-a="durSet" data-x="${n}">${n} Min</button>`).join("")}</div>
+  <h3 style="margin-top:16px">Was lernst du an Bord?</h3><select id="flsub" style="margin-top:8px">${SUBJ.map(s=>`<option value="${s.id}" ${V.fsub===s.id?"selected":""}>${s.icon} ${s.name}</option>`).join("")}<option value="vocab" ${V.fsub==="vocab"?"selected":""}>🗂️ Vokabeln</option></select>
+  <h3 style="margin-top:16px">👥 Mit Freunden fliegen</h3><p class="mut sm" style="margin:4px 0 8px">Starte einen Flug und teile den Flugcode – oder gib den Code deiner Freundin ein, um im selben Flugzeug zu sitzen.</p>
+  <input id="flcode" placeholder="Flugcode (optional, z. B. LF4821)" maxlength="8" style="text-transform:uppercase" value="${esc(V.fcode||"")}">
+  </div>
+  <div class="pass"><div class="row" style="justify-content:space-between;padding-right:120px"><div><div class="lbl">Von</div><div class="val">${r[1]}</div></div><div style="font-size:26px">✈️</div><div><div class="lbl">Nach</div><div class="val">${r[2]}</div></div></div>
+  <div class="row" style="margin-top:10px;gap:24px"><div><div class="lbl">Passagier</div><div class="val" style="font-size:16px">${esc(P.name)}</div></div><div><div class="lbl">Dauer</div><div class="val" style="font-size:16px">${d} Min</div></div><div><div class="lbl">Bonus</div><div class="val" style="font-size:16px">+${d*3} XP</div></div></div>
+  <div style="position:absolute;right:18px;top:18px;bottom:18px;width:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div class="lbl">Gate</div><div class="val">${"ABC"[d%3]}${d%9+1}</div><div style="font-size:30px">🎫</div></div></div>
+  <button class="btn fire full" style="margin-top:16px;font-size:18px" data-a="flStart">🛫 Abflug!</button>
+  ${(P.flights||0)?`<p class="mut sm center" style="margin-top:10px">Du hast schon ${P.flights} Flüge absolviert.</p>`:""}`}
+ const left=Math.max(0,Math.round((f.end-Date.now())/1000));const prog=1-left/(f.dur*60);
+ const sid=f.sub;const s=subj(sid);
+ return `<div class="sky" id="sky"><span class="cloud" style="top:20px;animation-delay:-3s">☁️</span><span class="cloud" style="top:110px;animation-delay:-11s;font-size:56px">☁️</span><span class="cloud" style="top:170px;animation-delay:-7s">☁️</span>
+ <svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M8 50 Q50 -5 92 50" stroke="#fff6" stroke-width=".6" stroke-dasharray="2 2" fill="none"/></svg>
+ <span style="position:absolute;left:4%;bottom:6px;font-weight:900;font-size:13px">🛫 ${f.from}</span><span style="position:absolute;right:4%;bottom:6px;font-weight:900;font-size:13px">${f.to} 🛬</span>
+ <span class="plane" id="plane">✈️</span>
+ <div style="position:absolute;left:0;right:0;top:44%;text-align:center"><div class="timer" id="flt" style="font-size:48px;text-shadow:0 4px 20px #0008">${Math.floor(left/60)}:${pad(left%60)}</div><div class="sm" style="font-weight:800">Flughöhe ${Math.round(Math.sin(Math.PI*prog)*11000)} m · ${Math.round(prog*100)}%</div></div></div>
+ ${f.code?`<div class="card"><div class="row" style="justify-content:space-between"><div><div class="sm mut">Flugcode zum Einladen</div><div style="font-size:26px;font-weight:900;letter-spacing:3px">${f.code}</div></div><button class="btn ghost sm" data-a="copyCode" data-x="${f.code}">📋 Kopieren</button></div>
+ <div class="sm mut" style="margin-top:8px">Passagiere an Bord:</div><div class="seats" id="seats">${seatsHTML()}</div></div>`:""}
+ <div class="card"><h3>📚 Bordprogramm: ${sid==="vocab"?"🗂️ Vokabeln":s.icon+" "+s.name}</h3><p class="mut sm" style="margin:4px 0 10px">Wähle ein Thema – der Timer läuft weiter.</p>
+ ${sid==="vocab"?`<button class="btn full" data-a="go" data-x="vocab">🗂️ Zum Vokabeltrainer</button>`:`<div class="tlist">${s.topics.map(t=>`<button class="titem" data-a="topic" data-x="${t.id}"><span class="num">${s.icon}</span><span class="tt">${esc(t.t)}</span><span class="star">${P.topics[t.id]?P.topics[t.id].best+"%":"neu"}</span></button>`).join("")}</div><button class="btn fire full" style="margin-top:10px" data-a="examStart" data-x="${sid}">📝 Probe-Arbeit an Bord</button>`}</div>
+ <button class="btn ghost full" style="margin-top:14px" data-a="flAbort">🪂 Flug abbrechen (kein Bonus)</button>`};
+function seatsHTML(){const me=`<div class="seat">${avaHTML(P.ava,24)} ${esc(P.name)} (du)</div>`;return me+flPeers.filter(p=>p.pid!==(UID||"l_"+P.name)).map(p=>`<div class="seat">${avaHTML({e:p.e,c:p.c},24)} ${esc(p.n||"Freund")}</div>`).join("")}
+function renderFbar(){const f=FL();if(!f||V.v==="flight"){$("#fbar").innerHTML="";return}const left=Math.max(0,Math.round((f.end-Date.now())/1000));
+ $("#fbar").innerHTML=`<div class="flightbar" data-a="go" data-x="flight">✈️ Im Flug nach ${f.to} <span class="t" id="fbt">${Math.floor(left/60)}:${pad(left%60)}</span><span style="margin-left:auto">${flPeers.length>1?"👥 "+flPeers.length:""} Zum Cockpit →</span></div>`}
+function drawSky(){const f=FL();if(!f)return;const pl=$("#plane");if(!pl)return;const left=Math.max(0,(f.end-Date.now())/1000);const p=Math.min(1,1-left/(f.dur*60));
+ const x=8+84*p;const y=50-110*p*(1-p);pl.style.left=x+"%";pl.style.top=(y/60*100)+"%";pl.style.transform=`translate(-50%,-50%) rotate(${(0.5-p)*-50}deg)`}
+async function flStart(){const d=V.dur||25;const sub=$("#flsub").value;let code=($("#flcode").value||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
+ const r=ROUTES.reduce((a,x)=>d>=x[0]?x:a,ROUTES[0]);
+ let f={start:Date.now(),end:Date.now()+d*60000,dur:d,sub,from:r[1],to:r[2],turb:0,code:code||("LF"+rnd(1000,9999))};
+ try{if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}
+ setFL(f);V={v:"flight"};render();toast("🛫 Abflug! Viel Erfolg beim Lernen.");joinFlight(!!code);P.flStarted=(P.flStarted||0)+1;save()}
+function joinFlight(adopt){const f=FL();if(!f||!ROOM||!f.code)return;try{flRoom=ROOM.join("flug-"+f.code);
+ flRoom.onPeers(peers=>{flPeers=(peers||[]).map(p=>p&&(p.presence||p.state||p.data||p)).filter(p=>p&&p.pid);
+  if(adopt){const host=flPeers.find(p=>p.end&&p.end>Date.now()&&p.pid!==(UID||"l_"+P.name));if(host){adopt=false;const ff=FL();ff.end=host.end;ff.dur=host.dur;ff.to=host.to||ff.to;ff.from=host.from||ff.from;setFL(ff);toast(`👥 Du sitzt jetzt im Flug von ${esc(host.n||"deiner Freundin")}!`);flPresence();rerender()}}
+  const el=$("#seats");if(el)el.innerHTML=seatsHTML();renderFbar()});
+ flPresence()}catch(e){}}
+function flPresence(){const f=FL();if(!flRoom||!f)return;try{flRoom.presence({pid:UID||"l_"+P.name,n:P.name,e:P.ava.e,c:P.ava.c,end:f.end,dur:f.dur,to:f.to,from:f.from})}catch(e){}}
+function flightTick(){const f=FL();const left=Math.max(0,Math.round((f.end-Date.now())/1000));const txt=`${Math.floor(left/60)}:${pad(left%60)}`;
+ const a=$("#flt");if(a)a.textContent=txt;const b=$("#fbt");if(b)b.textContent=txt;drawSky();
+ if(left<=0)landing()}
+function landing(){const f=FL();setFL(null);try{flRoom&&flRoom.leave()}catch(e){}flRoom=null;flPeers=[];
+ const bonus=Math.max(f.dur,f.dur*3-(f.turb||0)*10);P.flights=(P.flights||0)+1;addXP(bonus,true);
+ try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}
+ showModal(`<div class="center"><div class="big">🛬</div><h2>Gelandet in ${esc(f.to)}!</h2><p class="mut" style="margin:8px 0">Du hast ${f.dur} Minuten konzentriert gelernt.${f.turb?` Turbulenzen: ${f.turb}×`:" Perfekter Flug ohne Turbulenzen! 🌟"}</p><h3 style="color:var(--fire2)">+${bonus} XP · +${bonus} 🪙</h3><button class="btn fire full" style="margin-top:14px" data-a="closeModal">Aussteigen</button></div>`);
+ V={v:"home"};render()}
+
+/* ---------- Friends ---------- */
+VIEWS.friends=()=>{
+ if(MODE!=="cloud")return `<h2 style="margin-top:18px">👥 Freunde</h2><div class="card"><p>Freunde & Ranglisten funktionieren, wenn du dich mit Google anmeldest. Gerade läuft LernFlug im <b>Geräte-Modus</b> – dein Fortschritt wird auf diesem Gerät gespeichert.</p><p class="mut sm" style="margin-top:8px">Melde dich ab und wieder mit Google an, um Freunde zu sehen.</p></div>`;
+ const me=UID;const fr=(P.friends||[]).filter(id=>ALLP[id]);const meRow={...P,_id:me};
+ const lb=[meRow].concat(fr.map(id=>({...ALLP[id],_id:id}))).map(p=>({...p,wk:weekSec(p)})).sort((a,b)=>b.wk-a.wk);
+ const others=Object.entries(ALLP).filter(([id])=>id!==me&&!(P.friends||[]).includes(id));
+ return `<h2 style="margin-top:18px">👥 Freunde</h2>
+ <div class="card"><div class="row" style="justify-content:space-between"><div><div class="sm mut">Dein Freundes-Code</div><div style="font-size:28px;font-weight:900;letter-spacing:3px">${esc(P.code)}</div></div><button class="btn ghost sm" data-a="copyCode" data-x="${esc(P.code)}">📋 Kopieren</button></div>
+ <form data-f="addf" class="inp-row" style="margin-top:12px"><input id="fcode" placeholder="Code deiner Freundin" maxlength="6" style="text-transform:uppercase"><button class="btn sm">➕ Adden</button></form></div>
+ <div class="card"><h3>🏆 Wochen-Rangliste</h3><p class="mut sm">Lernzeit der letzten 7 Tage</p><div class="list">${lb.map((p,i)=>`<div class="li">${["🥇","🥈","🥉"][i]||`<b style="width:24px;text-align:center">${i+1}</b>`}${avaHTML(p.ava,40)}<div class="grow"><div class="nm">${esc(p.name)}${p._id===me?" (du)":""} ${onlineOf(p._id)}</div><div class="sm mut">🔥 ${liveStreak(p)} · Lvl ${lvlOf(p.xp||0)} · ${(p.flights||0)} ✈️</div></div><b>${fmtMin(p.wk)}</b></div>`).join("")}</div>
+ ${fr.length?"":`<p class="mut sm" style="margin-top:8px">Noch keine Freunde – teile deinen Code!</p>`}</div>
+ ${others.length?`<div class="card"><h3>Weitere Lernende hier</h3><div class="list">${others.map(([id,p])=>`<div class="li">${avaHTML(p.ava,36)}<div class="grow"><div class="nm">${esc(p.name)} ${onlineOf(id)}</div><div class="sm mut">🔥 ${liveStreak(p)} · Lvl ${lvlOf(p.xp||0)}</div></div><button class="btn sm" data-a="addId" data-x="${esc(id)}">➕</button></div>`).join("")}</div></div>`:""}
+ <div class="card"><h3>✈️ Gemeinsam lernen</h3><p class="mut sm" style="margin:6px 0 10px">Starte einen Fokus-Flug und schick deiner Freundin den Flugcode. Ihr seht euch dann gegenseitig im Flugzeug sitzen.</p><button class="btn full" data-a="go" data-x="flight">Zum Flughafen 🛫</button></div>`};
+function weekSec(p){let s=0;for(let i=0;i<7;i++)s+=((p.days||{})[addDays(today(),-i)]||0);return s}
+function liveStreak(p){const t=today();return p.lastGoal===t||p.lastGoal===addDays(t,-1)?(p.streak||0):0}
+function onlineOf(id){const o=ONLINE[id];if(!o)return "";return o.fl?`<span class="pill on">✈️ fliegt</span>`:`<span class="pill on">● online</span>`}
+
+/* ---------- Me / Shop ---------- */
+VIEWS.me=()=>{const lv=lvlOf(P.xp);
+ return `<div class="card center" style="margin-top:18px">${avaHTML(P.ava,110)}<h2 style="margin-top:10px">${esc(P.name)}</h2><p class="mut">Level ${lv} · ${rankName(lv)} · ${P.xp} XP</p>
+ <div class="row" style="margin-top:12px"><div class="stat"><b>🔥 ${streakAlive()}</b><span>Serie</span></div><div class="stat"><b>🧊 ${P.freezes||0}</b><span>Flammen-Schutz</span></div><div class="stat"><b>🪙 ${P.coins}</b><span>Münzen</span></div></div></div>
+ <div class="card"><h3>✏️ Name</h3><form data-f="rename" class="inp-row" style="margin-top:8px"><input id="rn" value="${esc(P.name)}" maxlength="20"><button class="btn sm">Speichern</button></form></div>
+ <div class="card"><h3>🐾 Avatar</h3><div class="shop">${ANIMALS.map(e=>`<button class="${P.ava.e===e?"eq":""}" data-a="setAni" data-x="${e}"><span class="e">${e}</span>gratis</button>`).join("")}${Object.entries(PREMIUM).map(([e,c])=>{const own=P.owned.includes(e);return `<button class="${P.ava.e===e?"eq":own?"own":""}" data-a="buyAni" data-x="${e}"><span class="e">${e}</span>${own?"✔":"🪙 "+c}</button>`}).join("")}</div>
+ <h3 style="margin-top:14px">🎨 Farbe</h3><div class="colors">${COLORS.map((c,i)=>`<button style="background:${c}" class="${P.ava.c===i?"on":""}" data-a="setCol" data-x="${i}"></button>`).join("")}</div>
+ <h3 style="margin-top:14px">👒 Accessoires</h3><div class="shop"><button class="${!P.ava.acc?"eq":""}" data-a="setAcc" data-x=""><span class="e">🚫</span>keins</button>${ACCS.map(([e,c])=>{const own=P.owned.includes(e);return `<button class="${P.ava.acc===e?"eq":own?"own":""}" data-a="buyAcc" data-x="${e}"><span class="e">${e}</span>${own?"✔":"🪙 "+c}</button>`}).join("")}</div></div>
+ <div class="card"><h3>🧊 Flammen-Schutz</h3><p class="mut sm" style="margin:6px 0 10px">Rettet deine Serie, wenn du einen Tag verpasst (max. 3).</p><button class="btn" data-a="buyFreeze" ${(P.freezes||0)>=3?"disabled":""}>Kaufen für 🪙 300</button></div>
+ <div class="card"><h3>📊 Statistik</h3><div class="list">
+ <div class="li"><span>⏱</span><div class="grow">Gesamt gelernt</div><b>${fmtMin(P.totalSec||0)}</b></div>
+ <div class="li"><span>📅</span><div class="grow">Diese Woche</div><b>${fmtMin(weekSec(P))}</b></div>
+ <div class="li"><span>📝</span><div class="grow">Mini-Tests gemacht</div><b>${Object.values(P.topics).reduce((n,t)=>n+(t.n||0),0)}</b></div>
+ <div class="li"><span>✈️</span><div class="grow">Fokus-Flüge</div><b>${P.flights||0}</b></div></div>
+ ${P.exams.length?`<h3 style="margin-top:14px">Letzte Probe-Arbeiten</h3><div class="list">${P.exams.slice(0,8).map(e=>`<div class="li"><span>${subj(e.s)?subj(e.s).icon:"📝"}</span><div class="grow">${subj(e.s)?subj(e.s).name:""} <span class="sm mut">${e.d}</span></div><b>Note ${e.g}</b></div>`).join("")}</div>`:""}</div>
+ <div class="card sm mut">${MODE==="cloud"?(CLOUD_RO?"☁️ Nur Geräte-Speicherung (Cloud-Schreibrecht fehlt).":"☁️ Mit Google angemeldet – Fortschritt wird online gespeichert."):"📱 Geräte-Modus – Fortschritt wird in diesem Browser gespeichert."}
+ <div style="margin-top:10px"><button class="btn ghost sm" data-a="logout">Abmelden / Konto wechseln</button></div></div>`};
+
+/* ========== Modal ========== */
+function showModal(h){$("#modal").innerHTML=`<div class="modal" data-a="closeModalBg"><div class="card">${h}</div></div>`}
+function closeModal(){$("#modal").innerHTML=""}
+
+/* ========== Events ========== */
+const ACT={
+ go:x=>{const f=FL();if(f&&(x==="friends"||x==="home")){toast("🔒 Im Flug nicht verfügbar – bleib fokussiert!");return}
+  if(x==="vocab")V={v:"vocab"};else V={v:x};render();presence()},
+ subject:x=>{const f=FL();if(f&&f.sub!==x&&f.sub!=="vocab"){toast("🔒 Im Flug nur dein Bordfach");return}V={v:"subject",sid:x};render();presence()},
+ topic:x=>{const f=FL();if(f&&f.sub!=="vocab"&&TOPIC[x].sid!==f.sub){toast("🔒 Im Flug nur dein Bordfach");return}V={v:"topic",tid:x,tab:"exp"};render();presence()},
+ tab:x=>{if(x==="prac"){startPractice()}else V.tab=x;rerender()},
+ pick:x=>{V.sel=+x;if(V.v==="topic")answer();else rerender()},
+ pracNext:()=>{nextPracQ();V.typed="";rerender()},
+ quizStart:x=>{if(x==="again"){V={v:"topic",tid:V.tid}}startTest();render()},
+ testNext:()=>testNext(),
+ examStart:x=>{startExam(x);render()},
+ exTog:x=>{const i=V.sel.indexOf(x);if(i>=0)V.sel.splice(i,1);else V.sel.push(x);V.n=+$("#exn").value;V.min=+$("#exm").value;rerender()},
+ exGo:()=>{examGo();render()},
+ vset:x=>{const[L,s]=x.split("|");vStart(L,s,"card");render()},
+ vmode:x=>{V.mode=x;V.flip=false;V.answered=false;V.opts=null;V.typed="";rerender()},
+ vdir:()=>{V.dir=V.dir==="de"?"fx":"de";V.flip=false;V.answered=false;V.opts=null;rerender()},
+ vflip:()=>{V.flip=!V.flip;rerender();if(V.flip&&V.dir==="de")speak()},
+ vres:x=>{vRecord(x==="1");vNext();rerender()},
+ vpick:x=>{const[s,w]=vWord();const back=V.dir==="de"?w[1]:w[0];V.pick=x;V.answered=true;vRecord(x===back);rerender()},
+ vnext:()=>{vNext();rerender()},
+ vskip:()=>{V.typed="";V.answered=true;vRecord(false);rerender()},
+ vchar:x=>{const i=$("#ans");if(i){i.value+=x;V.typed=i.value;i.focus()}},
+ speak:()=>speak(),
+ durSet:x=>{V.dur=+x;V.fsub=$("#flsub").value;V.fcode=$("#flcode").value;rerender()},
+ flStart:()=>flStart(),
+ flAbort:()=>{showModal(`<div class="center"><div class="big">🪂</div><h3>Flug wirklich abbrechen?</h3><p class="mut" style="margin:8px 0 14px">Deine Lernzeit bleibt gespeichert, aber du bekommst keinen Flug-Bonus.</p><div class="row"><button class="btn ghost" style="flex:1" data-a="closeModal">Weiterfliegen</button><button class="btn fire" style="flex:1" data-a="flAbortYes">Abbrechen</button></div></div>`)},
+ flAbortYes:()=>{setFL(null);try{flRoom&&flRoom.leave()}catch(e){}flRoom=null;flPeers=[];closeModal();try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}V={v:"home"};render()},
+ copyCode:x=>{try{navigator.clipboard.writeText(x).then(()=>toast("📋 Kopiert: "+x),()=>toast("Code: "+x))}catch(e){toast("Code: "+x)}},
+ addId:x=>{if(!P.friends.includes(x)){P.friends.push(x);save();checkBadges();toast("🤝 Freund hinzugefügt!");rerender()}},
+ goalSet:()=>showModal(`<h3>🎯 Tagesziel</h3><p class="mut sm" style="margin:6px 0 12px">Wie viele Minuten willst du jeden Tag lernen? Schaffst du es, brennt deine Flamme weiter.</p><div class="shop">${[5,10,15,20,30,45,60].map(n=>`<button class="${P.goal===n?"eq":""}" data-a="goalPick" data-x="${n}"><span class="e">${n<=10?"🌱":n<=20?"🔥":n<=30?"🚀":"🌋"}</span>${n} Min</button>`).join("")}</div>`),
+ goalPick:x=>{P.goal=+x;save();closeModal();rerender();toast("🎯 Tagesziel: "+x+" Min")},
+ closeModal:()=>closeModal(),
+ closeModalBg:(x,e)=>{if(e.target.classList.contains("modal"))closeModal()},
+ setAni:x=>{P.ava.e=x;save();rerender()},
+ setCol:x=>{P.ava.c=+x;save();rerender()},
+ setAcc:x=>{P.ava.acc=x;save();rerender()},
+ buyAni:x=>{if(P.owned.includes(x)){P.ava.e=x}else{const c=PREMIUM[x];if(P.coins<c)return toast("🪙 Nicht genug Münzen – lern weiter!");P.coins-=c;P.owned.push(x);P.ava.e=x;toast("🎉 Neuer Avatar!")}save();rerender()},
+ buyAcc:x=>{if(P.owned.includes(x)){P.ava.acc=x}else{const c=ACCS.find(a=>a[0]===x)[1];if(P.coins<c)return toast("🪙 Nicht genug Münzen – lern weiter!");P.coins-=c;P.owned.push(x);P.ava.acc=x;toast("🎉 Gekauft!")}save();rerender()},
+ buyFreeze:()=>{if(P.coins<300)return toast("🪙 Nicht genug Münzen");P.coins-=300;P.freezes=(P.freezes||0)+1;save();toast("🧊 Flammen-Schutz gekauft!");rerender()},
+ logout:async()=>{saveLocal();try{await cloudSave()}catch(e){}try{ROOM&&ROOM.leave()}catch(e){}try{if(MODE==="cloud")await firebase.auth().signOut()}catch(e){}P=null;location.reload()},
+ gLogin:()=>gLogin(),
+ localMode:()=>{MODE="local";renderLocalLogin()},
+ obAni:x=>{V.ava.e=x;const n=$("#oname").value;renderOnboard();$("#oname").value=n},
+ obCol:x=>{V.ava.c=+x;const n=$("#oname").value;renderOnboard();$("#oname").value=n},
+ obGo:()=>{const n=($("#oname").value||"").trim();if(!n)return toast("Bitte gib einen Namen ein");const loc=lsGet("lf7_c_"+UID);P=loc||newProfile(n,V.ava);P.name=n;P.ava=V.ava;save();startApp();toast("✈️ Willkommen an Bord, "+esc(n)+"!")},
+ localNew:()=>{const n=($("#lname").value||"").trim().slice(0,20);const pin=($("#lpin").value||"").trim();if(!n)return toast("Bitte Namen eingeben");const acc=lsGet("lf7_accounts")||{};if(acc[n])return toast("Den Namen gibt es schon auf diesem Gerät");
+  acc[n]={ava:{e:"🦊",c:0},streak:0,pin};lsSet("lf7_accounts",acc);lsSet("lf7_l_"+n,newProfile(n,{e:ANIMALS[rnd(0,ANIMALS.length-1)],c:rnd(0,COLORS.length-1)}));localUse(n);V={v:"me"};render();toast("🎉 Profil erstellt! Gestalte deinen Avatar.")},
+ localPick:x=>{const acc=lsGet("lf7_accounts")||{};const a=acc[x];if(a&&a.pin){showModal(`<h3>🔒 PIN für ${esc(x)}</h3><form data-f="pin" data-x="${esc(x)}" class="inp-row" style="margin-top:10px"><input id="pinin" inputmode="numeric" maxlength="4" placeholder="PIN"><button class="btn sm">OK</button></form>`);setTimeout(()=>$("#pinin")&&$("#pinin").focus(),50);return}localUse(x)},
+};
+document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const a=el.dataset.a;if(ACT[a]){if(el.tagName==="BUTTON"&&el.closest("form")&&el.type==="submit")return;e.preventDefault();ACT[a](el.dataset.x,e)}});
+document.addEventListener("input",e=>{const t=e.target;if(t.id==="ans")V.typed=t.value;if(t.dataset.in==="dur"){V.dur=+t.value;const l=$("#durl");if(l)l.textContent=t.value+" Min"}});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.in==="dur"){V.dur=+t.value;V.fsub=$("#flsub").value;V.fcode=$("#flcode").value;rerender()}});
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target.dataset.f;
+ if(f==="ans"){V.typed=$("#ans").value;if(!V.typed.trim())return;if(V.v==="topic")answer();else testNext()}
+ if(f==="vans"){V.typed=$("#ans").value;if(!V.typed.trim())return;const[s,w]=vWord();const back=V.dir==="de"?w[1]:w[0];V.answered=true;vRecord(vCheck(back));rerender()}
+ if(f==="addf"){const c=($("#fcode").value||"").trim().toUpperCase();const hit=Object.entries(ALLP).find(([id,p])=>p.code===c&&id!==UID);if(!hit)return toast("Code nicht gefunden – hat deine Freundin die Seite schon geöffnet?");ACT.addId(hit[0])}
+ if(f==="rename"){const n=($("#rn").value||"").trim().slice(0,20);if(n&&MODE==="cloud"){P.name=n;save();toast("Gespeichert");rerender()}else if(n){toast("Im Geräte-Modus ist der Name fest.")}}
+ if(f==="pin"){const name=e.target.dataset.x;const acc=lsGet("lf7_accounts")||{};if(($("#pinin").value||"")===acc[name].pin){closeModal();localUse(name)}else toast("❌ Falsche PIN")}
+});
+init();
+</script>
+</body>
+</html>
