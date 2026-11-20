@@ -2649,5 +2649,213 @@ Object.assign(ACT,{
 });
 </script>
 
+<style>
+/* ===== Schach 2.0 – sauberes Brett, eigene Figuren ===== */
+:root{--l:#ece6ff;--d:#b7a8f6;--pwf:#ffffff;--pws:#cfc8ef;--pwo:#6a5fb0;--pbf:#4a4378;--pbs:#332d5c;--pbo:#2a2550}
+html:not(.light){--l:#3a3f78;--d:#272b58;--pwf:#eef0ff;--pws:#b9bde6;--pwo:#eef0ff;--pbf:#453d78;--pbs:#2f2858;--pbo:#cfc8ff}
+.cb{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));width:100%;max-width:480px;aspect-ratio:1/1;margin:10px auto 0;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px #3b2fa033;touch-action:manipulation}
+html:not(.light) .cb{box-shadow:0 10px 30px #0008}
+.cb .q{position:relative;width:100%;height:100%;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.cb .q.l{background:var(--l)}.cb .q.d{background:var(--d)}
+.cb .q.last::before{content:"";position:absolute;inset:0;background:#ffcc3355}
+.cb .q.sel::before{content:"";position:absolute;inset:0;background:#ffcc33aa}
+.cb .q.hint::after{content:"";position:absolute;inset:3px;border-radius:8px;border:3px solid #2ee59d}
+.cb .q.chk::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,#ff5d73 0,#ff5d7388 45%,transparent 72%)}
+.cb .q .dt{position:absolute;width:30%;height:30%;border-radius:50%;background:#2a235f40;z-index:2}
+html:not(.light) .cb .q .dt{background:#ffffff40}
+.cb .q .rg{position:absolute;inset:4%;border-radius:50%;border:5px solid #2a235f40;z-index:2}
+html:not(.light) .cb .q .rg{border-color:#ffffff40}
+.cb .q .cr{position:absolute;font-size:10px;font-weight:900;opacity:.6;z-index:1;line-height:1}
+.cb .q .cr.f{left:4px;bottom:3px}.cb .q .cr.r{left:4px;top:3px}
+.cb .q.l .cr{color:var(--d)}.cb .q.d .cr{color:var(--l)}
+.pz{position:relative;z-index:1;width:88%;height:88%;display:block;filter:drop-shadow(0 2px 0 #0003);transition:transform .12s}
+.pz.w{--pf:var(--pwf);--ps:var(--pws);--po:var(--pwo)}
+.pz.b{--pf:var(--pbf);--ps:var(--pbs);--po:var(--pbo)}
+.cb .q.sel .pz{transform:translateY(-6%) scale(1.06)}
+.cb .q.last .pz{animation:pzin .25s ease-out}
+@keyframes pzin{from{transform:scale(.7);opacity:.4}to{transform:none;opacity:1}}
+.chhead{display:flex;align-items:center;gap:12px;margin-top:14px}
+.chhead .face{flex:none;width:68px;height:68px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:42px;background:linear-gradient(135deg,#ffe2f1,#d8ccff);box-shadow:0 4px 0 #0002}
+.chhead .bub{position:relative;flex:1;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:11px 14px;font-weight:800;font-size:15.5px;line-height:1.35}
+.chhead .bub::before{content:"";position:absolute;left:-9px;top:24px;width:14px;height:14px;background:var(--card);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.chbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-weight:900;font-size:14px}
+.chbar .who{display:flex;align-items:center;gap:8px;min-width:0}
+.chbar .who.on{color:var(--acc)}
+.chbar .cap{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:flex-end}
+.chbar .cap .pz{width:20px;height:20px;filter:none}
+.chbar .cap b{margin-left:4px;font-size:12px;color:var(--mut)}
+.chtools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.chtools .btn{padding-left:6px;padding-right:6px}
+.streak{display:flex;gap:6px;justify-content:center;margin-top:6px}
+.streak i{width:14px;height:14px;border-radius:50%;background:var(--card2);border:2px solid var(--line)}
+.streak i.on{background:#ffcc33;border-color:#e0a800}
+.opp{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:5px;border-radius:18px;padding:12px 14px;margin-top:10px;color:var(--txt)}
+.opp.on{border-color:var(--acc);background:var(--bg2)}
+.opp .face{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,#ffe2f1,#d8ccff);flex:none}
+.opp .grow{flex:1;min-width:0}
+.coachline .m .pz{width:34px;height:34px}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;padding:10px 6px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-weight:800;color:var(--txt)}
+.seg button.on{border-color:var(--acc);background:var(--bg2);color:var(--acc)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="cp-p" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M14.5 36 C14.5 29 17.5 24.5 20 22.5 L25 22.5 C27.5 24.5 30.5 29 30.5 36 Z"/>
+   <circle fill="var(--pf)" cx="22.5" cy="15.5" r="6.8"/>
+   <rect fill="var(--ps)" x="10.5" y="34.5" width="24" height="6" rx="3"/></g>
+   <path fill="#fff" opacity=".45" d="M18.5 14 a4 4 0 0 1 4-3.5 a1.4 1.4 0 0 1 0 2.4 a2 2 0 0 0-2 1.7 a1 1 0 0 1-2 -.6z"/></symbol>
+  <symbol id="cp-r" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M14 34.5 L15.5 17 L29.5 17 L31 34.5 Z"/>
+   <path fill="var(--pf)" d="M11.5 18 L11.5 8.5 L16.5 8.5 L16.5 12 L20 12 L20 8.5 L25 8.5 L25 12 L28.5 12 L28.5 8.5 L33.5 8.5 L33.5 18 Z"/>
+   <rect fill="var(--ps)" x="10" y="34" width="25" height="6.5" rx="3"/></g>
+   <rect fill="#fff" opacity=".4" x="17.5" y="19.5" width="2.6" height="12" rx="1.3"/></symbol>
+  <symbol id="cp-n" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M13.5 34.5 C13.5 28 16 24.5 19.5 21.5 C16.5 22.5 13.5 23.5 11.2 22 C9.8 20.8 10.3 18.7 12 17 C14.5 14.5 17 12 18.5 9 L19.5 6 L22 8.5 C28.5 9.5 33 15 33 23.5 L33 34.5 Z"/>
+   <rect fill="var(--ps)" x="10" y="34" width="25" height="6.5" rx="3"/></g>
+   <circle fill="var(--po)" cx="20" cy="14.2" r="1.7"/>
+   <path fill="#fff" opacity=".4" d="M25 12.5 C28.5 14 30.5 18 30.5 23 L28 23 C28 19 27 15.5 25 12.5Z"/></symbol>
+  <symbol id="cp-b" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M15 34.5 C14 27 16 19 22.5 11.5 C29 19 31 27 30 34.5 Z"/>
+   <circle fill="var(--pf)" cx="22.5" cy="8" r="3"/>
+   <rect fill="var(--ps)" x="10" y="34" width="25" height="6.5" rx="3"/></g>
+   <path stroke="var(--po)" stroke-width="2" stroke-linecap="round" fill="none" d="M24.8 17.5 L21 22.5"/>
+   <path fill="#fff" opacity=".4" d="M18.6 22 C19.2 19.5 20.3 17.5 21.5 16 L22 17 C21 19 20.4 21 20.2 23Z"/></symbol>
+  <symbol id="cp-q" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M12.5 34.5 L10 15 L16.5 22.5 L18.5 11.5 L22.5 21 L26.5 11.5 L28.5 22.5 L35 15 L32.5 34.5 Z"/>
+   <circle fill="var(--pf)" cx="10" cy="13.5" r="2.4"/><circle fill="var(--pf)" cx="18.5" cy="9.8" r="2.4"/><circle fill="var(--pf)" cx="26.5" cy="9.8" r="2.4"/><circle fill="var(--pf)" cx="35" cy="13.5" r="2.4"/>
+   <rect fill="var(--ps)" x="10" y="34" width="25" height="6.5" rx="3"/></g>
+   <rect fill="#fff" opacity=".4" x="15" y="25" width="15" height="2.6" rx="1.3"/></symbol>
+  <symbol id="cp-k" viewBox="0 0 45 45"><g stroke="var(--po)" stroke-width="1.6" stroke-linejoin="round">
+   <path fill="var(--pf)" d="M13 34.5 C12 27 12.5 21 16 17.5 L29 17.5 C32.5 21 33 27 32 34.5 Z"/>
+   <path fill="var(--pf)" d="M20.8 4.5 L24.2 4.5 L24.2 7.5 L27 7.5 L27 10.5 L24.2 10.5 L24.2 14 L20.8 14 L20.8 10.5 L18 10.5 L18 7.5 L20.8 7.5 Z"/>
+   <rect fill="var(--ps)" x="14.5" y="14" width="16" height="4.5" rx="2.2"/>
+   <rect fill="var(--ps)" x="10" y="34" width="25" height="6.5" rx="3"/></g>
+   <rect fill="#fff" opacity=".4" x="16.5" y="21" width="2.6" height="10" rx="1.3"/></symbol>
+ </defs>
+</svg>
+
+<script>
+/* ===== Schach 2.0 ===== */
+const PZ=(p,cls)=>`<svg class="pz ${colOf(p)} ${cls||""}" viewBox="0 0 45 45"><use href="#cp-${p.toLowerCase()}"/></svg>`;
+const CPU=[
+ {id:"e",face:"🐣",name:"Kiki Küken",lvl:"Leicht",desc:"Macht noch viele Fehler – perfekt zum Üben."},
+ {id:"m",face:"🦊",name:"Fips Fuchs",lvl:"Mittel",desc:"Schlägt gern ungeschützte Figuren."},
+ {id:"h",face:"🦉",name:"Professor Eule",lvl:"Schwer",desc:"Denkt mehrere Züge voraus."}];
+const cpuOf=id=>CPU.find(c=>c.id===id)||CPU[0];
+function chessP(){if(!P.chess)P.chess={};CPU.forEach(c=>{if(!P.chess[c.id])P.chess[c.id]={s:0,w:0,cup:0}});return P.chess}
+
+/* --- stärkere Engine (Alpha-Beta + Ruhesuche) --- */
+const PV2={p:100,n:310,b:325,r:500,q:900,k:0};
+function pst(t,i,w){const r=i>>3,c=i%8;const rr=w?r:7-r;const cd=Math.abs(3.5-c)+Math.abs(3.5-r);
+ if(t==="p")return (6-rr)*8+((c===3||c===4)&&rr<=4?12:0);
+ if(t==="n")return 20-cd*7;if(t==="b")return 12-cd*4;if(t==="q")return 4-cd*1.5;
+ if(t==="r")return rr===1?14:0;if(t==="k")return rr===7?(c<=2||c>=6?18:4):-25;return 0}
+function ev2(bd){let s=0;for(let i=0;i<64;i++){const p=bd[i];if(p===".")continue;const t=p.toLowerCase(),w=p!==t;const v=PV2[t]+pst(t,i,w);s+=w?v:-v}return s}
+function ordMv(st,ms){return ms.map(m=>({m,k:(m.cap?10*PV2[m.cap.toLowerCase()]-PV2[st.bd[m.f].toLowerCase()]/10+1000:0)+(m.castle?50:0)})).sort((a,b)=>b.k-a.k).map(x=>x.m)}
+let NODES=0;
+function qs(st,a,b,d){NODES++;const sg=st.turn==="w"?1:-1;const sp=sg*ev2(st.bd);if(sp>=b)return sp;if(sp>a)a=sp;if(d<=0||NODES>60000)return a;
+ const caps=ordMv(st,legal(st).filter(m=>m.cap));for(const m of caps){const v=-qs(applyMv(st,m),-b,-a,d-1);if(v>=b)return v;if(v>a)a=v}return a}
+function ab(st,d,a,b,ply){NODES++;const ms=legal(st);if(!ms.length)return inCheck(st,st.turn)?-100000+ply:0;if(d<=0)return qs(st,a,b,4);
+ for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),d-1,-b,-a,ply+1);if(v>=b)return v;if(v>a)a=v}return a}
+function cpuMove(st,lvl){const ms=legal(st);if(!ms.length)return null;NODES=0;
+ if(lvl==="e"){ // leicht: oft zufällig, schlägt aber gern
+  if(Math.random()<.45)return ms[Math.floor(Math.random()*ms.length)];
+  let best=null,bv=-1e9;for(const m of ms){const v=-ab(applyMv(st,m),0,-1e9,1e9,1)+Math.random()*160;if(v>bv){bv=v;best=m}}return best}
+ const d=lvl==="m"?1:2,noise=lvl==="m"?40:8;let best=null,bv=-1e9;
+ for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),d,-1e9,1e9,1)+Math.random()*noise+(m.castle?25:0);if(v>bv){bv=v;best=m}}return best}
+
+/* --- Sprüche --- */
+function cpuSay(k){const c=cpuOf(V.lvl);const L={
+ start:[`Schaffst du 3 Siege am Stück gegen mich? ${c.face}`,"Na los, zeig mal was du kannst!","Ich bin bereit. Du auch? 😎"],
+ youcap:["Oh nein, meine Figur! 😱","Hey, die brauchte ich noch!","Gut gesehen … 😤"],
+ cpucap:["Hehe, die nehme ich! 😏","Danke für das Geschenk! 🎁","Mmh, lecker Figur! 😋"],
+ check:["Schach! Pass auf deinen König auf! ⚠️","Dein König ist in Gefahr!"],
+ youcheck:["Uff, Schach! Ich muss aufpassen …","Huch, mein König!"],
+ move:["Hmm … interessant.","Mal sehen, was du vorhast 🤔","Gar nicht schlecht!","Jetzt du!"],
+ win:["Wow, du hast mich geschlagen! 🏆","Unglaublich – Schachmatt! 🎉"],
+ lose:["Schachmatt! Nächstes Mal klappt's bestimmt 💪","Diesmal hab ich gewonnen 😜 Revanche?"],
+ draw:["Patt – unentschieden! 🤝"],
+ undo:["Okay, nimm den Zug zurück 😉"]}[k]||[""];return L[Math.floor(Math.random()*L.length)]}
+
+/* --- lokale Partie --- */
+function cpuStartGame(){const pc=chessP();const col=V.colPick==="z"?(Math.random()<.5?"w":"b"):(V.colPick||"w");
+ V={v:"chess",local:true,lvl:V.lvl||"e",colPick:V.colPick||"w",me:col,st:{bd:START_BD,turn:"w",cs:"KQkq",ep:-1},last:[],res:"",sel:null,hist:[],say:cpuSay("start"),capW:[],capB:[]};
+ render();if(col==="b")cpuThink()}
+function cpuThink(){V.thinking=true;rerender();setTimeout(()=>{if(V.v!=="chess"||!V.local||V.res){V.thinking=false;return}
+ const b=cpuMove(V.st,V.lvl);V.thinking=false;if(!b){rerender();return}const cap=V.st.bd[b.t]!=="."?V.st.bd[b.t]:(b.ep?(V.me==="w"?"P":"p"):null);
+ const n2=applyMv(V.st,b);V.st=n2;V.last=[b.f,b.t];if(cap)(colOf(cap)==="w"?V.capW:V.capB).push(cap);
+ const g2=gameState(n2);if(g2==="mate")cpuEnd(V.me==="w"?"b":"w");else if(g2==="stale")cpuEnd("draw");else{V.say=g2==="check"?cpuSay("check"):cap?cpuSay("cpucap"):(Math.random()<.35?cpuSay("move"):V.say);rerender()}},380)}
+function cpuEnd(res){V.res=res;const pc=chessP()[V.lvl];
+ if(res===V.me){pc.w++;pc.s++;V.say=cpuSay("win");const bonus={e:30,m:50,h:80}[V.lvl];addXP(bonus);confetti(100);
+  if(pc.s>=3){pc.s=0;pc.cup++;P.coins+=150;V.say=`3 Siege am Stück! 🏆 Du bekommst +150 🪙`;setTimeout(()=>confetti(160),400)}}
+ else if(res==="draw"){V.say=cpuSay("draw");addXP(10)}
+ else{pc.s=0;V.say=cpuSay("lose")}
+ save();rerender()}
+window.chessMove=(function(orig){return async function(m){if(!V.local)return orig(m);
+ const st=V.st;V.hist.push({st,last:V.last,capW:V.capW.slice(),capB:V.capB.slice()});
+ const cap=st.bd[m.t]!=="."?st.bd[m.t]:(m.ep?(V.me==="w"?"p":"P"):null);if(cap)(colOf(cap)==="w"?V.capW:V.capB).push(cap);
+ const n=applyMv(st,m);V.st=n;V.last=[m.f,m.t];V.sel=null;V.hint=null;const gs=gameState(n);
+ if(gs==="mate"){cpuEnd(V.me);return}if(gs==="stale"){cpuEnd("draw");return}
+ V.say=gs==="check"?cpuSay("youcheck"):cap?cpuSay("youcap"):V.say;cpuThink()}})(window.chessMove);
+window.chessMeta=(function(orig){return function(){if(V.local)return{me:V.me||"w",last:V.last,res:V.res};return orig()}})(window.chessMeta);
+
+/* --- Material-Anzeige für Online-Partien --- */
+function capsFrom(bd){const full={p:8,n:2,b:2,r:2,q:1};const cnt={};for(const p of bd)if(p!==".")cnt[p]=(cnt[p]||0)+1;const W=[],B=[];
+ for(const t in full){for(let i=(cnt[t.toUpperCase()]||0);i<full[t];i++)W.push(t.toUpperCase());for(let i=(cnt[t]||0);i<full[t];i++)B.push(t)}return{W,B}}
+function capHTML(list){const ord="qrbnp";const s=list.slice().sort((a,b)=>ord.indexOf(a.toLowerCase())-ord.indexOf(b.toLowerCase()));return s.map(p=>PZ(p)).join("")}
+function matDiff(bd){let s=0;for(const p of bd){if(p===".")continue;const v=PV[p.toLowerCase()];s+=colOf(p)==="w"?v:-v}return Math.round(s)}
+
+/* --- Gegner-Auswahl --- */
+VIEWS.chesspick=()=>{const pc=chessP();const lv=V.lvl||"e";const cp=V.colPick||"w";
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="go" data-x="play">← Spielen</button>
+ <h2 style="margin-top:10px">♟️ Schach gegen den Computer</h2><p class="mut">Wähle deinen Gegner. Schlag ihn <b>3-mal hintereinander</b> und du bekommst einen Pokal + 150 🪙!</p>
+ ${CPU.map(c=>{const s=pc[c.id];return `<button class="opp ${lv===c.id?"on":""}" data-a="cpulvl" data-x="${c.id}"><span class="face">${c.face}</span><span class="grow"><b>${c.name}</b> <span class="pill" style="font-size:11px">${c.lvl}</span><br><span class="mut sm">${c.desc}</span>
+  <span class="streak" style="justify-content:flex-start">${[0,1,2].map(i=>`<i class="${i<s.s?"on":""}"></i>`).join("")}<span class="mut sm" style="margin-left:6px">${s.cup?"🏆×"+s.cup+" · ":""}${s.w} Siege</span></span></span></button>`}).join("")}
+ <h3 style="margin-top:16px">Deine Farbe</h3>
+ <div class="seg">${[["w","⚪ Weiß"],["b","⚫ Schwarz"],["z","🎲 Zufall"]].map(([k,t])=>`<button class="${cp===k?"on":""}" data-a="cpucol" data-x="${k}">${t}</button>`).join("")}</div>
+ <button class="btn fire full" style="margin-top:16px" data-a="cpugo">Los geht's! ♟️</button>`};
+
+/* --- Spielansicht --- */
+VIEWS.chess=()=>{const st=chessSt();if(!st)return `<div class="card">Spiel wird geladen …</div>`;const M=chessMeta();const me=M.me;const flip=me==="b";const gs=gameState(st);
+ const myTurn=st.turn===me&&!M.res&&!V.thinking;const lg=myTurn&&V.sel!=null?legal(st).filter(m=>m.f===V.sel):[];const kChk=gs==="check"||gs==="mate"?kingSq(st.bd,st.turn):-1;
+ let cells="";for(let k=0;k<64;k++){const i=flip?63-k:k;const r=i>>3,c=i%8;const p=st.bd[i];const mv=lg.find(m=>m.t===i);const vr=k>>3,vc=k%8;
+  const cls=["q",(r+c)%2?"d":"l",V.sel===i?"sel":"",M.last&&M.last.includes(i)?"last":"",i===kChk?"chk":"",V.hint&&(V.hint.f===i||V.hint.t===i)?"hint":""].join(" ");
+  cells+=`<div class="${cls}" data-a="csq" data-x="${i}">${vc===0?`<span class="cr r">${8-r}</span>`:""}${vr===7?`<span class="cr f" style="${vc===0?"left:auto;right:4px":""}">${"abcdefgh"[c]}</span>`:""}${p!=="."?PZ(p):""}${mv?(p!=="."||mv.ep?`<span class="rg"></span>`:`<span class="dt"></span>`):""}</div>`}
+ let opN,opFace,opA;if(V.local){const c=cpuOf(V.lvl);opN=c.name;opFace=c.face}else{const oid=M.g.p.find(x=>x!==UID);opN=(M.g.names||{})[oid]||"Freund";opA=(M.g.avas||{})[oid]||{}}
+ let caps;if(V.local)caps={W:V.capW,B:V.capB};else caps=capsFrom(st.bd);
+ const md=matDiff(st.bd)*(me==="w"?1:-1);
+ const myCaps=me==="w"?caps.B:caps.W,opCaps=me==="w"?caps.W:caps.B;
+ let say;if(V.local)say=V.thinking?"Hmm, ich überlege … 🤔":(V.say||cpuSay("start"));
+ else say=M.res?(M.res==="draw"?"🤝 Remis!":(M.res===me?"🏆 Du hast gewonnen!":"😅 Verloren – nächstes Mal!")):gs==="check"?(myTurn?"⚠️ Du stehst im Schach! Rette deinen König.":"Du gibst Schach! 💥"):myTurn?"Du bist am Zug!":`⏳ ${esc(opN)} ist am Zug …`;
+ const status=M.res?(M.res==="draw"?"🤝 Unentschieden":(M.res===me?"🏆 Gewonnen!":"😅 Verloren")):gs==="check"&&myTurn?"⚠️ Schach! Rette deinen König.":myTurn?`Du bist am Zug (${me==="w"?"Weiß":"Schwarz"})`:V.local?"Gegner überlegt …":"Warte auf deine Freundin …";
+ const selP=V.sel!=null?st.bd[V.sel]:null;const pc=V.local?chessP()[V.lvl]:null;
+ return `<div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn ghost sm" data-a="go" data-x="${V.local?"chesspick":"matches"}">← ${V.local?"Gegner":"Matches"}</button>${V.local?`<span class="streak" style="margin:0">${[0,1,2].map(i=>`<i class="${i<pc.s?"on":""}"></i>`).join("")}</span>`:""}</div>
+ <div class="chhead"><span class="face">${V.local?opFace:avaHTML(opA,58)}</span><div class="bub">${say}</div></div>
+ <div class="chbar"><div class="who ${!myTurn&&!M.res?"on":""}">${esc(opN)}</div><div class="cap">${capHTML(myCaps)}${md<0?`<b>+${-md}</b>`:""}</div></div>
+ <div class="cb">${cells}</div>
+ <div class="chbar"><div class="who ${myTurn?"on":""}">${avaHTML(P.ava,26)} Du</div><div class="cap">${capHTML(opCaps)}${md>0?`<b>+${md}</b>`:""}</div></div>
+ <div class="fb ${M.res?(M.res===me?"ok":M.res==="draw"?"ok":"bad"):gs==="check"&&myTurn?"bad":"ok"}" style="text-align:center;margin-top:10px;${!M.res&&!(gs==="check"&&myTurn)?"background:var(--bg2);border-color:var(--line)":""}">${status}</div>
+ ${V.hint&&!M.res?`<div class="coachline">${V.hintTxt}</div>`:""}
+ ${selP&&myTurn?`<div class="coachline"><span class="m" style="width:34px;height:34px;display:inline-flex">${PZ(selP)}</span><div><b>${PN[selP.toLowerCase()]}:</b> ${PHELP[selP.toLowerCase()]}${lg.length?"":" <br>❌ Diese Figur kann gerade nicht ziehen."}</div></div>`:""}
+ ${M.res?`<div class="row" style="margin-top:12px">${V.local?`<button class="btn ghost" style="flex:1" data-a="go" data-x="chesspick">Gegner wählen</button><button class="btn fire" style="flex:1" data-a="cpugo">🔁 Nochmal</button>`:`<button class="btn fire" style="flex:1" data-a="go" data-x="matches">Zu den Matches</button>`}</div>`
+ :`<div class="chtools">${V.local?`<button class="btn ghost" data-a="cundo" ${V.hist&&V.hist.length&&myTurn?"":"disabled"}>↩️ Zurück</button>`:""}<button class="btn" data-a="chint" ${myTurn?"":"disabled"} ${V.local?"":`style="grid-column:span 2"`}>💡 Tipp</button><button class="btn ghost" data-a="cgive">🏳️ Aufgeben</button></div>`}`};
+
+/* --- Aktionen --- */
+Object.assign(ACT,{
+ chesscpu:()=>{const l=V.lvl,c=V.colPick;V={v:"chesspick",lvl:l||"e",colPick:c||"w"};render()},
+ cpulvl:x=>{V.lvl=x;rerender()},
+ cpucol:x=>{V.colPick=x;rerender()},
+ cpugo:()=>cpuStartGame(),
+ cundo:()=>{if(!V.local||!V.hist.length||V.thinking||V.res)return;const h=V.hist.pop();V.st=h.st;V.last=h.last;V.capW=h.capW;V.capB=h.capB;V.sel=null;V.hint=null;V.say=cpuSay("undo");rerender()},
+ chint:()=>{const st=chessSt();const b=cpuMove(st,"h")||bestMove(st);if(b){V.hint=b;V.hintTxt=hintText(st,b);V.sel=b.f;rerender()}},
+ cgiveY:async()=>{closeModal();if(V.local){cpuEnd(V.me==="w"?"b":"w");return}const g=MATCHES[V.gid];try{await mref(V.gid).update({res:myColor(g)==="w"?"b":"w",n:(g.n||0)+1,u:Date.now()})}catch(e){rulesErr(e)}}
+});
+/* Gegner-Auswahl zählt zu „Spielen“ */
+if(typeof NAVMAP!=="undefined"){NAVMAP.chesspick="play";NAVMAP.chess="play"}
+if(typeof LEARN_VIEWS!=="undefined")LEARN_VIEWS.push("chesspick");
+</script>
+
 </body>
 </html>
