@@ -2740,8 +2740,8 @@ html:not(.light) .cb .q .rg{border-color:#ffffff40}
 /* ===== Schach 2.0 ===== */
 const PZ=(p,cls)=>`<svg class="pz ${colOf(p)} ${cls||""}" viewBox="0 0 45 45"><use href="#cp-${p.toLowerCase()}"/></svg>`;
 const CPU=[
- {id:"e",face:"🐣",name:"Kiki Küken",lvl:"Leicht",desc:"Macht noch viele Fehler – perfekt zum Üben."},
- {id:"m",face:"🦊",name:"Fips Fuchs",lvl:"Mittel",desc:"Schlägt gern ungeschützte Figuren."},
+ {id:"e",face:"🐣",name:"Kiki Küken",lvl:"Leicht",desc:"Zieht fast zufällig – perfekt zum Schachmatt-Üben."},
+ {id:"m",face:"🦊",name:"Fips Fuchs",lvl:"Mittel",desc:"Schlägt gern Figuren, denkt aber nur einen Zug weit."},
  {id:"h",face:"🦉",name:"Professor Eule",lvl:"Schwer",desc:"Denkt mehrere Züge voraus."}];
 const cpuOf=id=>CPU.find(c=>c.id===id)||CPU[0];
 function chessP(){if(!P.chess)P.chess={};CPU.forEach(c=>{if(!P.chess[c.id])P.chess[c.id]={s:0,w:0,cup:0}});return P.chess}
@@ -2755,17 +2755,29 @@ function pst(t,i,w){const r=i>>3,c=i%8;const rr=w?r:7-r;const cd=Math.abs(3.5-c)
 function ev2(bd){let s=0;for(let i=0;i<64;i++){const p=bd[i];if(p===".")continue;const t=p.toLowerCase(),w=p!==t;const v=PV2[t]+pst(t,i,w);s+=w?v:-v}return s}
 function ordMv(st,ms){return ms.map(m=>({m,k:(m.cap?10*PV2[m.cap.toLowerCase()]-PV2[st.bd[m.f].toLowerCase()]/10+1000:0)+(m.castle?50:0)})).sort((a,b)=>b.k-a.k).map(x=>x.m)}
 let NODES=0;
-function qs(st,a,b,d){NODES++;const sg=st.turn==="w"?1:-1;const sp=sg*ev2(st.bd);if(sp>=b)return sp;if(sp>a)a=sp;if(d<=0||NODES>60000)return a;
- const caps=ordMv(st,legal(st).filter(m=>m.cap));for(const m of caps){const v=-qs(applyMv(st,m),-b,-a,d-1);if(v>=b)return v;if(v>a)a=v}return a}
+function qs(st,a,b,d){NODES++;let all=null;if(inCheck(st,st.turn)){all=legal(st);if(!all.length)return -100000}const sg=st.turn==="w"?1:-1;const sp=sg*ev2(st.bd);if(sp>=b)return sp;if(sp>a)a=sp;if(d<=0||NODES>60000)return a;
+ const caps=ordMv(st,(all||legal(st)).filter(m=>m.cap));for(const m of caps){const v=-qs(applyMv(st,m),-b,-a,d-1);if(v>=b)return v;if(v>a)a=v}return a}
 function ab(st,d,a,b,ply){NODES++;const ms=legal(st);if(!ms.length)return inCheck(st,st.turn)?-100000+ply:0;if(d<=0)return qs(st,a,b,4);
  for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),d-1,-b,-a,ply+1);if(v>=b)return v;if(v>a)a=v}return a}
 function cpuMove(st,lvl){const ms=legal(st);if(!ms.length)return null;NODES=0;
- if(lvl==="e"){ // leicht: oft zufällig, schlägt aber gern
-  if(Math.random()<.45)return ms[Math.floor(Math.random()*ms.length)];
-  let best=null,bv=-1e9;for(const m of ms){const v=-ab(applyMv(st,m),0,-1e9,1e9,1)+Math.random()*160;if(v>bv){bv=v;best=m}}return best}
- const d=lvl==="m"?1:2,noise=lvl==="m"?40:8;let best=null,bv=-1e9;
- for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),d,-1e9,1e9,1)+Math.random()*noise+(m.castle?25:0);if(v>bv){bv=v;best=m}}return best}
-
+ if(lvl==="e"){ // leicht: meist zufällig, übersieht viel
+  if(Math.random()<.7)return ms[Math.floor(Math.random()*ms.length)];
+  let best=null,bv=-1e9;for(const m of ms){const v=sideEv(applyMv(st,m),st.turn)+Math.random()*300;if(v>bv){bv=v;best=m}}return best}
+ if(lvl==="m"){ // mittel: schlägt gern, denkt aber nur 1 Zug
+  if(Math.random()<.2)return ms[Math.floor(Math.random()*ms.length)];
+  let best=null,bv=-1e9;for(const m of ms){const n=applyMv(st,m);const v=(!legal(n).length&&inCheck(n,n.turn)?1e5:sideEv(n,st.turn))+Math.random()*90;if(v>bv){bv=v;best=m}}return best}
+ let best=null,bv=-1e9; // schwer
+ for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),2,-1e9,1e9,1)+Math.random()*8+(m.castle?25:0);if(v>bv){bv=v;best=m}}return best}
+function sideEv(n,col){return (col==="w"?1:-1)*ev2(n.bd)}
+/* Erklärt, warum ein Schach (noch) kein Matt ist */
+const mein=p=>(p.toLowerCase()==="q"?"meine ":"mein ")+PN[p.toLowerCase()];
+function whyNoMate(st){const ms=legal(st);const k=kingSq(st.bd,st.turn);const kn=[...new Set(ms.filter(m=>m.f===k).map(m=>sqName(m.t)))];
+ const cap=ms.find(m=>m.f!==k&&m.cap);const blk=ms.find(m=>m.f!==k&&!m.cap);const parts=[];
+ if(kn.length)parts.push(`mein König kann nach <b>${kn.slice(0,3).join(", ")}</b> fliehen`);
+ if(ms.some(m=>m.f===k&&m.cap)&&!kn.length)parts.push("mein König kann die angreifende Figur schlagen");
+ if(cap)parts.push(`${mein(st.bd[cap.f])} kann die angreifende Figur schlagen`);
+ else if(blk)parts.push(`${mein(st.bd[blk.f])} kann sich dazwischen stellen`);
+ return parts.length?`Schach! 😱 Aber noch kein Matt: ${parts.join(" und ")}.`:""}
 
 /* Remis bei zu wenig Material (z. B. nur noch die Könige) */
 function insufMat(bd){const pcs=bd.replace(/[.kK]/g,"");if(!pcs.length)return true;if(pcs.length===1&&/[nNbB]/.test(pcs))return true;
@@ -2779,7 +2791,7 @@ function cpuSay(k){const c=cpuOf(V.lvl);const L={
  check:["Schach! Pass auf deinen König auf! ⚠️","Dein König ist in Gefahr!"],
  youcheck:["Uff, Schach! Ich muss aufpassen …","Huch, mein König!"],
  move:["Hmm … interessant.","Mal sehen, was du vorhast 🤔","Gar nicht schlecht!","Jetzt du!"],
- win:["Wow, du hast mich geschlagen! 🏆","Unglaublich – Schachmatt! 🎉"],
+ win:["Schachmatt! Mein König kann nicht mehr ausweichen – du hast gewonnen! 🏆","Unglaublich – Schachmatt! 🎉"],
  lose:["Schachmatt! Nächstes Mal klappt's bestimmt 💪","Diesmal hab ich gewonnen 😜 Revanche?"],
  draw:["Unentschieden! 🤝 Keiner kann mehr Schachmatt setzen."],
  undo:["Okay, nimm den Zug zurück 😉"]}[k]||[""];return L[Math.floor(Math.random()*L.length)]}
@@ -2803,7 +2815,7 @@ window.chessMove=(function(orig){return async function(m){if(!V.local)return ori
  const cap=st.bd[m.t]!=="."?st.bd[m.t]:(m.ep?(V.me==="w"?"p":"P"):null);if(cap)(colOf(cap)==="w"?V.capW:V.capB).push(cap);
  const n=applyMv(st,m);V.st=n;V.last=[m.f,m.t];V.sel=null;V.hint=null;const gs=gameState(n);
  if(gs==="mate"){cpuEnd(V.me);return}if(gs==="stale"){cpuEnd("draw");return}
- V.say=gs==="check"?cpuSay("youcheck"):cap?cpuSay("youcap"):V.say;cpuThink()}})(window.chessMove);
+ V.say=gs==="check"?(whyNoMate(n)||cpuSay("youcheck")):cap?cpuSay("youcap"):V.say;cpuThink()}})(window.chessMove);
 window.chessMeta=(function(orig){return function(){if(V.local)return{me:V.me||"w",last:V.last,res:V.res};return orig()}})(window.chessMeta);
 
 /* --- Material-Anzeige für Online-Partien --- */
@@ -2832,9 +2844,9 @@ VIEWS.chess=()=>{const st=chessSt();if(!st)return `<div class="card">Spiel wird 
  let caps;if(V.local)caps={W:V.capW,B:V.capB};else caps=capsFrom(st.bd);
  const md=matDiff(st.bd)*(me==="w"?1:-1);
  const myCaps=me==="w"?caps.B:caps.W,opCaps=me==="w"?caps.W:caps.B;
- let say;if(V.local)say=V.thinking?"Hmm, ich überlege … 🤔":(V.say||cpuSay("start"));
+ let say;if(V.local)say=V.thinking&&!/Schach/.test(V.say||"")?"Hmm, ich überlege … 🤔":(V.say||cpuSay("start"));
  else say=M.res?(M.res==="draw"?(insufMat(st.bd)?"🤝 Nur noch zu wenige Figuren – Remis!":"🤝 Remis!"):(M.res===me?"🏆 Du hast gewonnen!":"😅 Verloren – nächstes Mal!")):gs==="check"?(myTurn?"⚠️ Du stehst im Schach! Rette deinen König.":"Du gibst Schach! 💥"):myTurn?"Du bist am Zug!":`⏳ ${esc(opN)} ist am Zug …`;
- const status=M.res?(M.res==="draw"?(insufMat(st.bd)?"🤝 Remis – mit so wenigen Figuren kann keiner mehr Schachmatt setzen":"🤝 Unentschieden (Patt)"):(M.res===me?"🏆 Gewonnen!":"😅 Verloren")):gs==="check"&&myTurn?"⚠️ Schach! Rette deinen König.":myTurn?`Du bist am Zug (${me==="w"?"Weiß":"Schwarz"})`:V.local?"Gegner überlegt …":"Warte auf deine Freundin …";
+ const status=M.res?(M.res==="draw"?(insufMat(st.bd)?"🤝 Remis – mit so wenigen Figuren kann keiner mehr Schachmatt setzen":"🤝 Unentschieden (Patt)"):(M.res===me?(gs==="mate"?"🏆 SCHACHMATT – du hast gewonnen!":"🏆 Gewonnen!"):(gs==="mate"?"😅 Schachmatt – verloren":"😅 Verloren"))):gs==="check"&&myTurn?"⚠️ Schach! Rette deinen König.":myTurn?`Du bist am Zug (${me==="w"?"Weiß":"Schwarz"})`:V.local?"Gegner überlegt …":"Warte auf deine Freundin …";
  const selP=V.sel!=null?st.bd[V.sel]:null;const pc=V.local?chessP()[V.lvl]:null;
  return `<div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn ghost sm" data-a="go" data-x="${V.local?"chesspick":"matches"}">← ${V.local?"Gegner":"Matches"}</button>${V.local?`<span class="streak" style="margin:0">${[0,1,2].map(i=>`<i class="${i<pc.s?"on":""}"></i>`).join("")}</span>`:""}</div>
  <div class="chhead"><span class="face">${V.local?opFace:avaHTML(opA,58)}</span><div class="bub">${say}</div></div>
@@ -2860,6 +2872,178 @@ Object.assign(ACT,{
 /* Gegner-Auswahl zählt zu „Spielen“ */
 if(typeof NAVMAP!=="undefined"){NAVMAP.chesspick="play";NAVMAP.chess="play"}
 if(typeof LEARN_VIEWS!=="undefined")LEARN_VIEWS.push("chesspick");
+</script>
+
+<style>
+/* ===== Dashboard-Ordnung (wie Vorlage) ===== */
+.d2{display:flex;flex-direction:column;gap:0}
+.d2 .card{margin-top:14px}
+.hh{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.hh h1{font-size:26px;font-weight:900;margin:0;letter-spacing:-.3px}
+.hh .ic{display:flex;gap:6px}
+.hh .ic button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:18px;position:relative}
+.hh .ic button i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--fire);color:#fff;font-size:11px;font-style:normal;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.hero3{position:relative;overflow:hidden;margin-top:14px;border-radius:26px;padding:22px;color:#fff;background:linear-gradient(135deg,#5b3df5,#7c5cff 60%,#9a7bff);box-shadow:0 14px 34px #5b3df544;display:grid;grid-template-columns:1fr;gap:18px}
+.hero3::before,.hero3::after{content:"";position:absolute;border-radius:50%;background:#ffffff14;pointer-events:none}
+.hero3::before{width:260px;height:260px;right:-80px;top:-110px}.hero3::after{width:180px;height:180px;left:-60px;bottom:-90px}
+.hero3 .hl{position:relative;z-index:1;display:flex;flex-direction:column;min-width:0}
+.hero3 .g{font-size:28px;line-height:1.15;font-weight:500}
+.hero3 .g b{display:block;font-weight:900}
+.hero3 .sub{opacity:.85;font-size:13.5px;margin-top:8px}
+.hero3 .hst{display:flex;gap:22px;margin-top:auto;padding-top:18px;flex-wrap:wrap}
+.hero3 .hst>div{display:flex;align-items:center;gap:10px}
+.hero3 .hst .bx{width:42px;height:42px;border-radius:13px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.hero3 .hst b{font-size:24px;font-weight:900;display:block;line-height:1}
+.hero3 .hst .lb{font-size:12px;opacity:.85}
+.hero3 .hr{position:relative;z-index:1}
+.hero3 .cl{font-size:13px;font-weight:800;opacity:.9;margin-bottom:8px}
+.cont{display:block;width:100%;text-align:left;background:#fff;color:#1f1a3d;border:0;border-radius:20px;padding:13px;box-shadow:0 12px 28px #2a1a8a44}
+.cont .tg{display:inline-block;font-size:11px;font-weight:900;border-radius:8px;padding:3px 9px;background:#ece6ff;color:#5b3df5}
+.cont .tt{font-weight:900;font-size:15.5px;margin:8px 0 9px;line-height:1.25}
+.cont .im{height:92px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:46px;position:relative;overflow:hidden}
+.cont .im::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 25% 20%,#ffffff66,transparent 55%)}
+.cont .ds{font-size:12.5px;color:#6b6790;margin:9px 0;line-height:1.35}
+.cont .ft{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee9ff;padding-top:9px;font-size:12px;font-weight:800;color:#4b4670}
+.cont .ft .go{background:#5b3df5;color:#fff;border-radius:10px;padding:6px 11px}
+.sech{margin-top:22px}.sech h2{margin:0;font-size:20px}.sech p{margin:3px 0 0;font-size:13px}
+.strow{display:grid;grid-template-columns:1fr;gap:0}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;margin-top:14px;padding-left:22px;position:relative}
+.bars .yl{position:absolute;left:0;top:0;bottom:22px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--mut);font-weight:700}
+.bars .c{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;position:relative}
+.bars .c i{display:block;width:100%;max-width:38px;border-radius:10px 10px 6px 6px;background:linear-gradient(180deg,#d9cdff,#bba8ff);min-height:4px}
+html:not(.light) .bars .c i{background:linear-gradient(180deg,#4b4390,#3a3375)}
+.bars .c.on i{background:linear-gradient(180deg,#9a7bff,#6c4ff6)}
+.bars .c span{font-size:11px;font-weight:700;color:var(--mut);margin-top:6px;height:16px}
+.bars .c.on span{color:var(--txt);font-weight:900}
+.bars .tip{font-style:normal;position:absolute;top:-28px;background:#1f1a3d;color:#fff;font-size:11px;font-weight:800;border-radius:8px;padding:4px 7px;white-space:nowrap;z-index:2}
+html:not(.light) .bars .tip{background:#fff;color:#1f1a3d}
+.dnut{display:flex;flex-direction:column;align-items:center}
+.dnut svg{width:150px;height:150px;margin-top:6px}
+.dnut .lg{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;font-size:11.5px;color:var(--mut);font-weight:700;margin-top:8px}
+.dnut .lg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.cal2{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px}
+.cal2 b{font-size:11px;color:var(--mut);font-weight:800;padding:4px 0}
+.cal2 button{aspect-ratio:1;border:0;background:none;border-radius:50%;font-size:13px;font-weight:700;color:var(--txt);position:relative;padding:0;max-width:40px;margin:0 auto;width:100%}
+.cal2 button.o{color:var(--mut);opacity:.45}
+.cal2 button.l{background:var(--bg2)}
+.cal2 button.t{box-shadow:inset 0 0 0 2px var(--acc)}
+.cal2 button.s{background:var(--acc);color:#fff}
+.cal2 button.x::after{content:"";position:absolute;bottom:3px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--fire)}
+.cal2 button.s.x::after{background:#fff}
+.calnav{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border-radius:14px;padding:6px;margin-top:10px}
+.calnav button{width:34px;height:34px;border:0;background:none;font-size:18px;color:var(--txt);border-radius:10px}
+.calnav b{font-size:14px}
+.tl{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.tl .dh{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:14px}
+.ev{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:0;border-radius:16px;padding:12px;margin-top:10px;color:#1f1a3d}
+.ev.a{background:#e6deff}.ev.b{background:#ffe1f1}.ev.c{background:#dff7ec}.ev.d{background:#fff1d6}
+.ev .tg{display:inline-block;font-size:10.5px;font-weight:900;border-radius:7px;padding:2px 8px;color:#fff;background:#6c4ff6}
+.ev.b .tg{background:#d6339a}.ev.c .tg{background:#12a26b}.ev.d .tg{background:#e08a00}
+.ev .t{font-weight:900;font-size:14px;margin-top:5px}
+.ev .s{font-size:12px;color:#5b5680;margin-top:2px}
+.ev .ck{margin-left:auto;flex:none;width:22px;height:22px;border-radius:7px;border:2px solid #0003;background:#fff8;display:flex;align-items:center;justify-content:center;font-size:13px}
+.ev .ck.on{background:#2ee59d;border-color:#2ee59d;color:#003320}
+.more2{display:grid;grid-template-columns:1fr;gap:0}
+.callg{display:none}
+.hero3 .hst{flex-wrap:nowrap!important;gap:16px!important}
+/* Seitenleiste (Querformat / großer Bildschirm) */
+.nav .sbh,.nav .sbx{display:none}
+@media (min-width:700px){
+ .hero3{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);padding:26px}
+ .strow{grid-template-columns:1.55fr 1fr;gap:14px}
+ .more2{grid-template-columns:1fr 1fr;gap:0 14px}
+}
+@media (min-width:1080px){
+ .d2{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:0 18px;align-items:start}
+ .d2 .ml{min-width:0}.d2 .mr{position:sticky;top:76px}
+ .hh{grid-column:1/-1}
+ .callg{display:block}.calsm{display:none}
+ body .wrap{max-width:1240px;margin-left:max(250px,calc(50vw - 520px));padding-left:10px}
+ .topin{max-width:none!important;padding-left:260px!important}
+ .nav{left:0!important;top:0!important;bottom:0!important;right:auto!important;transform:none!important;width:240px!important;border-radius:0!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;gap:4px;padding:18px 14px!important;border:0!important;border-right:1px solid var(--line)!important;overflow:auto;z-index:60}
+ .nav .sbh{display:block}.nav .sbx{display:flex}
+ .nav button{width:100%!important;max-width:none!important;flex:none!important;flex-direction:row!important;justify-content:flex-start!important;gap:12px!important;padding:11px 12px!important;border-radius:12px!important;font-size:14px!important;text-align:left}
+ .nav button b{font-size:18px!important}
+ .nav .lbl{font-size:11px;font-weight:900;letter-spacing:.8px;color:var(--mut);margin:16px 12px 4px}
+ .nav .brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px;color:var(--fire);padding:0 8px 14px}
+ .nav .me{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:9px 10px;background:var(--card);color:var(--txt);width:100%}
+ .nav .me div{text-align:left;line-height:1.2}.nav .me small{color:var(--mut);font-size:11px}
+ #coachfab{right:22px}
+}
+</style>
+<script>
+/* ===== HEUTE im Dashboard-Look ===== */
+const MON=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const EVC=["a","b","c","d"];
+function dk(dt){return dt.getFullYear()+"-"+pad(dt.getMonth()+1)+"-"+pad(dt.getDate())}
+function fmtHM(sec){const m=Math.round(sec/60);return m>=60?Math.floor(m/60)+"h "+(m%60)+"m":m+" Min"}
+function weekBars(){const t=new Date();const wd=(t.getDay()+6)%7;const mon=new Date(t);mon.setDate(t.getDate()-wd);const days=[];
+ for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push([dk(d),(P.days||{})[dk(d)]||0,i===wd])}
+ const mx=Math.max(P.goal*60*1.5,...days.map(d=>d[1]),60);const top=Math.ceil(mx/60/5)*5||5;
+ return `<div class="bars"><div class="yl"><span>${top}</span><span>${Math.round(top*.5)}</span><span>0</span></div>${days.map(([k,s,on],i)=>`<div class="c ${on?"on":""}">${on&&s?`<em class="tip" style="top:calc(${100-Math.min(100,s/60/top*100)}% - 34px)">${fmtHM(s)}</em>`:""}<i style="height:calc(${Math.min(100,s/60/top*100)}% - 22px)"></i><span>${["Mo","Di","Mi","Do","Fr","Sa","So"][i]}</span></div>`).join("")}</div>`}
+function donut(){const all=Object.keys(TOPIC);const done=all.filter(id=>P.topics[id]&&P.topics[id].best>=80).length;const prog=all.filter(id=>P.topics[id]&&P.topics[id].best<80).length;const open=all.length-done-prog;
+ const r=38,c=2*Math.PI*r;const seg=(n,off,col)=>n?`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${col}" stroke-width="13" stroke-dasharray="${c*n/all.length} ${c}" stroke-dashoffset="${-c*off/all.length}" transform="rotate(-90 50 50)" stroke-linecap="butt"/>`:"";
+ return `<div class="dnut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${r}" fill="none" style="stroke:var(--card2)" stroke-width="13"/>${seg(done,0,"#6c4ff6")}${seg(prog,done,"#c4b5ff")}<text x="50" y="50" text-anchor="middle" font-size="17" font-weight="900" style="fill:var(--txt)">${done}</text><text x="50" y="62" text-anchor="middle" font-size="6.5" font-weight="700" style="fill:var(--mut)">von ${all.length} Themen</text></svg>
+ <div class="lg"><span><i style="background:#6c4ff6"></i>Geschafft ${done}</span><span><i style="background:#c4b5ff"></i>Angefangen ${prog}</span><span><i style="background:var(--card2)"></i>Offen ${open}</span></div></div>`}
+function calCard(){const now=new Date();const off=V.calM||0;const base=new Date(now.getFullYear(),now.getMonth()+off,1);const y=base.getFullYear(),mo=base.getMonth();
+ const sel=V.calD||today();const tds=new Set((P.tests||[]).map(t=>t.d));const lead=(base.getDay()+6)%7;const start=new Date(y,mo,1-lead);
+ let h=["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<b>${d}</b>`).join("");
+ for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);if(i>=35&&d.getMonth()!==mo)break;const k=dk(d);
+  h+=`<button class="${d.getMonth()!==mo?"o":""} ${(P.days||{})[k]>=60?"l":""} ${k===today()?"t":""} ${k===sel?"s":""} ${tds.has(k)?"x":""}" data-a="calday" data-x="${k}">${d.getDate()}</button>`}
+ const sd=new Date(sel+"T12:00");const isT=sel===today();const evs=(P.tests||[]).filter(t=>t.d===sel);
+ let list="";
+ evs.forEach((t,i)=>{const s=subj(t.s);const it=t.items||[];const dn=it.filter(x=>x.done).length;list+=`<button class="ev ${EVC[i%4]}" data-a="opentest" data-x="${t.id}"><div style="flex:1;min-width:0"><span class="tg">${s.icon} ${s.name}</span><div class="t">${esc(t.title)}</div><div class="s">${it.length?`Du hast ${dn}/${it.length} Punkte abgehakt.`:esc(t.type||"Test")+" · "+(t.topics||[]).length+" Themen"}</div></div><span class="ck ${it.length&&dn===it.length?"on":""}">${it.length&&dn===it.length?"✓":""}</span></button>`});
+ if(isT){const S=window.SESS&&window.SESS.d===today()?window.SESS:null;const sp=S?sessSteps():null;const plan=sessPlan();
+  list+=`<button class="ev a" data-a="${S?"go":"sessgo"}" data-x="sess"><div style="flex:1;min-width:0"><span class="tg">▶ Lerneinheit</span><div class="t">${esc(TOPIC[S?S.tid:plan.tid].t)}</div><div class="s">${S?`Du hast ${sp.filter(x=>x.ok).length}/4 Schritte geschafft.`:"15 Min · "+esc(plan.why)}</div></div><span class="ck ${S&&S.done?"on":""}">${S&&S.done?"✓":""}</span></button>`;
+  const qs=todaysQuests();const got=(P.qd&&P.qd.d===today())?P.qd.got:[];
+  qs.forEach((q,i)=>{const pv=Math.min(q.n,dly(q.k));const dn=got.includes(q.id);list+=`<div class="ev ${EVC[(i+1)%4]}"><div style="flex:1;min-width:0"><span class="tg">⚡ Quest · +${q.xp} XP</span><div class="t">${q.t}</div><div class="s">${pv}/${q.n} geschafft</div></div><span class="ck ${dn?"on":""}">${dn?"✓":""}</span></div>`})}
+ if(!list){const up=myTests().filter(t=>t.d>sel).slice(0,2);list=`<p class="mut sm" style="margin-top:8px">${sel<today()?"An diesem Tag ist nichts eingetragen.":"Noch nichts geplant."}</p>`+up.map((t,i)=>{const s=subj(t.s);return `<button class="ev ${EVC[(i+2)%4]}" data-a="opentest" data-x="${t.id}"><div style="flex:1"><span class="tg">${s.icon} ${s.name}</span><div class="t">${esc(t.title)}</div><div class="s">am ${new Date(t.d+"T12:00").toLocaleDateString("de-DE",{day:"numeric",month:"long"})} · in ${daysUntil(t.d)} Tagen</div></div></button>`}).join("")}
+ return `<div class="card"><div class="row" style="justify-content:space-between"><h3>🗓️ Mein Plan</h3><button class="btn ghost sm" data-a="go" data-x="tests">Alle Tests</button></div>
+ <div class="calnav"><button data-a="calm" data-x="-1">‹</button><b>${MON[mo]} ${y}</b><button data-a="calm" data-x="1">›</button></div>
+ <div class="cal2">${h}</div>
+ <div class="tl"><div class="dh"><span>${isT?"Heute, ":""}${sd.getDate()}. ${MON[sd.getMonth()]}</span>${sel>=today()?`<button class="btn ghost sm" data-a="newtest" data-x="|${sel}">➕ Test</button>`:""}</div>${list}</div></div>`}
+
+VIEWS.home=()=>{const s=streakAlive();const lv=lvlOf(P.xp);const hi=lvlXp(lv+1);const gp=Math.min(100,Math.round(todaySec()/(P.goal*60)*100));
+ const nt=nextTest();const S=window.SESS&&window.SESS.d===today()?window.SESS:null;const sp=S?sessSteps():null;
+ const hr=new Date().getHours();const greet=hr<11?"Guten Morgen,":hr<17?"Hallo,":"Guten Abend,";const turn=MODE==="cloud"?myTurnCount():0;
+ const fr=MODE==="cloud"?(P.friends||[]).filter(id=>ALLP[id]).map(id=>Object.assign({},ALLP[id],{_id:id})):[];const lb=[Object.assign({},P,{_id:"me"})].concat(fr).map(p=>Object.assign(p,{wk:weekSec(p)})).sort((a,b)=>b.wk-a.wk);
+ const plan=sessPlan();const tid=S?S.tid:plan.tid;const pt=TOPIC[tid];const su=subj(pt.sid);
+ const done=Object.keys(P.topics).filter(id=>TOPIC[id]&&P.topics[id].best>=80).length;const hrs=Math.round((P.totalSec||0)/3600*10)/10;
+ const wk=Object.entries(P.days||{}).filter(([k])=>k>=addDays(today(),-6)).reduce((a,[,v])=>a+v,0);
+ return `<div class="d2">
+ <div class="hh"><h1>Heute</h1><div class="ic"><button data-a="go" data-x="coach" title="Coach">💬</button><button data-a="go" data-x="matches" title="Matches">🔔${turn?`<i>${turn}</i>`:""}</button></div></div>
+ <div class="ml">
+ <div class="hero3"><div class="hl"><div class="g">${greet}<b>${esc(P.name)}.</b></div><div class="sub">Level ${lv} · ${rankName(lv)} · noch ${hi-P.xp} XP · 🔥 ${s} ${s===1?"Tag":"Tage"}</div>
+  <div class="hst"><div><span class="bx">📘</span><span><b>${done}</b><span class="lb">Themen geschafft</span></span></div><div><span class="bx">⏱️</span><span><b>${hrs}</b><span class="lb">Stunden gelernt</span></span></div></div></div>
+  <div class="hr"><div class="cl">${S?"Weiterlernen":"Jetzt lernen"}</div><button class="cont" data-a="${S?"go":"sessgo"}" data-x="sess"><span class="tg">${su.icon} ${su.name}</span><div class="tt">${esc(pt.t)}</div><div class="im" style="background:linear-gradient(135deg,${su.color},${su.color}88)">${su.icon}</div><div class="ds">${S?(S.done?"Lerneinheit für heute geschafft ✅":"Du hast "+sp.filter(x=>x.ok).length+" von 4 Schritten geschafft."):"Video, Übungen, Mini-Test & Vokabeln – "+esc(plan.why)+"."}</div><div class="ft"><span>▶ 4 Schritte · ⏱ 15 Min</span><span class="go">${S?"Weiter →":"Start →"}</span></div></button></div></div>
+ <div class="coachline" data-a="go" data-x="coach" style="cursor:pointer;margin-top:12px"><span class="m">🔥</span><div><b>Flami:</b> ${esc(coachSays())}</div></div>
+ ${turn?`<button class="card" style="width:100%;text-align:left;border:2px solid var(--fire)" data-a="go" data-x="matches"><b>⚔️ Du bist in ${turn} ${turn===1?"Match":"Matches"} am Zug!</b><div class="sm mut">Tippen zum Spielen →</div></button>`:""}
+ ${xmasBanner()}
+ <div class="sech"><h2>Lernstatistik</h2><p class="mut">Deine Lernzeit diese Woche und dein Fortschritt in allen Themen.</p></div>
+ <div class="strow"><div class="card"><div class="row" style="justify-content:space-between"><h3>Lernzeit</h3><span class="pill">Diese Woche · ${fmtHM(wk)}</span></div>${weekBars()}</div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h3>Fortschritt</h3><button class="btn ghost sm" data-a="go" data-x="learn">→</button></div>${donut()}</div></div>
+ <div class="calsm">${calCard()}</div>
+ <div class="more2">
+  <div><div class="card"><div class="row" style="gap:14px;flex-wrap:nowrap">${ringHTML(gp)}<div style="flex:1"><h3>${P.lastGoal===today()?"✅ Tagesziel geschafft":"🎯 Tagesziel"}</h3><div class="sm mut" style="margin:4px 0 8px">${P.lastGoal===today()?"Deine Flamme brennt heute 🔥":"Damit deine Flamme weiterbrennt"}</div><button class="btn ghost sm" data-a="goalSet">⚙️ ${P.goal} Min</button></div></div></div>
+   ${nt?`<div class="card"><div class="row" style="justify-content:space-between"><h3>📅 Nächster Test</h3><button class="btn ghost sm" data-a="go" data-x="tests">Alle →</button></div>${testRow(nt)}</div>`:`<div class="card"><h3>📅 Nächster Test</h3><p class="mut sm" style="margin:6px 0 10px">Trag deine nächste Arbeit ein – du bekommst einen Lernplan.</p><button class="btn sm" data-a="newtest" data-x="">➕ Test eintragen</button></div>`}
+   ${chestCard()}</div>
+  <div>${fr.length?`<div class="card"><h3>🏆 Wochen-Rangliste</h3><div class="list">${lb.slice(0,4).map((p,i)=>`<div class="li">${["🥇","🥈","🥉"][i]||"4."} ${avaHTML(p.ava,32)}<div class="grow nm">${esc(p.name)}${p._id==="me"?" (du)":""}</div><b>${fmtMin(p.wk)}</b></div>`).join("")}</div></div>`:""}
+   <div class="card"><h3>📚 Fächer</h3><div class="list">${SUBJ.map(su=>{const[d,n]=subjProg(su);const mins=Math.round(((P.subSec||{})[su.id]||0)/60);return `<button class="li" data-a="subject" data-x="${su.id}"><span style="font-size:22px">${su.icon}</span><div class="grow"><div class="nm">${su.name}</div><div class="bar" style="margin-top:4px"><i style="width:${d/n*100}%"></i></div></div><span class="sm mut">${mins} Min</span></button>`}).join("")}</div></div>
+   <div class="card"><h3>🏅 Abzeichen (${(P.badges||[]).length}/${BADGES.length})</h3><div class="row" style="margin-top:10px;gap:6px">${BADGES.map(b=>`<div class="badge ${(P.badges||[]).includes(b[0])?"got":""}"><b>${b[1]}</b>${b[2]}</div>`).join("")}</div></div>
+   <div class="card"><div class="row" style="justify-content:space-between"><h3>📊 Lernzeit-Verlauf</h3><div class="seg"><button class="${V.range!==30?"on":""}" data-a="range" data-x="7">Woche</button><button class="${V.range===30?"on":""}" data-a="range" data-x="30">30 Tage</button></div></div>${chartHTML()}<div class="nums"><div><b>${P.xp}</b><span>XP</span></div><div><b>${hrs}</b><span>Stunden</span></div><div><b>${P.best||0}</b><span>Rekord-Serie</span></div></div></div></div>
+ </div></div>
+ <div class="mr callg">${calCard()}</div>
+ </div>`};
+
+Object.assign(ACT,{
+ calday:x=>{V.calD=x;rerender()},
+ calm:x=>{V.calM=(V.calM||0)+(+x);rerender()}
+});
+
+/* Seitenleiste für großen Bildschirm / Querformat */
+{const _rn=window.renderNav;window.renderNav=function(){_rn();const nv=document.querySelector("#nav .nav");if(!nv||!P)return;
+ nv.insertAdjacentHTML("afterbegin",`<div class="sbh"><div class="brand">✈️ LernFlug</div><button class="me" data-a="go" data-x="me">${avaHTML(P.ava,34)}<div><b>${esc(P.name)}</b><br><small>Level ${lvlOf(P.xp)} · 🔥 ${streakAlive()}</small></div></button><div class="lbl">MENÜ</div></div>`);
+ nv.insertAdjacentHTML("beforeend",`<div class="sbh lbl">EINSTELLUNGEN</div><button class="sbx" data-a="go" data-x="me"><b>👤</b>Profil & Avatar</button><button class="sbx" data-a="theme" data-x="${document.documentElement.classList.contains("light")?"dark":"light"}"><b>${document.documentElement.classList.contains("light")?"🌙":"☀️"}</b>${document.documentElement.classList.contains("light")?"Dunkel-Modus":"Hell-Modus"}</button><button class="sbx" data-a="go" data-x="coach"><b>💬</b>Hilfe & Coach</button>`)}}
 </script>
 
 </body>
