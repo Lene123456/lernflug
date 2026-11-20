@@ -3046,5 +3046,72 @@ Object.assign(ACT,{
  nv.insertAdjacentHTML("beforeend",`<div class="sbh lbl">EINSTELLUNGEN</div><button class="sbx" data-a="go" data-x="me"><b>👤</b>Profil & Avatar</button><button class="sbx" data-a="theme" data-x="${document.documentElement.classList.contains("light")?"dark":"light"}"><b>${document.documentElement.classList.contains("light")?"🌙":"☀️"}</b>${document.documentElement.classList.contains("light")?"Dunkel-Modus":"Hell-Modus"}</button><button class="sbx" data-a="go" data-x="coach"><b>💬</b>Hilfe & Coach</button>`)}}
 </script>
 
+<style>
+/* ===== Aufgeräumte Kopfzeile ===== */
+html,body{overflow-x:hidden;max-width:100%}
+.top2{display:flex;align-items:center;gap:8px;width:100%}
+.top2 .lg{display:flex;align-items:center;gap:6px;font-weight:900;font-size:18px;color:var(--fire);white-space:nowrap;cursor:pointer;flex:none}
+.top2 .lg b{font-size:22px}
+.top2 .sp{flex:1;min-width:0}
+.statp{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;height:38px;overflow:hidden;flex:none}
+html.light .statp{background:#fff;border-color:#e8e0ff}
+.statp>*{display:flex;align-items:center;gap:4px;padding:0 9px;height:100%;font-weight:900;font-size:14px;white-space:nowrap;border:0;background:none;color:var(--txt)}
+.statp>*+*{border-left:1px solid var(--line)}
+.statp .f.dead{filter:grayscale(1);opacity:.6}
+.top2 .ib{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;flex:none;display:flex;align-items:center;justify-content:center;padding:0}
+html.light .top2 .ib{background:#fff;border-color:#e8e0ff}
+.top2 .av{flex:none;border:0;background:none;padding:0;display:flex}
+@media(max-width:430px){.top2 .lg span{display:none}.statp>*{padding:0 8px;font-size:13.5px}.top2{gap:6px}}
+@media(max-width:350px){.top2 .ib{display:none}}
+
+/* ===== Schach: Vorsprung & Zug-Bewertung ===== */
+.evrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+.evp{display:flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:14px;padding:6px 12px;font-weight:900;font-size:14px;white-space:nowrap;background:var(--card)}
+.evp.up{color:#12b76a;border-color:#12b76a55}.evp.dn{color:#ff5d73;border-color:#ff5d7355}
+.evp b{font-size:16px}
+.evb{flex:1;height:12px;border-radius:8px;overflow:hidden;background:#3a3375;position:relative}
+.evb i{position:absolute;left:0;top:0;bottom:0;background:#eef0ff;transition:width .4s}
+html.light .evb{background:#4a4378}
+.evb::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:#ffcc33}
+.mqb{position:absolute;top:-4px;right:-4px;z-index:4;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;box-shadow:0 2px 6px #0005;animation:pzin .3s ease-out}
+.mqb.best{background:#1fb5a4}.mqb.good{background:#12b76a}.mqb.inac{background:#f5b400}.mqb.mist{background:#ff8a00}.mqb.blun{background:#ff3b5c}
+.mql{display:flex;align-items:center;gap:10px;margin-top:10px;border-radius:14px;padding:9px 12px;font-weight:800;font-size:14px}
+.mql .mqb{position:static;flex:none;animation:none}
+.mql.best{background:#1fb5a422}.mql.good{background:#12b76a22}.mql.inac{background:#f5b40022}.mql.mist{background:#ff8a0022}.mql.blun{background:#ff3b5c22}
+.mql small{display:block;font-weight:600;color:var(--mut);font-size:12.5px;margin-top:1px}
+</style>
+<script>
+/* ===== Kopfzeile neu ===== */
+window.renderTop=function(){if(!P)return;const s=streakAlive();const dark=P.theme==="dark"||(!P.theme&&!document.documentElement.classList.contains("light"));
+ $("#topbar").innerHTML=`<div class="top"><div class="topin"><div class="top2">
+ <div class="lg" data-a="go" data-x="home"><b>✈️</b><span>LernFlug</span></div><div class="sp"></div>
+ <div class="statp"><span class="f ${s?"":"dead"}" title="Flammen-Serie"><span class="${s?"flame":""}">🔥</span>${s}</span><span title="Heute gelernt">⏱ <span class="timer">${Math.floor(todaySec()/60)}</span>m</span><span title="Münzen">🪙 ${P.coins}</span></div>
+ <button class="ib" data-a="theme" data-x="${dark?"light":"dark"}" title="Hell/Dunkel">${dark?"☀️":"🌙"}</button>
+ <button class="av" data-a="go" data-x="me">${avaHTML(P.ava,36)}</button></div></div></div>`};
+
+/* ===== Schach: Bewertung ===== */
+const EVC2={};
+function evalWhite(st){const key=st.bd+st.turn;if(key in EVC2)return EVC2[key];const gs=gameState(st);let v;
+ if(gs==="mate")v=st.turn==="w"?-99999:99999;else if(gs==="stale")v=0;else{NODES=0;v=(st.turn==="w"?1:-1)*ab(st,1,-1e9,1e9,0)}
+ EVC2[key]=v;return v}
+function evHTML(st,me){const w=evalWhite(st);const v=me==="w"?w:-w;const mate=Math.abs(w)>50000;const pts=mate?null:Math.round(v/100);
+ const cls=mate?(v>0?"up":"dn"):pts>0?"up":pts<0?"dn":"";const txt=mate?(v>0?"Matt in Sicht!":"Matt droht!"):pts>0?`+${pts} Vorsprung`:pts<0?`${pts} Rückstand`:"Ausgeglichen";
+ const pct=Math.max(4,Math.min(96,50+(mate?(w>0?50:-50):Math.max(-46,Math.min(46,w/18)))));
+ return `<div class="evrow"><div class="evp ${cls}"><b>${cls==="up"?"⬆":cls==="dn"?"⬇":"="}</b>${txt}</div><div class="evb" title="Weiß gegen Schwarz"><i style="width:${pct}%"></i></div></div>`}
+const MQ={best:["★","Bester Zug!","Genau das hätte auch Professor Eule gespielt."],good:["✓","Guter Zug","Solide gespielt!"],inac:["?!","Ungenau","Es gab einen besseren Zug."],mist:["?","Fehler","Damit verschenkst du etwas."],blun:["??","Patzer","Autsch – das kostet viel!"]};
+function rateMove(st,m){const ms=legal(st);if(ms.length<=1)return"good";NODES=0;let best=-1e9,mine=null;
+ for(const x of ms){const n=applyMv(st,x);let v;const g=legal(n);if(!g.length)v=inCheck(n,n.turn)?100000:0;else v=-ab(n,0,-1e9,1e9,1);if(v>best)best=v;if(x.f===m.f&&x.t===m.t)mine=v}
+ if(mine==null)return"good";if(mine>=50000)return"best";const loss=best-mine;
+ return loss<=15?"best":loss<=60?"good":loss<=150?"inac":loss<=320?"mist":"blun"}
+function mqLine(){const q=V.mq;if(!q)return"";const d=MQ[q.c];return `<div class="mql ${q.c}"><span class="mqb ${q.c}">${d[0]}</span><div>Dein Zug ${q.n}: ${d[1]}<small>${d[2]}${q.alt?" Besser wäre: "+q.alt:""}</small></div></div>`}
+window.chessMove=(function(orig){return function(m){const st=chessSt();let c="good",alt="";try{c=rateMove(st,m);if(c==="inac"||c==="mist"||c==="blun"){const b=cpuMove(st,"h");if(b)alt=`${PN[st.bd[b.f].toLowerCase()]} ${sqName(b.f)}→${sqName(b.t)}`}}catch(e){}
+ V.mq={c,t:m.t,n:`${PN[st.bd[m.f].toLowerCase()]} ${sqName(m.f)}→${sqName(m.t)}`,alt,gid:V.gid||"local"};return orig(m)}})(window.chessMove);
+{const _vc=VIEWS.chess;VIEWS.chess=function(){let h=_vc();const st=chessSt();if(!st)return h;const M=chessMeta();
+ if(V.mq&&V.mq.gid===(V.gid||"local")){const q=V.mq;const pos=V.local?q.t:q.t;if(st.bd[pos]!=="."&&colOf(st.bd[pos])===M.me)h=h.replace(`data-a="csq" data-x="${pos}">`,`data-a="csq" data-x="${pos}"><span class="mqb ${q.c}">${MQ[q.c][0]}</span>`)}
+ h=h.replace('<div class="cb">',evHTML(st,M.me||"w")+'<div class="cb">');
+ if(V.mq&&V.mq.gid===(V.gid||"local"))h=h.replace('<div class="fb ',mqLine()+'<div class="fb ');
+ return h}}
+</script>
+
 </body>
 </html>
