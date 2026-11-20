@@ -2479,5 +2479,175 @@ LEARN_VIEWS.push("sb","duel","chess","prep");
 {const _rn=window.renderNav;window.renderNav=function(){_rn();const cur={matches:"friends",newmatch:"friends",duel:"friends",chess:"friends",sb:"vocab",prep:"learn"}[V.v];if(cur)document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.x===cur))}}
 </script>
 
+<style>
+/* ===== Struktur 4.0: Heute / Lernen / Tests / Spielen / Freunde ===== */
+.sec{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 0}
+.sec h3{font-size:17px}
+.sec .sm{font-weight:800}
+.go-big{width:100%;display:flex;align-items:center;gap:14px;padding:18px;border-radius:22px;background:linear-gradient(135deg,#7c5cff,#c04cff);color:#fff;box-shadow:0 8px 0 #4a2fb0,0 14px 30px #7c5cff55;text-align:left;margin-top:14px;transition:transform .1s}
+.go-big:active{transform:translateY(5px);box-shadow:0 3px 0 #4a2fb0}
+.go-big .pl{width:58px;height:58px;border-radius:50%;background:#fff;color:#7c5cff;font-size:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.go-big b{font-size:20px;display:block}
+.go-big span{font-size:13px;opacity:.9;font-weight:700}
+.steps{display:flex;gap:6px;justify-content:center;margin:6px 0 4px}
+.steps i{width:28px;height:6px;border-radius:6px;background:var(--line)}
+.steps i.on{background:var(--acc)}
+.bigpick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.bigpick button{border-radius:18px;padding:16px 10px;font-weight:900;font-size:16px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bigpick button span{font-size:30px}
+.qd{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.qd button{background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-weight:800;color:var(--txt)}
+.qd button.on{border-color:var(--acc);background:#7c5cff1a;color:var(--acc)}
+.item{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}
+.item .grow{flex:1;font-weight:700;word-break:break-word}
+.item button{font-size:18px;opacity:.7}
+.item.done .grow{text-decoration:line-through;opacity:.55}
+.sessrow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--bg2);border:1px solid var(--line);margin-top:8px;width:100%;text-align:left}
+.sessrow .n{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;background:var(--card2);flex-shrink:0}
+.sessrow.done .n{background:var(--ok);color:#003320}
+.sessrow.cur{border:2px solid var(--acc)}
+.sessbar{position:sticky;top:57px;z-index:18;background:linear-gradient(90deg,#7c5cff,#c04cff);color:#fff;padding:9px 14px;display:flex;align-items:center;gap:10px;font-weight:900;font-size:14px;cursor:pointer}
+.playgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.playgrid button{border-radius:22px;padding:18px 14px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:130px;box-shadow:0 6px 18px #0002}
+.playgrid button b{font-size:18px}
+.playgrid button .e{font-size:36px}
+.playgrid button span.s{font-size:12px;font-weight:700;opacity:.92}
+.toolgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.toolgrid button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:800;color:var(--txt)}
+html.light .toolgrid button{background:#fff;box-shadow:0 4px 12px #7c5cff10}
+.toolgrid button b{font-size:24px}
+.fold{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:16px;background:var(--bg2);border:1px solid var(--line);font-weight:900;color:var(--txt);margin-top:16px}
+@media (min-width:760px){.toolgrid{grid-template-columns:repeat(7,1fr)}.bigpick{grid-template-columns:repeat(4,1fr)}.playgrid{grid-template-columns:repeat(3,1fr)}}
+</style>
+<script>
+"use strict";
+/* ================= NAVIGATION (5 Bereiche) ================= */
+const NAVMAP={home:"home",xmas:"home",me:"home",learn:"learn",subject:"learn",topic:"learn",quiz:"learn",exam:"learn",examSetup:"learn",vocab:"learn",vocset:"learn",speak:"learn",cards:"learn",videos:"learn",video:"learn",zettel:"learn",zpick:"learn",coach:"learn",prep:"learn",sess:"home",tests:"tests",test:"tests",testadd:"tests",play:"play",matches:"play",newmatch:"play",duel:"play",chess:"play",sb:"play",flight:"play",friends:"friends"};
+window.renderNav=function(){const fl=FL();const it=[["home","🏠","Heute"],["learn","📚","Lernen"],["tests","📅","Tests"],["play","🎮","Spielen"],["friends","👥","Freunde"]];const cur=NAVMAP[V.v]||"home";
+ $("#nav").innerHTML=`<div class="nav">${it.map(([k,i,l])=>`<button class="${cur===k?"on":""} ${fl&&(k==="friends"||k==="home"||k==="play")?"lock":""}" data-a="go" data-x="${k}"><b>${i}</b>${l}</button>`).join("")}</div>`};
+{const _go=ACT.go;ACT.go=(x,e)=>{const f=FL();if(f&&(x==="play"||x==="friends"||x==="home")){if(x==="play"){V={v:"flight"};render();return}toast("🔒 Im Flug nicht verfügbar – bleib fokussiert!");return}
+ if(x==="play"||x==="sess"){V={v:x};render();presence();return}_go(x,e)}}
+
+/* ================= SPIELEN ================= */
+VIEWS.play=()=>{const n=MODE==="cloud"?myTurnCount():0;return `<h2 style="margin-top:18px">🎮 Spielen & Fokus</h2><p class="mut">Lernen mit Spaß – allein oder gegen deine Freundinnen.</p>
+ <div class="playgrid">
+ <button style="background:linear-gradient(145deg,#ff5d73,#c04cff)" data-a="go" data-x="matches"><span class="e">⚔️</span><b>Matches${n?` <span class="pill" style="background:#fff;color:#ff5d73">${n} dran</span>`:""}</b><span class="s">Quiz-Duell & Schach gegen Freunde</span></button>
+ <button style="background:linear-gradient(145deg,#7c5cff,#3b2fa0)" data-a="go" data-x="flight"><span class="e">✈️</span><b>Fokus-Flug</b><span class="s">Ohne Ablenkung lernen – auch zusammen</span></button>
+ <button style="background:linear-gradient(145deg,#3fa9ff,#2ec4b6)" data-a="go" data-x="sb"><span class="e">🧩</span><b>Sätze bauen</b><span class="s">Englisch & Französisch wie bei Duolingo</span></button>
+ <button style="background:linear-gradient(145deg,#2b2350,#5b4fd1)" data-a="chesscpu"><span class="e">♟️</span><b>Schach üben</b><span class="s">Gegen den Computer, mit Tipps</span></button>
+ <button style="background:linear-gradient(145deg,#ff7a18,#ffb347)" data-a="go" data-x="speak"><span class="e">🎤</span><b>Aussprache</b><span class="s">Sprich nach – grün oder rot?</span></button>
+ <button style="background:linear-gradient(145deg,#0f5132,#7a1020)" data-a="go" data-x="xmas"><span class="e">🎄</span><b>Weihnachten</b><span class="s">Puzzle, Outfits & Geschenke</span></button>
+ </div>`};
+
+/* ================= LERNEN (aufgeräumt) ================= */
+VIEWS.learn=()=>`<h2 style="margin-top:18px">📚 Lernen</h2><p class="mut">Wähle ein Fach – alle Themen der 7. Klasse (Rahmenlehrplan Brandenburg & Cornelsen-Bücher).</p>
+ <div class="grid sgrid">${SUBJ.map(su=>{const[d,n]=subjProg(su);return `<button class="sc" style="background:linear-gradient(145deg,${su.color},${su.color}aa)" data-a="subject" data-x="${su.id}"><span class="pc">${Math.round(d/n*100)}%</span><span class="ic">${su.icon}</span><span class="t">${su.name}</span><span class="m">${d}/${n} Themen</span><div class="pb"><i style="width:${d/n*100}%"></i></div></button>`}).join("")}</div>
+ <div class="sec"><h3>🧰 Lern-Werkzeuge</h3></div>
+ <div class="toolgrid">${[["go","vocab","🗂️","Vokabeln"],["go","cards","🃏","Karteikarten"],["go","videos","🎬","Videos"],["zsubj","","📄","Lernzettel"],["go","speak","🎤","Sprechen"],["go","prep","📘","Vorbereiten"],["go","coach","🔥","Coach"]].map(([a,x,i,l])=>`<button data-a="${a}" data-x="${x}"><b>${i}</b>${l}</button>`).join("")}</div>`;
+
+/* ================= HEUTE (Startseite) ================= */
+function sessPlan(){const nt=nextTest();let tid=null,why="";
+ if(nt){tid=nt.topics.find(id=>!(P.topics[id]&&P.topics[id].best>=80));if(tid)why=`für ${nt.title} in ${subj(nt.s).name}`}
+ if(!tid){const weak=Object.keys(P.topics).filter(id=>TOPIC[id]&&P.topics[id].best<80).sort((a,b)=>P.topics[a].best-P.topics[b].best);if(weak.length){tid=weak[0];why="dein schwächstes Thema"}}
+ if(!tid){const fresh=Object.keys(TOPIC).filter(id=>!P.topics[id]);tid=fresh[(new Date().getDate()*7)%fresh.length]||Object.keys(TOPIC)[0];why="ein neues Thema"}
+ return{tid,why}}
+function sessStart(){const{tid,why}=sessPlan();const L=["en","fr"][new Date().getDate()%2];
+ window.SESS={tid,why,L,d:today(),b:{videos:dly("videos"),prac:dly("prac"),tests:(P.topics[tid]||{}).n||0,vocab:dly("vocab")},done:false};lsSet("lf7_sess",window.SESS);V={v:"sess"};render()}
+function sessSteps(){const S=window.SESS;if(!S)return[];const t=TOPIC[S.tid];return[
+ {ic:"🎬",t:"Video ansehen",s:t.t,ok:dly("videos")>S.b.videos,a:"video",x:S.tid},
+ {ic:"✏️",t:"5 Aufgaben richtig üben",s:Math.min(5,dly("prac")-S.b.prac)+" / 5",ok:dly("prac")-S.b.prac>=5,a:"topic2",x:S.tid},
+ {ic:"📝",t:"Mini-Test machen",s:"Ziel: 80 %",ok:((P.topics[S.tid]||{}).n||0)>S.b.tests,a:"quizStart2",x:S.tid},
+ {ic:"🗂️",t:"5 Vokabeln richtig",s:VOC[S.L].flag+" "+VOC[S.L].name+" · "+Math.min(5,dly("vocab")-S.b.vocab)+" / 5",ok:dly("vocab")-S.b.vocab>=5,a:"vset",x:S.L+"|"+VOC[S.L].sets[new Date().getDate()%VOC[S.L].sets.length].id}]}
+function sessCheck(){const S=window.SESS;if(!S||S.done||S.d!==today())return;if(sessSteps().every(s=>s.ok)){S.done=true;lsSet("lf7_sess",S);addXP(30,true);P.coins+=20;save();setTimeout(()=>{confetti(120);showModal(`<div class="center"><div class="big pop">🏆</div><h2>Lerneinheit geschafft!</h2><p class="mut" style="margin:8px 0 14px">Stark, ${esc(P.name)}! +30 XP und +20 🪙</p><button class="btn fire full" data-a="go" data-x="home">Zurück zu Heute</button></div>`)},400)}}
+try{const s=lsGet("lf7_sess");if(s&&s.d===dayKey())window.SESS=s}catch(e){}
+setInterval(()=>{try{if(P)sessCheck()}catch(e){}},3000);
+VIEWS.sess=()=>{const S=window.SESS;if(!S||S.d!==today())return `<div class="card center" style="margin-top:20px"><p>Keine Lerneinheit aktiv.</p><button class="btn fire" style="margin-top:10px" data-a="sessgo">▶️ Jetzt starten</button></div>`;
+ const st=sessSteps();const cur=st.findIndex(s=>!s.ok);const t=TOPIC[S.tid];
+ return `<div class="card" style="margin-top:18px"><div class="mut sm">▶️ Deine Lerneinheit heute · ca. 15 Min</div><h2 style="margin-top:4px">${subj(t.sid).icon} ${esc(t.t)}</h2><div class="sm mut">Ausgewählt: ${esc(S.why)}</div>
+ <div class="bar" style="margin-top:10px;height:10px"><i style="width:${st.filter(s=>s.ok).length/st.length*100}%"></i></div>
+ ${st.map((s,i)=>`<button class="sessrow ${s.ok?"done":""} ${i===cur?"cur":""}" data-a="${s.a}" data-x="${s.x}"><span class="n">${s.ok?"✓":i+1}</span><div style="flex:1"><b>${s.ic} ${s.t}</b><div class="sm mut">${esc(s.s)}</div></div>${i===cur?`<span class="pill" style="background:var(--acc);color:#fff">Los →</span>`:""}</button>`).join("")}
+ ${S.done?`<div class="fb ok" style="text-align:center">🏆 Geschafft! Morgen gibt es eine neue Einheit.</div>`:""}</div>
+ <button class="btn ghost sm" style="margin-top:10px" data-a="sessnew">🔀 Anderes Thema wählen</button>`};
+{const _fb=window.renderFbar;window.renderFbar=function(){_fb();const S=window.SESS;if(FL()||!S||S.done||S.d!==today()||["sess","home"].includes(V.v)||!P)return;const st=sessSteps();const n=st.filter(s=>s.ok).length;
+ $("#fbar").innerHTML=`<div class="sessbar" data-a="go" data-x="sess">▶️ Lerneinheit ${n}/${st.length} <span style="margin-left:auto">Zur Übersicht →</span></div>`}}
+VIEWS.home=()=>{const s=streakAlive();const lv=lvlOf(P.xp);const lo=lvlXp(lv),hi=lvlXp(lv+1);const pct=Math.min(100,Math.round((P.xp-lo)/(hi-lo)*100));const gp=Math.min(100,Math.round(todaySec()/(P.goal*60)*100));
+ const qs=todaysQuests();const got=(P.qd&&P.qd.d===today())?P.qd.got:[];const nt=nextTest();const S=window.SESS&&window.SESS.d===today()?window.SESS:null;const sp=S?sessSteps():null;
+ const hr=new Date().getHours();const greet=hr<11?"Guten Morgen":hr<17?"Hallo":"Guten Abend";const turn=MODE==="cloud"?myTurnCount():0;const open=!!P.statsOpen;
+ const fr=MODE==="cloud"?(P.friends||[]).filter(id=>ALLP[id]).map(id=>Object.assign({},ALLP[id],{_id:id})):[];const lb=[Object.assign({},P,{_id:"me"})].concat(fr).map(p=>Object.assign(p,{wk:weekSec(p)})).sort((a,b)=>b.wk-a.wk);
+ const plan=sessPlan();const pt=TOPIC[plan.tid];
+ return `<div class="dash">
+ <div class="full"><div class="card hero2"><div class="row" style="gap:14px;flex-wrap:nowrap">${avaHTML(P.ava,58)}<div style="flex:1;min-width:0"><div class="big2">${greet}, ${esc(P.name)}! 👋</div><div class="sm mut" style="margin-top:3px">Level ${lv} · ${rankName(lv)} · noch ${hi-P.xp} XP</div><div class="bar" style="margin-top:6px"><i style="width:${pct}%"></i></div></div><div class="center"><div style="font-size:30px" class="${s?"flame":""}">🔥</div><b>${s}</b></div></div>
+ <div class="coachline" data-a="go" data-x="coach" style="cursor:pointer"><span class="m">🔥</span><div><b>Flami:</b> ${esc(coachSays())}</div></div></div>
+ <button class="go-big" data-a="${S?"go":"sessgo"}" data-x="sess"><span class="pl">▶</span><div><b>${S?(S.done?"Lerneinheit geschafft ✅":"Weiterlernen ("+sp.filter(x=>x.ok).length+"/4)"):"Jetzt lernen"}</b><span>${S?esc(TOPIC[S.tid].t):"15 Min · "+esc(pt.t)+" · "+esc(plan.why)}</span></div></button>
+ ${turn?`<button class="card" style="width:100%;text-align:left;border:2px solid var(--fire)" data-a="go" data-x="matches"><b>⚔️ Du bist in ${turn} ${turn===1?"Match":"Matches"} am Zug!</b><div class="sm mut">Tippen zum Spielen →</div></button>`:""}
+ ${xmasBanner()}</div>
+ <div><div class="card"><div class="row" style="gap:14px;flex-wrap:nowrap">${ringHTML(gp)}<div style="flex:1"><h3>${P.lastGoal===today()?"✅ Tagesziel geschafft":"🎯 Tagesziel"}</h3><div class="sm mut" style="margin:4px 0 8px">${P.lastGoal===today()?"Deine Flamme brennt heute 🔥":"Damit deine Flamme weiterbrennt"}</div><button class="btn ghost sm" data-a="goalSet">⚙️ ${P.goal} Min</button></div></div></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h3>⚡ Tages-Quests</h3><span class="pill">${got.length}/3</span></div>${qs.map(q=>{const pv=Math.min(q.n,dly(q.k));const dn=got.includes(q.id);return `<div class="quest ${dn?"done":""}"><span class="qi">${dn?"✅":q.ic}</span><div class="qb"><div style="font-weight:800;font-size:14px">${q.t}</div><div class="bar" style="margin-top:4px"><i style="width:${pv/q.n*100}%"></i></div></div><span class="qx">+${q.xp} XP</span></div>`}).join("")}</div></div>
+ <div>${nt?`<div class="card"><div class="row" style="justify-content:space-between"><h3>📅 Nächster Test</h3><button class="btn ghost sm" data-a="go" data-x="tests">Alle →</button></div>${testRow(nt)}</div>`:`<div class="card"><h3>📅 Nächster Test</h3><p class="mut sm" style="margin:6px 0 10px">Trag deine nächste Arbeit ein – du bekommst einen Lernplan.</p><button class="btn sm" data-a="newtest" data-x="">➕ Test eintragen</button></div>`}
+ ${chestCard()}</div>
+ <div class="full"><button class="fold" data-a="statsT"><span>📊 Mein Fortschritt</span><span>${open?"▲":"▼"}</span></button></div>
+ ${open?`<div><div class="card"><div class="row" style="justify-content:space-between"><h3>📊 Lernzeit</h3><div class="seg"><button class="${V.range!==30?"on":""}" data-a="range" data-x="7">Woche</button><button class="${V.range===30?"on":""}" data-a="range" data-x="30">30 Tage</button></div></div>${chartHTML()}<div class="nums"><div><b>${P.xp}</b><span>XP</span></div><div><b>${Math.round((P.totalSec||0)/3600*10)/10}</b><span>Stunden</span></div><div><b>${P.best||0}</b><span>Rekord-Serie</span></div></div></div>
+ <div class="card"><h3>🗓️ ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][new Date().getMonth()]}</h3>${calHTML()}</div></div>
+ <div>${fr.length?`<div class="card"><h3>🏆 Wochen-Rangliste</h3><div class="list">${lb.slice(0,4).map((p,i)=>`<div class="li">${["🥇","🥈","🥉"][i]||"4."} ${avaHTML(p.ava,32)}<div class="grow nm">${esc(p.name)}${p._id==="me"?" (du)":""}</div><b>${fmtMin(p.wk)}</b></div>`).join("")}</div></div>`:""}
+ <div class="card"><h3>📚 Fächer</h3><div class="list">${SUBJ.map(su=>{const[d,n]=subjProg(su);const mins=Math.round(((P.subSec||{})[su.id]||0)/60);return `<button class="li" data-a="subject" data-x="${su.id}"><span style="font-size:22px">${su.icon}</span><div class="grow"><div class="nm">${su.name}</div><div class="bar" style="margin-top:4px"><i style="width:${d/n*100}%"></i></div></div><span class="sm mut">${mins} Min</span></button>`}).join("")}</div></div>
+ <div class="card"><h3>🏅 Abzeichen (${(P.badges||[]).length}/${BADGES.length})</h3><div class="row" style="margin-top:10px;gap:6px">${BADGES.map(b=>`<div class="badge ${(P.badges||[]).includes(b[0])?"got":""}"><b>${b[1]}</b>${b[2]}</div>`).join("")}</div></div></div>`:""}
+ </div>`};
+
+/* ================= TEST ANLEGEN – Schritt für Schritt ================= */
+const DKEY=()=>"lf7_draft_"+(UID||(P&&P.name));
+function draftSave(){lsSet(DKEY(),{s:V.s,d:V.d,title:V.title,topics:V.topics,items:V.items,notes:V.notes,step:V.step})}
+const TTYPES=["Klassenarbeit","Test","Vokabeltest","Leistungskontrolle","Referat","Abfrage"];
+VIEWS.testadd=()=>{const st=V.step||1;const s=subj(V.s);const dots=`<div class="steps">${[1,2,3,4].map(i=>`<i class="${i<=st?"on":""}"></i>`).join("")}</div>`;
+ const nav=(canNext,nextLbl)=>`<div class="row" style="margin-top:16px">${st>1?`<button class="btn ghost" style="flex:1" data-a="tstep" data-x="${st-1}">← Zurück</button>`:`<button class="btn ghost" style="flex:1" data-a="tcancel">Abbrechen</button>`}${st<4?`<button class="btn fire" style="flex:2" data-a="tstep" data-x="${st+1}" ${canNext?"":"disabled"}>${nextLbl||"Weiter →"}</button>`:`<button class="btn fire" style="flex:2" data-a="savetest" ${V.topics.length||V.items.length?"":"disabled"}>Speichern 🚀</button>`}</div>`;
+ let body="";
+ if(st===1)body=`<h2>Welches Fach?</h2><p class="mut sm">Schritt 1 von 4</p><div class="bigpick">${SUBJ.map(x=>`<button style="background:linear-gradient(145deg,${x.color},${x.color}aa);${x.id===V.s?"outline:4px solid var(--txt)":""}" data-a="tsub" data-x="${x.id}"><span>${x.icon}</span>${x.name}</button>`).join("")}</div>`;
+ if(st===2){const q=[["Morgen",1],["Übermorgen",2],["In 1 Woche",7],["In 2 Wochen",14]];body=`<h2>Wann und was?</h2><p class="mut sm">Schritt 2 von 4 · ${s.icon} ${s.name}</p>
+  <h3 style="margin-top:14px">📅 Datum</h3><div class="qd">${q.map(([l,n])=>`<button class="${V.d===addDays(today(),n)?"on":""}" data-a="tdate" data-x="${n}">${l}</button>`).join("")}</div>
+  <input type="date" data-k="d" value="${esc(V.d||"")}" min="${today()}" style="margin-top:10px">${V.d?`<p class="sm" style="margin-top:6px;font-weight:800;color:var(--acc)">${fmtDate(V.d)} – in ${daysUntil(V.d)} ${daysUntil(V.d)===1?"Tag":"Tagen"}</p>`:""}
+  <h3 style="margin-top:16px">📝 Art</h3><div class="qd">${TTYPES.map(o=>`<button class="${o===V.title?"on":""}" data-a="ttype" data-x="${o}">${o}</button>`).join("")}</div>`}
+ if(st===3)body=`<h2>Welche Themen?</h2><p class="mut sm">Schritt 3 von 4 · Tippe alle an, die drankommen.</p>
+  <div class="row" style="margin-top:10px;gap:6px"><button class="btn ghost sm" data-a="tall" data-x="1">Alle</button><button class="btn ghost sm" data-a="tall" data-x="0">Keine</button></div>
+  <div class="list">${s.topics.map(t=>`<button class="li" data-a="ttog" data-x="${t.id}" style="${V.topics.includes(t.id)?"border-color:var(--acc);border-width:2px":""}"><span style="font-size:20px">${V.topics.includes(t.id)?"✅":"⬜"}</span><span class="grow nm" style="text-align:left;white-space:normal">${esc(t.t)}</span></button>`).join("")}</div>
+  <p class="mut sm" style="margin-top:8px">Thema nicht dabei? Kein Problem – im nächsten Schritt kannst du alles selbst eintragen.</p>`;
+ if(st===4)body=`<h2>Was musst du können?</h2><p class="mut sm">Schritt 4 von 4 · Trag ein, was die Lehrkraft gesagt hat – Punkt für Punkt. Daraus wird deine Checkliste.</p>
+  <form data-f="titem" class="inp-row" style="margin-top:12px"><input id="tin" placeholder="z. B. Buch S. 34–40, Vokabeln Unit 2 …" autocomplete="off" maxlength="120"><button class="btn sm">➕</button></form>
+  <div>${(V.items||[]).map((it,i)=>`<div class="item"><span>📌</span><div class="grow">${esc(it.t)}</div><button data-a="tdelitem" data-x="${i}" title="Entfernen">✕</button></div>`).join("")||`<p class="mut sm" style="margin-top:10px">Noch keine Punkte – tippe oben und drücke ➕.</p>`}</div>
+  <h3 style="margin-top:16px">🗒️ Notizen (optional)</h3><textarea data-k="notes" placeholder="Alles, was du dir sonst merken willst">${esc(V.notes||"")}</textarea>
+  <div class="card" style="margin-top:12px"><b>Zusammenfassung</b><div class="sm" style="margin-top:6px">${s.icon} ${esc(V.title)} in ${s.name} · ${V.d?fmtDate(V.d):"kein Datum"}<br>${V.topics.length} Themen · ${(V.items||[]).length} eigene Punkte</div></div>`;
+ return `<div class="card" style="margin-top:16px">${dots}${body}${nav(st===1?!!V.s:st===2?!!V.d:true)}</div>`};
+function newTestV(s,d){const dr=lsGet(DKEY());if(!s&&!d&&dr&&(dr.topics&&dr.topics.length||dr.items&&dr.items.length||dr.d)){V=Object.assign({v:"testadd",title:"Klassenarbeit",topics:[],items:[],notes:""},dr);toast("📝 Dein Entwurf wurde wiederhergestellt");return}
+ V={v:"testadd",step:s?2:1,s:s||"ma",d:d||"",title:"Klassenarbeit",topics:[],items:[],notes:""}}
+{const _t=VIEWS.test;VIEWS.test=()=>{const t=(P.tests||[]).find(x=>x.id===V.id);let h=_t();if(!t)return h;t.items=t.items||[];const done=t.items.filter(i=>i.done).length;
+ const card=`<div class="card"><div class="row" style="justify-content:space-between"><h3>📌 Meine Checkliste</h3><span class="pill">${done}/${t.items.length}</span></div>
+ ${t.items.map((it,i)=>`<div class="item ${it.done?"done":""}"><button data-a="titm" data-x="${t.id}|${i}" style="opacity:1;font-size:20px">${it.done?"☑️":"⬜"}</button><div class="grow">${esc(it.t)}</div><button data-a="titmdel" data-x="${t.id}|${i}">✕</button></div>`).join("")}
+ <form data-f="titem2" data-x="${t.id}" class="inp-row" style="margin-top:10px"><input id="tin2" placeholder="Neuen Punkt hinzufügen …" autocomplete="off" maxlength="120"><button class="btn sm">➕</button></form></div>`;
+ return h.replace('<div class="card"><h3>🎯 Das musst du können</h3>',card+'<div class="card"><h3>🎯 Das musst du können</h3>')}}
+document.addEventListener("submit",e=>{const f=e.target.dataset.f;
+ if(f==="titem"){e.preventDefault();const i=$("#tin");const v=(i.value||"").trim();if(!v)return;V.items=V.items||[];V.items.push({t:v,done:false});draftSave();rerender();setTimeout(()=>{const n=$("#tin");if(n)n.focus()},30)}
+ if(f==="titem2"){e.preventDefault();const i=$("#tin2");const v=(i.value||"").trim();if(!v)return;const t=P.tests.find(z=>z.id===e.target.dataset.x);t.items=t.items||[];t.items.push({t:v,done:false});save();rerender()}});
+document.addEventListener("input",e=>{if(V.v==="testadd"&&e.target.dataset&&e.target.dataset.k)setTimeout(draftSave,0)});
+document.addEventListener("change",e=>{if(V.v==="testadd"&&e.target.dataset&&e.target.dataset.k==="d"){draftSave();rerender()}});
+
+Object.assign(ACT,{
+ sessgo:()=>sessStart(),
+ sessnew:()=>{window.SESS=null;lsSet("lf7_sess",null);const fresh=shuffle(Object.keys(TOPIC).filter(id=>!(P.topics[id]&&P.topics[id].best>=80)));const tid=fresh[0]||Object.keys(TOPIC)[0];const L=["en","fr"][rnd(0,1)];
+  window.SESS={tid,why:"von dir neu gewählt",L,d:today(),b:{videos:dly("videos"),prac:dly("prac"),tests:(P.topics[tid]||{}).n||0,vocab:dly("vocab")},done:false};lsSet("lf7_sess",window.SESS);rerender()},
+ statsT:()=>{P.statsOpen=!P.statsOpen;save();rerender()},
+ newtest:x=>{const[s,d]=(x||"").split("|");newTestV(s,d);render()},
+ tsub:x=>{if(V.s!==x)V.topics=[];V.s=x;V.step=2;draftSave();rerender()},
+ tstep:x=>{V.step=+x;draftSave();render()},
+ tdate:x=>{V.d=addDays(today(),+x);draftSave();rerender()},
+ ttype:x=>{V.title=x;draftSave();rerender()},
+ ttog:x=>{const i=V.topics.indexOf(x);if(i>=0)V.topics.splice(i,1);else V.topics.push(x);draftSave();rerender()},
+ tall:x=>{V.topics=x==="1"?subj(V.s).topics.map(t=>t.id):[];draftSave();rerender()},
+ tdelitem:x=>{V.items.splice(+x,1);draftSave();rerender()},
+ tcancel:()=>{lsSet(DKEY(),null);V={v:"tests"};render()},
+ savetest:()=>{if(!V.d)return toast("📅 Bitte ein Datum wählen");if(!V.topics.length&&!(V.items||[]).length)return toast("Bitte ein Thema oder einen Punkt eintragen");
+  P.tests=P.tests||[];const id="t"+Date.now().toString(36);P.tests.push({id,s:V.s,d:V.d,title:V.title||"Klassenarbeit",topics:V.topics.slice(),items:(V.items||[]).slice(),notes:V.notes||"",ok:{},imgs:[]});lsSet(DKEY(),null);save();confetti(50);toast("🗓️ Lernplan erstellt!");V={v:"test",id};render()},
+ titm:x=>{const[id,i]=x.split("|");const t=P.tests.find(z=>z.id===id);t.items[+i].done=!t.items[+i].done;if(t.items[+i].done)addXP(3,true);save();rerender()},
+ titmdel:x=>{const[id,i]=x.split("|");const t=P.tests.find(z=>z.id===id);t.items.splice(+i,1);save();rerender()}
+});
+</script>
+
 </body>
 </html>
