@@ -2766,6 +2766,11 @@ function cpuMove(st,lvl){const ms=legal(st);if(!ms.length)return null;NODES=0;
  const d=lvl==="m"?1:2,noise=lvl==="m"?40:8;let best=null,bv=-1e9;
  for(const m of ordMv(st,ms)){const v=-ab(applyMv(st,m),d,-1e9,1e9,1)+Math.random()*noise+(m.castle?25:0);if(v>bv){bv=v;best=m}}return best}
 
+
+/* Remis bei zu wenig Material (z. B. nur noch die Könige) */
+function insufMat(bd){const pcs=bd.replace(/[.kK]/g,"");if(!pcs.length)return true;if(pcs.length===1&&/[nNbB]/.test(pcs))return true;
+ if(pcs.length===2&&/^[bB]{2}$/.test(pcs)&&pcs[0]!==pcs[1]){const sqc=i=>((i>>3)+(i%8))%2;const a=bd.indexOf("b"),b=bd.indexOf("B");return sqc(a)===sqc(b)}return false}
+window.gameState=(function(orig){return function(st){const g=orig(st);if(g==="mate"||g==="stale")return g;if(insufMat(st.bd))return "stale";return g}})(window.gameState);
 /* --- Sprüche --- */
 function cpuSay(k){const c=cpuOf(V.lvl);const L={
  start:[`Schaffst du 3 Siege am Stück gegen mich? ${c.face}`,"Na los, zeig mal was du kannst!","Ich bin bereit. Du auch? 😎"],
@@ -2776,7 +2781,7 @@ function cpuSay(k){const c=cpuOf(V.lvl);const L={
  move:["Hmm … interessant.","Mal sehen, was du vorhast 🤔","Gar nicht schlecht!","Jetzt du!"],
  win:["Wow, du hast mich geschlagen! 🏆","Unglaublich – Schachmatt! 🎉"],
  lose:["Schachmatt! Nächstes Mal klappt's bestimmt 💪","Diesmal hab ich gewonnen 😜 Revanche?"],
- draw:["Patt – unentschieden! 🤝"],
+ draw:["Unentschieden! 🤝 Keiner kann mehr Schachmatt setzen."],
  undo:["Okay, nimm den Zug zurück 😉"]}[k]||[""];return L[Math.floor(Math.random()*L.length)]}
 
 /* --- lokale Partie --- */
@@ -2828,8 +2833,8 @@ VIEWS.chess=()=>{const st=chessSt();if(!st)return `<div class="card">Spiel wird 
  const md=matDiff(st.bd)*(me==="w"?1:-1);
  const myCaps=me==="w"?caps.B:caps.W,opCaps=me==="w"?caps.W:caps.B;
  let say;if(V.local)say=V.thinking?"Hmm, ich überlege … 🤔":(V.say||cpuSay("start"));
- else say=M.res?(M.res==="draw"?"🤝 Remis!":(M.res===me?"🏆 Du hast gewonnen!":"😅 Verloren – nächstes Mal!")):gs==="check"?(myTurn?"⚠️ Du stehst im Schach! Rette deinen König.":"Du gibst Schach! 💥"):myTurn?"Du bist am Zug!":`⏳ ${esc(opN)} ist am Zug …`;
- const status=M.res?(M.res==="draw"?"🤝 Unentschieden":(M.res===me?"🏆 Gewonnen!":"😅 Verloren")):gs==="check"&&myTurn?"⚠️ Schach! Rette deinen König.":myTurn?`Du bist am Zug (${me==="w"?"Weiß":"Schwarz"})`:V.local?"Gegner überlegt …":"Warte auf deine Freundin …";
+ else say=M.res?(M.res==="draw"?(insufMat(st.bd)?"🤝 Nur noch zu wenige Figuren – Remis!":"🤝 Remis!"):(M.res===me?"🏆 Du hast gewonnen!":"😅 Verloren – nächstes Mal!")):gs==="check"?(myTurn?"⚠️ Du stehst im Schach! Rette deinen König.":"Du gibst Schach! 💥"):myTurn?"Du bist am Zug!":`⏳ ${esc(opN)} ist am Zug …`;
+ const status=M.res?(M.res==="draw"?(insufMat(st.bd)?"🤝 Remis – mit so wenigen Figuren kann keiner mehr Schachmatt setzen":"🤝 Unentschieden (Patt)"):(M.res===me?"🏆 Gewonnen!":"😅 Verloren")):gs==="check"&&myTurn?"⚠️ Schach! Rette deinen König.":myTurn?`Du bist am Zug (${me==="w"?"Weiß":"Schwarz"})`:V.local?"Gegner überlegt …":"Warte auf deine Freundin …";
  const selP=V.sel!=null?st.bd[V.sel]:null;const pc=V.local?chessP()[V.lvl]:null;
  return `<div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn ghost sm" data-a="go" data-x="${V.local?"chesspick":"matches"}">← ${V.local?"Gegner":"Matches"}</button>${V.local?`<span class="streak" style="margin:0">${[0,1,2].map(i=>`<i class="${i<pc.s?"on":""}"></i>`).join("")}</span>`:""}</div>
  <div class="chhead"><span class="face">${V.local?opFace:avaHTML(opA,58)}</span><div class="bub">${say}</div></div>
