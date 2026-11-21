@@ -2840,7 +2840,7 @@ VIEWS.chess=()=>{const st=chessSt();if(!st)return `<div class="card">Spiel wird 
  let cells="";for(let k=0;k<64;k++){const i=flip?63-k:k;const r=i>>3,c=i%8;const p=st.bd[i];const mv=lg.find(m=>m.t===i);const vr=k>>3,vc=k%8;
   const cls=["q",(r+c)%2?"d":"l",V.sel===i?"sel":"",M.last&&M.last.includes(i)?"last":"",i===kChk?"chk":"",V.hint&&(V.hint.f===i||V.hint.t===i)?"hint":""].join(" ");
   cells+=`<div class="${cls}" data-a="csq" data-x="${i}">${vc===0?`<span class="cr r">${8-r}</span>`:""}${vr===7?`<span class="cr f" style="${vc===0?"left:auto;right:4px":""}">${"abcdefgh"[c]}</span>`:""}${p!=="."?PZ(p):""}${mv?(p!=="."||mv.ep?`<span class="rg"></span>`:`<span class="dt"></span>`):""}</div>`}
- let opN,opFace,opA;if(V.local){const c=cpuOf(V.lvl);opN=c.name;opFace=c.face}else{const oid=M.g.p.find(x=>x!==UID);opN=(M.g.names||{})[oid]||"Freund";opA=(M.g.avas||{})[oid]||{}}
+ let opN,opFace,opA;if(V.local){const c=cpuOf(V.lvl);opN=c.name;opFace=c.face}else{const oid=M.g.p.find(x=>x!==UID);opN=(M.g.names||{})[oid]||"Freund";opA=(ALLP[oid]&&ALLP[oid].ava)||(M.g.avas||{})[oid]||{}}
  let caps;if(V.local)caps={W:V.capW,B:V.capB};else caps=capsFrom(st.bd);
  const md=matDiff(st.bd)*(me==="w"?1:-1);
  const myCaps=me==="w"?caps.B:caps.W,opCaps=me==="w"?caps.W:caps.B;
@@ -3111,6 +3111,461 @@ window.chessMove=(function(orig){return function(m){const st=chessSt();let c="go
  h=h.replace('<div class="cb">',evHTML(st,M.me||"w")+'<div class="cb">');
  if(V.mq&&V.mq.gid===(V.gid||"local"))h=h.replace('<div class="fb ',mqLine()+'<div class="fb ');
  return h}}
+</script>
+
+<style>
+.vl{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:320px;overflow:auto}
+.vo{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;padding:9px 10px;background:var(--card);color:var(--txt);text-align:left;width:100%}
+.vo.on{border-color:var(--acc);background:var(--bg2)}
+.vo .nm{flex:1;min-width:0;font-weight:800;font-size:14px}
+.vo .nm small{display:block;font-weight:600;color:var(--mut);font-size:11.5px}
+.vo .pl{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:14px}
+.vo .q{font-size:10.5px;font-weight:900;border-radius:7px;padding:2px 7px;background:#ffcc33;color:#3a2a00;margin-left:6px}
+.rng{width:100%;margin-top:8px;accent-color:var(--acc)}
+</style>
+<script>
+/* ===== Stimmen-Auswahl ===== */
+const VLANGS=[["de","🇩🇪 Deutsch","Hallo! Ich bin deine Lernstimme. Klinge ich gut?"],["en","🇬🇧 Englisch","Hello! I am your learning voice. Do I sound nice?"],["fr","🇫🇷 Französisch","Bonjour ! Je suis ta voix d'apprentissage. Tu m'aimes bien ?"]];
+function voicesFor(pre){loadVoices();return VOICES.filter(v=>(v.lang||"").toLowerCase().replace("_","-").startsWith(pre))}
+function vQual(v){const n=(v.name||"").toLowerCase();return /premium/.test(n)?"Premium":/enhanced|verbessert|erweitert|améliorée|natural|neural|online/.test(n)?"Erweitert":/google/.test(n)?"Google":""}
+window.bestVoice=(function(orig){return function(lang){const pre=lang.slice(0,2).toLowerCase();const want=(P&&P.voices||{})[pre];if(want){const v=voicesFor(pre).find(x=>x.voiceURI===want||x.name===want);if(v)return v}return orig(lang)}})(window.bestVoice);
+window.sayText=function(text,lang,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;const v=bestVoice(lang);if(v){u.voice=v;u.lang=v.lang||lang}
+ const base=lang.startsWith("de")?1.0:0.9;u.rate=Math.max(.5,Math.min(1.5,base*((P&&P.vrate)||1)));u.pitch=1;
+ let done=false;const fin=()=>{if(!done){done=true;onend&&onend()}};u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);return true}catch(e){onend&&setTimeout(onend,2500);return false}};
+VIEWS.voice=()=>{const L=V.vl||"en";const lg=VLANGS.find(x=>x[0]===L);const list=voicesFor(L).sort((a,b)=>{const r=q=>({Premium:3,Erweitert:2,Google:1}[vQual(q)]||0);return r(b)-r(a)||a.name.localeCompare(b.name)});
+ const cur=bestVoice(L);const rate=(P.vrate||1);
+ return `<button class="btn ghost sm" style="margin-top:14px" data-a="go" data-x="me">← Profil</button><h2 style="margin-top:10px">🎤 Stimme</h2><p class="mut">Such dir für jede Sprache die Stimme aus, die dir am besten gefällt. Mit ▶ kannst du sie probehören.</p>
+ <div class="seg" style="margin-top:12px">${VLANGS.map(([k,t])=>`<button class="${L===k?"on":""}" data-a="vlang" data-x="${k}">${t}</button>`).join("")}</div>
+ <div class="card"><h3>${lg[1]} – ${list.length} Stimmen</h3>
+ ${list.length?`<div class="vl">${list.map((v,i)=>`<div class="vo ${cur&&cur.voiceURI===v.voiceURI?"on":""}"><button class="pl" data-a="vtry" data-x="${i}">▶</button><button class="nm" style="border:0;background:none;color:inherit;text-align:left;padding:0" data-a="vpick" data-x="${i}">${esc(v.name)}${vQual(v)?`<span class="q">${vQual(v)}</span>`:""}<small>${esc(v.lang)}${cur&&cur.voiceURI===v.voiceURI?" · ✅ ausgewählt":""}</small></button></div>`).join("")}</div>`
+ :`<p class="mut" style="margin-top:8px">Dein Browser zeigt keine Stimmen für diese Sprache an.</p>`}
+ ${(P.voices||{})[L]?`<button class="btn ghost sm" style="margin-top:10px" data-a="vauto">↺ Automatisch wählen</button>`:""}</div>
+ <div class="card"><h3>🐢 Sprechtempo 🐇</h3><input class="rng" type="range" min="0.6" max="1.3" step="0.05" value="${rate}" data-ch="vrate"><div class="row" style="justify-content:space-between" ><span class="mut sm">langsam</span><b>${Math.round(rate*100)} %</b><span class="mut sm">schnell</span></div><button class="btn sm" style="margin-top:8px" data-a="vtry" data-x="cur">▶ Probehören</button></div>
+ <div class="card sm"><b>Keine schöne Stimme dabei?</b><p class="mut" style="margin:6px 0 0">iPhone (iOS 26): <b>Einstellungen → Bedienungshilfen → Lesen & Sprechen → Stimmen</b> → Sprache wählen → Stimme mit „Erweitert“ oder „Premium“ laden (☁️). Danach das <b>iPhone einmal neu starten</b> – erst dann sieht Safari die neue Stimme. Sie erscheint dann hier in der Liste.<br>Samsung: LernFlug in <b>Chrome</b> öffnen, dort gibt es Google-Stimmen.</p></div>`};
+function vList(){const L=V.vl||"en";return voicesFor(L).sort((a,b)=>{const r=q=>({Premium:3,Erweitert:2,Google:1}[vQual(q)]||0);return r(b)-r(a)||a.name.localeCompare(b.name)})}
+Object.assign(ACT,{
+ vlang:x=>{V.vl=x;rerender()},
+ vpick:x=>{const v=vList()[+x];if(!v)return;P.voices=Object.assign({},P.voices,{[V.vl||"en"]:v.voiceURI||v.name});save();rerender();sayText(VLANGS.find(l=>l[0]===(V.vl||"en"))[2],v.lang)},
+ vtry:x=>{const L=V.vl||"en";const txt=VLANGS.find(l=>l[0]===L)[2];if(x==="cur"){sayText(txt,L);return}const v=vList()[+x];if(!v)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=(L==="de"?1:.9)*(P.vrate||1);speechSynthesis.speak(u)}catch(e){toast("🔇 Vorlesen geht hier nicht.")}},
+ vauto:()=>{const L=V.vl||"en";if(P.voices)delete P.voices[L];save();rerender()}
+});
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.dataset&&t.dataset.ch==="vrate"){P.vrate=+t.value;save();rerender()}});
+try{speechSynthesis.addEventListener&&speechSynthesis.addEventListener("voiceschanged",()=>{if(V&&V.v==="voice")rerender()})}catch(e){}
+/* Einstiege: Profil, Sprechen, Seitenleiste */
+{const _m=VIEWS.me;VIEWS.me=()=>{const h=_m();const card=`<div class="card"><div class="row" style="justify-content:space-between"><div><h3>🎤 Stimme</h3><div class="mut sm">Vorlese-Stimme & Sprechtempo</div></div><button class="btn sm" data-a="go" data-x="voice">Ändern →</button></div></div>`;
+ return h.includes('<h3>🎨 Design</h3>')?h.replace('<div class="card"><h3>🎨 Design</h3>',card+'<div class="card"><h3>🎨 Design</h3>'):h+card}}
+{const _s=VIEWS.speak;if(_s)VIEWS.speak=()=>_s().replace(VOICE_TIP,`<button class="btn ghost sm" style="margin-top:10px" data-a="go" data-x="voice">🎤 Stimme ändern</button>`)}
+if(typeof NAVMAP!=="undefined")NAVMAP.voice="home";
+{const _rn=window.renderNav;window.renderNav=function(){_rn();const nv=document.querySelector("#nav .nav");if(nv&&!nv.querySelector('[data-x=voice]')){const c=nv.querySelector('.sbx[data-a=go][data-x=coach]');if(c)c.insertAdjacentHTML("beforebegin",`<button class="sbx" data-a="go" data-x="voice"><b>🎤</b>Stimme</button>`)}}}
+</script>
+
+<style>
+/* ===== Schach 3.0 & Matches 2.0 ===== */
+.cb .q.last .pz{animation:none}
+.mvl{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 4px;margin-top:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mvl::-webkit-scrollbar{display:none}
+.mvl span{flex:none;font-size:13px;font-weight:800;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px 9px;white-space:nowrap}
+.mvl span i{font-style:normal;color:var(--mut);margin-right:4px}
+.mvl span.lt{border-color:var(--acc);color:var(--acc)}
+.promo{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.promo button{aspect-ratio:1;border-radius:16px;border:2px solid var(--line);background:var(--bg2);padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:800;color:var(--txt)}
+.promo button .pz{width:70%;height:auto;aspect-ratio:1}
+.emob{display:flex;gap:6px;justify-content:space-between;margin-top:10px}
+.emob button{flex:1;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:20px}
+.emob button:active{transform:scale(.9)}
+.emopop{display:inline-block;font-size:26px;margin-right:6px;vertical-align:middle;animation:pzin .3s ease-out}
+.offer{display:flex;align-items:center;gap:10px;margin-top:10px;border:2px solid #ffcc33;background:#ffcc3322;border-radius:16px;padding:10px 12px;font-weight:800}
+.offer .grow{flex:1}
+.puzc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:linear-gradient(135deg,#5b3df5,#9a7bff);color:#fff;border:0;border-radius:18px;padding:14px;margin-top:14px;box-shadow:0 8px 22px #5b3df544}
+.puzc .face{width:54px;height:54px;border-radius:16px;background:#fff3;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+.pzgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
+.pzgrid button{aspect-ratio:1;border-radius:12px;border:2px solid var(--line);background:var(--card);font-weight:900;color:var(--txt)}
+.pzgrid button.ok{background:#2ee59d;border-color:#2ee59d;color:#003320}
+.msec{font-size:12px;font-weight:900;letter-spacing:.6px;color:var(--mut);margin:14px 2px 2px;text-transform:uppercase}
+.h2h{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.h2h:first-of-type{border-top:0}
+.h2h .h2g{flex:1;min-width:0;text-align:left}
+.h2h .h2s{display:flex!important;flex-direction:row!important;gap:4px;font-weight:900;font-size:12px;margin-top:3px}
+.h2h .h2s span{border-radius:8px;padding:2px 7px}
+.cmpq{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;align-items:center;margin-top:12px;text-align:left;font-size:14px}
+.cmpq .h{font-size:12px;font-weight:900;color:var(--mut)}
+.cmpq b{text-align:center}
+.oppans{margin-top:8px;font-size:13.5px;font-weight:800;color:var(--mut);display:flex;align-items:center;gap:6px}
+</style>
+<script>
+/* ---------- Umwandlung frei wählbar ---------- */
+window.applyMv=(function(orig){return function(st,m){const n=orig(st,m);if(m.pr&&m.pr!=="q"){const b=n.bd.split("");b[m.t]=st.turn==="w"?m.pr.toUpperCase():m.pr;n.bd=b.join("")}return n}})(window.applyMv);
+{const _csq=ACT.csq;ACT.csq=x=>{const i=+x;const st=chessSt();const M=chessMeta();if(!st||M.res||st.turn!==M.me||V.sel==null)return _csq(x);
+ const m=legal(st).find(mm=>mm.f===V.sel&&mm.t===i);if(m&&st.bd[m.f].toLowerCase()==="p"&&(i>>3===0||i>>3===7)){V.prm=m;
+  showModal(`<div class="center"><h3>♛ Bauer umwandeln</h3><p class="mut sm">Dein Bauer ist am Ende angekommen! In welche Figur soll er sich verwandeln?</p><div class="promo">${["q","r","b","n"].map(t=>`<button data-a="promo" data-x="${t}">${PZ(M.me==="w"?t.toUpperCase():t)}${PN[t]}</button>`).join("")}</div></div>`);return}
+ return _csq(x)}}
+ACT.promo=t=>{closeModal();const m=V.prm;V.prm=null;if(m)chessMove(Object.assign({},m,{pr:t}))};
+
+/* ---------- Zug-Notation & Zugliste ---------- */
+function sanOf(st,m){const p=st.bd[m.f];const t=p.toLowerCase();if(t==="k"&&Math.abs(m.t-m.f)===2)return m.t%8===6?"0-0":"0-0-0";
+ const cap=st.bd[m.t]!=="."||m.ep;const L={k:"K",q:"D",r:"T",b:"L",n:"S",p:""}[t];let s=L+(t==="p"&&cap?"abcdefgh"[m.f%8]:"")+(cap?"x":"")+sqName(m.t);
+ if(t==="p"&&(m.t>>3===0||m.t>>3===7))s+="="+({q:"D",r:"T",b:"L",n:"S"}[m.pr||"q"]);
+ const n=applyMv(st,m);const g=legal(n);if(!g.length&&inCheck(n,n.turn))s+="#";else if(inCheck(n,n.turn))s+="+";return s}
+function mvList(){if(V.local)return V.mvs||[];const g=MATCHES[V.gid];if(!g||!g.mv)return[];return g.mv.slice().sort((a,b)=>parseInt(a)-parseInt(b)).map(x=>x.split(":").slice(1).join(":"))}
+function mvHTML(){const L=mvList();if(!L.length)return"";const off=V.local&&V.startB?1:0;let h="";
+ L.forEach((s,i)=>{const k=i+off;h+=`<span class="${i===L.length-1?"lt":""}">${k%2===0?`<i>${Math.floor(k/2)+1}.</i>`:""}${esc(s)}</span>`});
+ return `<div class="mvl" id="mvl">${off?`<span><i>1.</i>…</span>`:""}${h}</div>`}
+/* lokale Partien: Züge aus Zustandswechsel ableiten */
+function trackLocal(){if(V.v!=="chess"||!V.local||V.puz!=null)return;const st=V.st;if(!st)return;const key=st.bd+st.turn;
+ if(!V.mvs){V.mvs=[];V.mvsH=[];V.startB=false}
+ if(V._pk&&V._pk!==key&&V._ps&&V.last&&V.last.length===2){const m=legal(V._ps).find(x=>x.f===V.last[0]&&x.t===V.last[1]);if(m){let s;try{s=sanOf(V._ps,Object.assign({},m,{pr:promoPiece(V._ps,m,st)}))}catch(e){s=sqName(m.t)}V.mvs.push(s)}}
+ V._ps=st;V._pk=key}
+function promoPiece(ps,m,st){const p=ps.bd[m.f];if(p.toLowerCase()!=="p"||!(m.t>>3===0||m.t>>3===7))return undefined;return st.bd[m.t].toLowerCase()}
+{const _u=ACT.cundo;ACT.cundo=()=>{const before=V.hist?V.hist.length:0;_u();if(V.local&&V.hist&&V.hist.length<before&&V.mvs){const n=V.mvsH.pop();if(n!=null)V.mvs.length=n;V._ps=V.st;V._pk=V.st.bd+V.st.turn;rerender()}}}
+
+/* ---------- Rätsel: Matt in 1 ---------- */
+function mkPos(o,turn){const a=Array(64).fill(".");for(const k in o){const i="abcdefgh".indexOf(k[0])+(8-+k[1])*8;a[i]=o[k]}return{bd:a.join(""),turn:turn||"w",cs:"",ep:-1}}
+const PUZ=[
+ {t:"Grundreihen-Matt",tip:"Der schwarze König ist hinter seinen Bauern eingesperrt.",p:{g8:"k",f7:"p",g7:"p",h7:"p",a1:"R",g1:"K",f2:"P",g2:"P",h2:"P"}},
+ {t:"Ersticktes Matt",tip:"Der Springer kann über alles springen!",p:{h8:"k",g8:"r",g7:"p",h7:"p",g5:"N",g1:"K",a2:"P",b2:"P"}},
+ {t:"Treppen-Matt",tip:"Ein Turm sperrt die 7. Reihe, der andere gibt Schach.",p:{a8:"k",h7:"R",g1:"R",e1:"K"}},
+ {t:"Dame & König",tip:"Dein König bewacht die Felder vor dem schwarzen König.",p:{h8:"k",g6:"K",b2:"Q"}},
+ {t:"Schäfermatt",tip:"f7 ist nur vom König geschützt – und dein Läufer zielt darauf.",p:{a8:"r",c8:"b",d8:"q",e8:"k",f8:"b",h8:"r",a7:"p",b7:"p",c7:"p",d7:"p",f7:"p",g7:"p",h7:"p",c6:"n",f6:"n",e5:"p",e4:"P",c4:"B",h5:"Q",a2:"P",b2:"P",c2:"P",d2:"P",f2:"P",g2:"P",h2:"P",a1:"R",b1:"N",c1:"B",e1:"K",g1:"N",h1:"R"}},
+ {t:"Arabisches Matt",tip:"Turm und Springer arbeiten im Team.",p:{h8:"k",a7:"R",f6:"N",g1:"K"}},
+ {t:"Läufer hilft der Dame",tip:"Die Dame braucht Schutz, wenn sie direkt neben den König geht.",p:{g8:"k",f8:"r",f7:"p",g7:"p",d3:"B",h5:"Q",g1:"K"}},
+ {t:"Grundreihe links",tip:"Auch auf der anderen Seite ist der König eingesperrt.",p:{a8:"k",a7:"p",b7:"p",e1:"R",g1:"K"}},
+ {t:"Dame & Springer",tip:"Schlag den Bauern – der Springer schützt die Dame.",p:{h8:"k",g7:"p",h7:"p",f6:"N",h5:"Q",g1:"K"}},
+ {t:"Dame auf der Grundreihe",tip:"Die Dame kann bis ganz nach hinten ziehen.",p:{g8:"k",f7:"p",g7:"p",h7:"p",e2:"Q",g1:"K",f2:"P",g2:"P",h2:"P"}},
+ {t:"Zwei Türme",tip:"Ein Turm hält die 7. Reihe, der andere zieht nach vorne.",p:{g8:"k",a7:"R",b1:"R",g1:"K"}},
+ {t:"Bauern-Matt",tip:"Auch ein kleiner Bauer kann Schachmatt setzen!",p:{h8:"k",h7:"p",g6:"P",f6:"K",f7:"P",a1:"R"}}
+].filter(z=>{try{const s=mkPos(z.p);return legal(s).some(m=>{const n=applyMv(s,m);return !legal(n).length&&inCheck(n,n.turn)})}catch(e){return false}});
+function puzStart(i){if(!PUZ[i])i=0;const st=mkPos(PUZ[i].p);V={v:"chess",local:true,puz:i,lvl:"h",me:"w",st,last:[],res:"",sel:null,hist:[],capW:[],capB:[],say:`🧩 Rätsel ${i+1}/${PUZ.length}: <b>${PUZ[i].t}</b><br>Weiß zieht und setzt <b>Matt in 1</b>!`};render()}
+window.chessMove=(function(orig){return function(m){
+ if(V.puz!=null&&V.local){const st=V.st;const n=applyMv(st,m);V.sel=null;V.hint=null;
+  if(!legal(n).length&&inCheck(n,n.turn)){V.st=n;V.last=[m.f,m.t];V.res="w";if(!P.puz)P.puz=[];const first=!P.puz.includes(V.puz);if(first)P.puz.push(V.puz);
+   const coins=first&&!V.helped?20:0;if(coins){P.coins+=coins;addXP(15)}save();confetti(110);V.say=`🏆 Richtig – <b>Schachmatt!</b> ${coins?`+${coins} 🪙`:first?"(mit Hilfe gelöst)":"(schon gelöst)"}`;rerender()}
+  else{V.wrong=(V.wrong||0)+1;let w="";try{w=inCheck(n,n.turn)?whyNoMate(n).replace("Schach! 😱 Aber noch kein Matt: ","Fast! Aber "):"Das ist kein Schach."}catch(e){}V.say=`❌ ${w||"Leider kein Matt."} Versuch es nochmal!${V.wrong>=2?`<br>💡 ${PUZ[V.puz].tip}`:""}`;rerender()}
+  return}
+ if(!V.local&&V.gid){const g=MATCHES[V.gid];const st=chessSt();let s="";try{s=sanOf(st,m)}catch(e){}const idx=(g.n||0)+1;const prev=(g.mv||[]).slice();
+  const r=orig(m);Promise.resolve(r).then(()=>{try{mref(V.gid).update({mv:prev.concat([idx+":"+s]),drawOff:""}).catch(()=>{})}catch(e){}});return r}
+ if(V.local&&V.mvsH)V.mvsH.push((V.mvs||[]).length);
+ return orig(m)}})(window.chessMove);
+{const _h=ACT.chint;ACT.chint=()=>{if(V.puz!=null)V.helped=true;_h()}}
+Object.assign(ACT,{
+ puzgo:x=>puzStart(+x),
+ puznext:()=>{const sv=P.puz||[];let n=PUZ.findIndex((z,i)=>i>V.puz&&!sv.includes(i));if(n<0)n=PUZ.findIndex((z,i)=>!sv.includes(i));if(n<0)n=(V.puz+1)%PUZ.length;puzStart(n)},
+ puzsol:()=>{const s=V.st;const m=legal(s).find(x=>{const n=applyMv(s,x);return !legal(n).length&&inCheck(n,n.turn)});if(!m)return;V.helped=true;V.st=applyMv(s,m);V.last=[m.f,m.t];V.res="w";V.say=`👀 Lösung: <b>${sanOf(s,m)}</b> – ${PUZ[V.puz].tip}`;rerender()},
+ puzre:()=>puzStart(V.puz)
+});
+
+/* ---------- Online-Schach: Emojis, Remis, Revanche, Anstupsen ---------- */
+const EMOS=["👍","😮","😂","🔥","😅","🤝"];
+Object.assign(ACT,{
+ cemo:e=>{const g=MATCHES[V.gid];if(!g)return;try{mref(V.gid).update({["emo."+UID]:{e,t:Date.now()}}).catch(rulesErr);g.emo=Object.assign({},g.emo,{[UID]:{e,t:Date.now()}});toast(e+" gesendet")}catch(x){}},
+ cdraw:()=>{const g=MATCHES[V.gid];if(!g||g.res)return;mref(V.gid).update({drawOff:UID,u:Date.now()}).then(()=>{toast("🤝 Remis angeboten");const op=g.p.find(x=>x!==UID);poke(op,`🤝 ${P.name} bietet dir im Schach Remis an.`,1)}).catch(rulesErr)},
+ cdrawY:()=>{const g=MATCHES[V.gid];if(!g)return;mref(V.gid).update({res:"draw",drawOff:"",n:(g.n||0)+1,u:Date.now()}).then(()=>addXP(20)).catch(rulesErr)},
+ cdrawN:()=>{mref(V.gid).update({drawOff:"",u:Date.now()}).catch(rulesErr)},
+ crev:()=>{const g=MATCHES[V.gid];if(!g)return;chessNew(g.p.find(x=>x!==UID))},
+ cpoke:()=>{const g=MATCHES[V.gid];if(!g)return;const op=g.p.find(x=>x!==UID);poke(op,`♟️ ${P.name} wartet auf deinen Schach-Zug!`)}
+});
+{const _vc=VIEWS.chess;VIEWS.chess=function(){trackLocal();let h=_vc();const st=chessSt();if(!st)return h;const M=chessMeta();
+ /* Zugliste */
+ const mv=mvHTML();if(mv){const i1=h.indexOf('<div class="mql ');const i2=h.indexOf('<div class="fb ');const at=i1>=0?i1:i2;if(at>=0)h=h.slice(0,at)+mv+h.slice(at)}
+ if(V.puz!=null){
+  h=h.replace(/<div class="evrow">[\s\S]*?<\/i><\/div><\/div>/,"").replace(/<span class="streak" style="margin:0">[\s\S]*?<\/span>/,"").replace("← Gegner","← Rätsel");
+  const i=h.indexOf(V.res?'<div class="row" style="margin-top:12px">':'<div class="chtools">');
+  if(i>=0)h=h.slice(0,i)+(V.res?`<div class="row" style="margin-top:12px"><button class="btn ghost" style="flex:1" data-a="puzre">🔁 Nochmal</button><button class="btn fire" style="flex:1" data-a="puznext">Nächstes Rätsel →</button></div>`
+   :`<div class="chtools" style="grid-template-columns:1fr 1fr 1fr"><button class="btn ghost" data-a="puzre">🔁 Neu</button><button class="btn" data-a="chint">💡 Tipp</button><button class="btn ghost" data-a="puzsol">👀 Lösung</button></div><p class="mut sm center" style="margin-top:8px">Ohne Tipp gelöst = +20 🪙</p>`);
+  return h}
+ if(!V.local&&M.g){const g=M.g;const op=g.p.find(x=>x!==UID);const on=(g.names||{})[op]||"Freund";const oe=(g.emo||{})[op];
+  if(oe&&Date.now()-oe.t<60000)h=h.replace('<div class="bub">',`<div class="bub"><span class="emopop">${oe.e}</span>`);
+  if(!g.res){let add="";if(g.drawOff===op)add+=`<div class="offer"><span style="font-size:24px">🤝</span><div class="grow">${esc(on)} bietet Remis an.</div><button class="btn sm" data-a="cdrawY">Annehmen</button><button class="btn ghost sm" data-a="cdrawN">Nein</button></div>`;
+   add+=`<div class="emob">${EMOS.map(e=>`<button data-a="cemo" data-x="${e}">${e}</button>`).join("")}</div>`;
+   const myT=st.turn===M.me;add+=`<div class="row" style="margin-top:8px">${g.drawOff===UID?`<span class="pill" style="flex:1;text-align:center">🤝 Remis angeboten …</span>`:`<button class="btn ghost sm" style="flex:1" data-a="cdraw">🤝 Remis anbieten</button>`}${myT?"":`<button class="btn ghost sm" style="flex:1" data-a="cpoke">👉 Anstupsen</button>`}</div>`;
+   const i=h.indexOf('<div class="chtools">');if(i>=0)h=h.slice(0,i)+add+h.slice(i)}
+  else h=h.replace('<button class="btn fire" style="flex:1" data-a="go" data-x="matches">Zu den Matches</button>','<button class="btn ghost" style="flex:1" data-a="go" data-x="matches">Matches</button><button class="btn fire" style="flex:1" data-a="crev">🔁 Revanche</button>')}
+ return h}}
+/* Zug gleitet sanft über das Brett + Zugliste scrollt mit */
+function animLast(){if(V.v!=="chess")return;const st=chessSt();if(!st)return;const M=chessMeta();const L=M.last;const key=(V.gid||"l")+st.bd+(L||[]).join();if(window._ak===key)return;const first=!window._ak||window._ak.slice(0,8)!==key.slice(0,8);window._ak=key;
+ const ml=document.getElementById("mvl");if(ml)ml.scrollLeft=ml.scrollWidth;if(!L||L.length<2)return;
+ const toQ=document.querySelector(`.cb [data-x="${L[1]}"]`),frQ=document.querySelector(`.cb [data-x="${L[0]}"]`);const pz=toQ&&toQ.querySelector(".pz");if(!pz||!frQ)return;
+ const a=frQ.getBoundingClientRect(),b=toQ.getBoundingClientRect();try{pz.animate([{transform:`translate(${a.left-b.left}px,${a.top-b.top}px)`},{transform:"none"}],{duration:240,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}
+ try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
+{const _r=window.rerender;window.rerender=function(){_r();setTimeout(animLast,0)}}
+{const _r=window.render;window.render=function(){_r();setTimeout(animLast,0)}}
+/* Emojis & Remis-Angebote live anzeigen */
+let _mk="";setInterval(()=>{try{if(MODE!=="cloud"||$("#modal").innerHTML)return;if(V.v==="chess"&&V.gid){const g=MATCHES[V.gid];if(!g)return;const k=JSON.stringify([g.emo,g.drawOff,(g.mv||[]).length,g.res]);if(k!==_mk){const was=_mk;_mk=k;if(was)rerender()}}else _mk=""}catch(e){}},1500);
+
+/* ---------- Gegner-Auswahl: Rätsel-Karte ---------- */
+{const _p=VIEWS.chesspick;VIEWS.chesspick=()=>{const sv=P.puz||[];const h=_p();const card=`<button class="puzc" data-a="puznext"><span class="face">🧩</span><span style="flex:1"><b style="font-size:16px">Schach-Rätsel: Matt in 1</b><br><span style="opacity:.9;font-size:13px">${sv.length}/${PUZ.length} gelöst · +20 🪙 pro Rätsel</span></span><b style="font-size:20px">→</b></button>
+ <div class="pzgrid">${PUZ.map((z,i)=>`<button class="${sv.includes(i)?"ok":""}" data-a="puzgo" data-x="${i}">${sv.includes(i)?"✓":i+1}</button>`).join("")}</div>`;
+ return h.replace('<h3 style="margin-top:16px">Deine Farbe</h3>',card+'<h3 style="margin-top:16px">Deine Farbe</h3>')}}
+
+/* ---------- Quiz-Duell: Vergleich Frage für Frage ---------- */
+{const _d=VIEWS.duel;VIEWS.duel=()=>{let h=_d();const g=V.gid&&MATCHES[V.gid];const op=g?g.p.find(x=>x!==UID):V.fid;const on=(g&&(g.names||{})[op])||((ALLP[op]||{}).name)||"Freundin";const os=g&&g.s&&g.s[op];
+ if(!V.done&&V.ans&&os&&os.r){const r=os.r[V.qi];h=h.replace('<button class="btn full" style="margin-top:10px" data-a="dnext">',`<div class="oppans">${avaHTML((g.avas||{})[op]||{},24)} ${esc(on)} hatte hier: ${r?"✅ richtig":"❌ falsch"}</div><button class="btn full" style="margin-top:10px" data-a="dnext">`)}
+ if(V.done){let cmp="";if(os&&os.r){cmp=`<div class="cmpq"><span class="h">Frage</span><span class="h">Du</span><span class="h">${esc(on)}</span>${V.qs.map((q,i)=>`<span>${i+1}. ${esc(duelLabel(V.mode,q))}</span><b>${V.res[i]?"✅":"❌"}</b><b>${os.r[i]?"✅":"❌"}</b>`).join("")}</div>`}
+  const btns=`<div class="row" style="margin-top:14px"><button class="btn ghost" style="flex:1" data-a="go" data-x="matches">Matches</button>${op?`<button class="btn fire" style="flex:1" data-a="rematch" data-x="${op}|${V.mode}">🔁 Revanche</button>`:""}</div>${op&&!os?`<button class="btn ghost full" style="margin-top:8px" data-a="mpoke" data-x="${op}">👉 ${esc(on)} erinnern</button>`:""}`;
+  h=h.replace('<button class="btn fire full" style="margin-top:14px" data-a="go" data-x="matches">Zu den Matches</button>',cmp+btns)}
+ return h}}
+function duelLabel(mode,q){try{if(mode.startsWith("voc")){const[L,sid,i]=q;return VOC[L].sets.find(s=>s.id===sid).w[i][1]}if(mode==="wa"){const[si,wi]=q;return WAS[si][wi].t}const[tid,i]=q;const x=TOPIC[tid].q[i][0];return x.length>34?x.slice(0,32)+"…":x}catch(e){return""}}
+ACT.mpoke=x=>poke(x,`⚔️ ${P.name} wartet auf dein Quiz-Duell!`);
+
+/* ---------- Matches-Übersicht 2.0 ---------- */
+function mStatus(g){const op=g.p.find(x=>x!==UID);if(g.kind==="chess")return g.res?(g.res==="draw"?"d":g.res===myColor(g)?"w":"l"):g.turn===myColor(g)?"go":"wait";
+ const s=g.s||{};if(!s[UID])return"go";if(!s[op])return"wait";return s[UID].pts>s[op].pts?"w":s[UID].pts<s[op].pts?"l":"d"}
+VIEWS.matches=(function(orig){return function(){if(MODE!=="cloud")return orig();
+ const ms=Object.values(MATCHES).sort((a,b)=>(b.u||0)-(a.u||0));const fr=(P.friends||[]).filter(id=>ALLP[id]);const mi=missions();const fm=(P.fm&&P.fm.wk===weekStart())?P.fm.got:[];
+ const go=ms.filter(g=>mStatus(g)==="go"),wt=ms.filter(g=>mStatus(g)==="wait"),dn=ms.filter(g=>["w","l","d"].includes(mStatus(g)));
+ const rec={};Object.entries(P.h2h||{}).forEach(([k,v])=>rec[k]=Object.assign({},v));dn.forEach(g=>{const op=g.p.find(x=>x!==UID);const r=rec[op]||(rec[op]={w:0,l:0,d:0});r[mStatus(g)]++});
+ const sec=(t,list,max)=>list.length?`<div class="msec">${t} · ${list.length}</div>${list.slice(0,max||20).map(matchRow).join("")}`:"";
+ return `<h2 style="margin-top:18px">⚔️ Matches</h2><p class="mut">Fordere deine Freundinnen heraus – im Quiz-Duell oder beim Schach!</p>
+ <div class="row" style="margin-top:12px"><button class="btn fire" style="flex:1" data-a="newmatch" data-x="quiz">⚔️ Quiz-Duell</button><button class="btn" style="flex:1" data-a="newmatch" data-x="chess">♟️ Schach</button></div>
+ <button class="btn ghost full" style="margin-top:8px" data-a="chesscpu">🤖 Schach üben & 🧩 Rätsel</button>
+ <div class="card"><h3>🎮 Deine Matches</h3>${ms.length?sec("🔥 Du bist dran",go)+sec("⏳ Wartet auf deine Freundin",wt)+sec("🏁 Beendet",dn,8)+(dn.length?`<button class="btn ghost sm" style="margin-top:10px" data-a="mclean">🧹 Beendete aufräumen</button>`:""):`<p class="mut sm" style="margin-top:6px">Noch keine Matches. ${fr.length?"Fordere jemanden heraus!":"Adde zuerst deine Freundinnen."}</p>`}</div>
+ ${fr.length?`<div class="card"><h3>📊 Eure Bilanz</h3>${fr.map(id=>{const r=rec[id]||{w:0,l:0,d:0};const f=ALLP[id];return `<div class="h2h">${avaHTML(f.ava,36)}<div class="h2g"><b>${esc(f.name)}</b><div class="h2s"><span style="background:#2ee59d33;color:#12a26b">${r.w} S</span><span style="background:#ffcc3333;color:#b98500">${r.d} U</span><span style="background:#ff5d7333;color:#e0334f">${r.l} N</span></div></div><button class="btn sm" data-a="mchal" data-x="${id}">⚔️</button><button class="btn ghost sm" data-a="mchalc" data-x="${id}">♟️</button></div>`}).join("")}</div>`:""}
+ <div class="card"><h3>🤝 Freundes-Missionen <span class="pill">diese Woche</span></h3>${mi.map(m=>{const got=fm.includes(m.id);return `<div class="quest ${got?"done":""}"><span class="qi">${got?"✅":m.ic}</span><div class="qb"><div style="font-weight:800;font-size:14px">${m.t}</div><div class="bar" style="margin-top:4px"><i style="width:${Math.min(100,m.v/m.n*100)}%"></i></div><div class="sm mut">${Math.min(m.v,m.n)} / ${m.n} ${m.u}</div></div>${m.ok&&!got?`<button class="btn fire sm" data-a="fmclaim" data-x="${m.id}">+100 🪙</button>`:`<span class="qx">+100 🪙</span>`}</div>`}).join("")}</div>`}})(VIEWS.matches);
+Object.assign(ACT,{
+ mchal:x=>{V={v:"newmatch",kind:"quiz",fid:x,mode:null};render()},
+ mchalc:x=>chessNew(x),
+ mclean:async()=>{const dn=Object.values(MATCHES).filter(g=>["w","l","d"].includes(mStatus(g)));let n=0;if(!P.h2h)P.h2h={};for(const g of dn){try{await mref(g.id).delete();const op=g.p.find(x=>x!==UID);const r=P.h2h[op]||(P.h2h[op]={w:0,l:0,d:0});r[mStatus(g)]++;delete MATCHES[g.id];n++}catch(e){}}save();toast(`🧹 ${n} beendete Matches aufgeräumt – eure Bilanz bleibt gespeichert`);rerender()}
+});
+</script>
+
+<style>
+/* ===== Partieanalyse & Matt-Tipp ===== */
+.cb{position:relative}
+.cb .arw{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.cb .q.qa::before{content:"";position:absolute;inset:0;background:#ff5d7366}
+.cb .q.qg::before{content:"";position:absolute;inset:0;background:#2ee59d55}
+.cb .q.qy::before{content:"";position:absolute;inset:0;background:#ffcc3366}
+.anh{display:flex;align-items:center;gap:6px;font-weight:900;font-size:13px;letter-spacing:.5px;margin-top:14px}
+.anh.up{color:#12b76a}.anh.dn{color:#ff5d73}.anh.eq{color:var(--mut)}
+.anprog{position:relative;height:12px;border-radius:8px;background:var(--card2);margin-top:12px;overflow:hidden}
+.anprog i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#7ee36b,#4cc94a);border-radius:8px;transition:width .3s}
+.anprog b{position:absolute;top:3px;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.85;margin-left:-3px}
+.anprog b.r{background:#ff5d73;opacity:1}
+.anq{font-weight:900;font-size:18px;margin-top:12px;min-height:24px}
+.anq.best,.anq.good{color:#12b76a}.anq.inac{color:#e0a800}.anq.mist{color:#ff8a00}.anq.blun{color:#ff3b5c}.anq.mate{color:#12b76a}
+.anctl{display:grid;grid-template-columns:52px 1fr 52px;gap:10px;margin-top:10px}
+.anctl .btn{padding-left:0;padding-right:0}
+.mtip{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;border:2px solid #2ee59d;background:#2ee59d1f;border-radius:16px;padding:10px 12px;font-weight:800;text-align:left;color:var(--txt)}
+.mtip.pulse{animation:mtp 1.6s ease-in-out infinite}
+@keyframes mtp{50%{box-shadow:0 0 0 6px #2ee59d33}}
+</style>
+<script>
+/* ---------- Gegner leichter ---------- */
+/* (Zufallsanteil wird direkt in cpuMove erhöht – siehe unten) */
+window.cpuMove=(function(orig){return function(st,lvl){const ms=legal(st);if(!ms.length)return null;
+ if(lvl==="e"){/* Kiki: fast nur zufällig, schlägt nur manchmal */if(Math.random()<.85)return ms[Math.floor(Math.random()*ms.length)];const caps=ms.filter(m=>m.cap);if(caps.length&&Math.random()<.5)return caps[Math.floor(Math.random()*caps.length)];return ms[Math.floor(Math.random()*ms.length)]}
+ if(lvl==="m"&&Math.random()<.35)return ms[Math.floor(Math.random()*ms.length)];
+ return orig(st,lvl)}})(window.cpuMove);
+
+/* ---------- Pfeile auf dem Brett ---------- */
+function arrowSVG(list,flip){if(!list||!list.length)return"";const pt=i=>{let r=i>>3,c=i%8;if(flip){r=7-r;c=7-c}return[c+.5,r+.5]};
+ return `<svg class="arw" viewBox="0 0 8 8"><defs>${list.map((a,k)=>`<marker id="ah${k}" markerWidth="3" markerHeight="3" refX="1.6" refY="1.5" orient="auto"><path d="M0,0 L3,1.5 L0,3 Z" fill="${a.c}"/></marker>`).join("")}</defs>
+ ${list.map((a,k)=>{const[x1,y1]=pt(a.f),[x2,y2]=pt(a.t);const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);const ex=x2-dx/L*.32,ey=y2-dy/L*.32;return `<line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="${a.c}" stroke-width=".17" stroke-linecap="round" opacity=".9" marker-end="url(#ah${k})"/>`}).join("")}</svg>`}
+
+/* ---------- Matt-Suche ---------- */
+const isMate=n=>inCheck(n,n.turn)&&!legal(n).length;
+function mate1(st){return legal(st).find(m=>isMate(applyMv(st,m)))||null}
+function mate2(st){const t0=Date.now();const ms=legal(st).map(m=>({m,n:applyMv(st,m)})).sort((a,b)=>(inCheck(b.n,b.n.turn)?1:0)-(inCheck(a.n,a.n.turn)?1:0));
+ for(const {m,n} of ms){if(Date.now()-t0>1800)return null;const rs=legal(n);if(!rs.length)continue;
+  if(rs.every(r=>{const n2=applyMv(n,r);return legal(n2).some(m2=>{const n3=applyMv(n2,m2);return inCheck(n3,n3.turn)&&!legal(n3).length})}))return m}return null}
+const M1C={};function mate1C(st){const k=st.bd+st.turn;if(!(k in M1C))M1C[k]=mate1(st);return M1C[k]}
+function matTip(st,me){const mine=st.bd.split("").filter(p=>p!=="."&&colOf(p)===me).map(p=>p.toLowerCase());const q=mine.includes("q"),r=mine.filter(x=>x==="r").length;
+ if(q&&r)return"Dame + Turm: Mach ein <b>Treppen-Matt</b>: Ein Teil sperrt eine Reihe ab, das andere gibt Schach eine Reihe weiter. Abwechselnd ziehen, bis der König am Rand ist.";
+ if(r>=2)return"Zwei Türme: <b>Treppen-Matt</b>! Turm 1 sperrt eine Reihe, Turm 2 gibt Schach auf der nächsten. So schiebst du den König Reihe für Reihe an den Rand.";
+ if(q)return"Dame-Matt: Stell die Dame einen <b>Springer-Zug</b> vom König entfernt, so wird sein Platz immer kleiner. Ist er am Rand, holst du <b>deinen König</b> dazu – und Matt! Achtung: Lass ihm immer ein Feld, sonst ist es Patt.";
+ if(r)return"Turm-Matt: Drück den König mit dem Turm an den Rand. Dein <b>König muss mithelfen</b> und sich ihm gegenüberstellen – dann gibt der Turm Schach am Rand.";
+ return"Noch kein Matt in Sicht. Tipp: Hol dir zuerst mehr Figuren – schlag ungeschützte Figuren und bring einen Bauern zur Grundreihe (er wird zur Dame)!"}
+ACT.mtip=()=>{const st=chessSt();const M=chessMeta();if(!st||st.turn!==M.me||M.res)return;V.mtBusy=true;rerender();setTimeout(()=>{V.mtBusy=false;
+ let m=mate1(st),n=1;if(!m){m=mate2(st);n=2}
+ if(m){V.hint=m;V.sel=m.f;V.hintTxt=`<span class="m">🏁</span><div><b>Matt in ${n}!</b> ${n===1?`Zieh deinen <b>${PN[st.bd[m.f].toLowerCase()]}</b> von ${sqName(m.f)} nach <b>${sqName(m.t)}</b> – dann kann der König nicht mehr ausweichen!`:`Beginne mit <b>${PN[st.bd[m.f].toLowerCase()]} ${sqName(m.f)}→${sqName(m.t)}</b>. Egal was dein Gegner macht – im nächsten Zug gibt es Matt!`}</div>`;if(V.puz!=null)V.helped=true}
+ else{V.hint=null;V.hintTxt=`<span class="m">🏁</span><div>${matTip(st,M.me)}</div>`;V.mtOnly=true}
+ rerender()},30)};
+
+/* ---------- Partieanalyse ---------- */
+function evQ(st){const g=legal(st);if(!g.length)return inCheck(st,st.turn)?(st.turn==="w"?-1e5:1e5):0;NODES=0;return (st.turn==="w"?1:-1)*qs(st,-1e9,1e9,4)}
+function rateFull(st,m){const ms=legal(st);const same=x=>x.f===m.f&&x.t===m.t&&(x.pr||"q")===(m.pr||"q");
+ const sc=ms.map(x=>{const n=applyMv(st,x);let v;if(isMate(n))v=1e5;else{NODES=0;v=-ab(n,0,-1e9,1e9,1)}return{x,n,v}}).sort((a,b)=>b.v-a.v);
+ const deep=sc.slice(0,5);const me0=sc.find(o=>same(o.x));if(me0&&!deep.includes(me0))deep.push(me0);
+ deep.forEach(o=>{if(o.v<5e4){NODES=0;o.v=-ab(o.n,1,-1e9,1e9,1)}});
+ let best=null,bv=-1e9;deep.forEach(o=>{if(o.v>bv){bv=o.v;best=o.x}});let mine=me0?me0.v:-1e9;
+ if(mine===-1e9){const n=applyMv(st,m);mine=isMate(n)?1e5:-ab(n,1,-1e9,1e9,1)}
+ const loss=bv-mine;const c=mine>=5e4?"best":ms.length<=1?"good":loss<=15?"best":loss<=60?"good":loss<=150?"inac":loss<=320?"mist":"blun";return{c,best,loss,bestMate:bv>=5e4}}
+function anaBuild(sans){let st={bd:START_BD,turn:"w",cs:"KQkq",ep:-1};const pl=[];
+ for(const s of sans){const ms=legal(st);let m=null;for(const x of ms){for(const pr of (st.bd[x.f].toLowerCase()==="p"&&(x.t>>3===0||x.t>>3===7))?["q","r","b","n"]:[undefined]){const y=pr?Object.assign({},x,{pr}):x;if(sanOf(st,y)===s){m=y;break}}if(m)break}
+  if(!m)break;const n=applyMv(st,m);pl.push({st,m,san:s,n,by:st.turn});st=n}return pl}
+function anaComment(P1,me){const{st,m,n,by,r,san}=P1;const pn=t=>PN[t.toLowerCase()];const pa=t=>{const x=pn(t);return x==="Bauer"?"Bauern":x};const mine=by===me;const cap=st.bd[m.t]!=="."?st.bd[m.t]:(m.ep?"p":null);
+ if(isMate(n))return mine?"Schachmatt! 🏆 Mit diesem Matt hat dein Gegner nicht gerechnet!":"Schachmatt – diesmal hat dein Gegner gewonnen. Schau dir an, wo es schiefging!";
+ if(!mine){if(r.c==="blun"||r.c==="mist")return"Dein Gegner hat einen Fehler gemacht – jetzt kannst du zuschlagen! 👀";if(cap)return`Dein Gegner schlägt ${cap.toLowerCase()==="q"?"deine":"deinen"} ${pa(cap)} auf ${sqName(m.t)}.`;if(inCheck(n,n.turn))return"Schach! Dein König muss sich retten.";return""}
+ if(r.c==="blun"||r.c==="mist"||r.c==="inac"){
+  if(r.bestMate)return`Hier gab es sogar Schachmatt mit <b>${sanOf(st,r.best)}</b>! 😮`;
+  const reps=legal(n);let rep=null,rv=-1e9;for(const x of reps){const n2=applyMv(n,x);const v=isMate(n2)?1e5:(NODES=0,-ab(n2,0,-1e9,1e9,1));if(v>rv){rv=v;rep=x}}
+  if(rep&&rep.cap&&r.c!=="inac"){const p=n.bd[rep.t];return`${p.toLowerCase()==="q"?"Deine":"Dein"} ${pn(p)} auf ${sqName(rep.t)} stand ganz allein ohne Verteidigung – dein Gegner kann ${p.toLowerCase()==="q"?"sie":"ihn"} schlagen.`}
+  if(r.best&&r.best.cap)return`Du hättest ${st.bd[r.best.t].toLowerCase()==="q"?"die":"den"} ${pa(st.bd[r.best.t])} auf ${sqName(r.best.t)} schlagen können! Besser: <b>${sanOf(st,r.best)}</b>.`;
+  return r.c==="inac"?`Nicht schlecht, aber <b>${sanOf(st,r.best)}</b> war etwas besser.`:`Besser wäre <b>${sanOf(st,r.best)}</b> gewesen.`}
+ if(/^0-0/.test(san))return"Rochade – dein König ist jetzt in Sicherheit! 🏰";
+ if(cap)return r.c==="best"?`Stark! Du schlägst ${cap.toLowerCase()==="q"?"die":"den"} ${pa(cap)} auf ${sqName(m.t)}. ⭐`:`Gut geschlagen – ${cap.toLowerCase()==="q"?"die":"der"} ${pn(cap)} ist weg!`;
+ if(inCheck(n,n.turn))return"Schach! Du machst Druck auf den König. 💥";
+ const t=st.bd[m.f].toLowerCase();const ply=P1.idx;
+ if(ply<16&&(t==="n"||t==="b")&&((by==="w"&&m.f>>3===7)||(by==="b"&&m.f>>3===0)))return"Gute Entwicklung – deine Figuren kommen ins Spiel!";
+ if(ply<8&&t==="p"&&[27,28,35,36].includes(m.t))return"Starker Zug in die Mitte – so kontrollierst du das Zentrum!";
+ return r.c==="best"?"Starker Zug! ⭐":""}
+function anaStart(){const sans=mvList().slice();const me=chessMeta().me||"w";const ret=V;const pl=anaBuild(sans);if(!pl.length){toast("Keine Züge zum Analysieren.");return}
+ V={v:"analyse",pl,me,i:-1,ret,busy:0,play:false};render();
+ let k=0;const step=()=>{if(V.v!=="analyse"||V.pl!==pl)return;const t0=Date.now();while(k<pl.length&&Date.now()-t0<60){const P1=pl[k];P1.idx=k;P1.r=rateFull(P1.st,P1.m);P1.ev=evQ(P1.n);P1.cm=anaComment(P1,me);k++}V.busy=k;if(k<pl.length)setTimeout(step,0);else{V.hl=pl.map((p,i)=>i).filter(i=>{const p=pl[i];return isMate(p.n)||(p.by===me&&["mist","blun","inac"].includes(p.r.c))||(p.by!==me&&["mist","blun"].includes(p.r.c))||(p.by===me&&p.r.c==="best"&&p.st.bd[p.m.t]!==".")})}rerender()};setTimeout(step,30)}
+function evLabel(v){if(Math.abs(v)>=5e4)return v>0?["up","⬆","SCHACHMATT"]:["dn","⬇","SCHACHMATT"];const p=v/100;return p>=3?["up","⬆","WEIT IM VORTEIL"]:p>=1?["up","⬆","IM VORTEIL"]:p<=-3?["dn","⬇","WEIT IM NACHTEIL"]:p<=-1?["dn","⬇","IM NACHTEIL"]:["eq","=","AUSGEGLICHEN"]}
+VIEWS.analyse=()=>{const pl=V.pl,me=V.me,i=V.i;const ready=V.busy>=pl.length;const cur=i>=0?pl[i]:null;const st=cur?cur.n:pl[0].st;const flip=me==="b";
+ const ev=cur&&cur.ev!=null?(me==="w"?cur.ev:-cur.ev):0;const[ec,ea,et]=evLabel(ev);
+ const mineMove=cur&&cur.by===me;const r=cur&&cur.r;const bad=r&&mineMove&&["inac","mist","blun"].includes(r.c);
+ const sqCls=r?(bad?"qa":mineMove?"qg":"qy"):"";
+ let cells="";for(let k=0;k<64;k++){const x=flip?63-k:k;const rr=x>>3,c=x%8;const p=st.bd[x];const vr=k>>3,vc=k%8;
+  cells+=`<div class="q ${(rr+c)%2?"d":"l"} ${cur&&(cur.m.f===x||cur.m.t===x)?sqCls:""} ${cur&&isMate(cur.n)&&x===kingSq(st.bd,st.turn)?"chk":""}">${vc===0?`<span class="cr r">${8-rr}</span>`:""}${vr===7?`<span class="cr f" style="${vc===0?"left:auto;right:4px":""}">${"abcdefgh"[c]}</span>`:""}${p!=="."?PZ(p):""}</div>`}
+ const arrows=[];if(cur){arrows.push({f:cur.m.f,t:cur.m.t,c:bad?"#ff5d73":"#ffcc33"});if(bad&&r.best)arrows.push({f:r.best.f,t:r.best.t,c:"#2ee59d"})}
+ const face=cur?(isMate(cur.n)?(cur.by===me?"🥳":"😮"):bad?(r.c==="blun"?"😱":"🤔"):mineMove&&r.c==="best"?"😃":"🦉"):"🦉";
+ const say=!ready?`Ich schaue mir eure Partie an … ${Math.round(V.busy/pl.length*100)} %`:i<0?`Lass uns deine Partie anschauen! ${pl.length} Züge. Tippe auf <b>▶</b> oder auf <b>⭐ Highlights</b>.`:(cur.cm||(mineMove?MQ[r.c][1]:"Dein Gegner zieht "+cur.san+"."));
+ const ql=cur&&ready?(isMate(cur.n)?["mate","Schachmatt!"]:mineMove?[r.c,MQ[r.c][1]]:["", "Zug deines Gegners"]):["",""];
+ const hl=V.hl||[];const nextH=hl.find(x=>x>i);const atEnd=i>=pl.length-1;
+ return `<div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn ghost sm" data-a="anaback">✕ Schließen</button><span class="pill">Zug ${Math.max(0,i+1)}/${pl.length}</span></div>
+ <div class="anprog"><i style="width:${(i+1)/pl.length*100}%"></i>${hl.map(x=>`<b class="${pl[x].by===me&&["mist","blun","inac"].includes(pl[x].r.c)?"r":""}" style="left:${(x+1)/pl.length*100}%"></b>`).join("")}</div>
+ <div class="anh ${ec}">${ea} ${et}</div><h2 style="margin:4px 0 0">Partieanalyse</h2>
+ <div class="chhead"><span class="face">${face}</span><div class="bub">${say}</div></div>
+ <div class="cb" style="margin-top:12px">${arrowSVG(arrows,flip)}${cells}</div>
+ <div class="anq ${ql[0]}">${ql[1]}${cur&&ready?` <span class="mut" style="font-size:14px;font-weight:700">· ${cur.by===me?"Du":"Gegner"}: ${esc(cur.san)}</span>`:""}</div>
+ ${bad&&r.best?`<div class="sm mut" style="margin-top:2px">🟢 Grüner Pfeil = besserer Zug: <b>${esc(sanOf(cur.st,r.best))}</b></div>`:""}
+ <div class="anctl"><button class="btn ghost" data-a="anastep" data-x="-1" ${i<0?"disabled":""}>‹</button>
+ ${atEnd?`<button class="btn fire" data-a="anaback">Fertig ✓</button>`:V.play?`<button class="btn" data-a="anaplay">⏸ Pause</button>`:`<button class="btn" data-a="anaplay" ${ready?"":"disabled"}>▶ Abspielen</button>`}
+ <button class="btn ghost" data-a="anastep" data-x="1" ${atEnd?"disabled":""}>›</button></div>
+ ${ready&&hl.length?`<button class="btn ${nextH!=null?"fire":"ghost"} full" style="margin-top:8px" data-a="anahl" ${nextH==null?"disabled":""}>⭐ ${nextH!=null?"Nächstes Highlight":"Keine weiteren Highlights"} (${hl.filter(x=>x>i).length})</button>`:""}`};
+let anaTimer=null;
+Object.assign(ACT,{
+ anago:()=>anaStart(),
+ anaback:()=>{clearInterval(anaTimer);const r=V.ret;V=r||{v:"play"};render()},
+ anastep:x=>{V.play=false;clearInterval(anaTimer);V.i=Math.max(-1,Math.min(V.pl.length-1,V.i+(+x)));rerender()},
+ anahl:()=>{V.play=false;clearInterval(anaTimer);const n=(V.hl||[]).find(x=>x>V.i);if(n!=null){V.i=n;rerender()}},
+ anaplay:()=>{if(V.play){V.play=false;clearInterval(anaTimer);rerender();return}V.play=true;rerender();clearInterval(anaTimer);
+  anaTimer=setInterval(()=>{if(V.v!=="analyse"||!V.play){clearInterval(anaTimer);return}if(V.i>=V.pl.length-1){V.play=false;clearInterval(anaTimer);rerender();return}
+   V.i++;const p=V.pl[V.i];rerender();if(p.cm&&(p.by===V.me||isMate(p.n)||["mist","blun"].includes(p.r.c))&&(V.hl||[]).includes(V.i)){V.play=false;clearInterval(anaTimer);rerender()}},1300)}
+});
+if(typeof NAVMAP!=="undefined")NAVMAP.analyse="play";
+
+/* ---------- Spielansicht: Analyse-Knopf, Matt-Tipp, Pfeile ---------- */
+{const _vc=VIEWS.chess;VIEWS.chess=function(){let h=_vc();const st=chessSt();if(!st)return h;const M=chessMeta();const flip=M.me==="b";
+ if(V.hint)h=h.replace('<div class="cb">','<div class="cb">'+arrowSVG([{f:V.hint.f,t:V.hint.t,c:"#2ee59d"}],flip));
+ if(V.puz!=null)return h;
+ if(M.res){const n=mvList().length;if(n>=2){const i=h.indexOf('<div class="row" style="margin-top:12px">');const b=`<button class="btn full" style="margin-top:12px;background:linear-gradient(135deg,#5b3df5,#9a7bff);color:#fff" data-a="anago">🔍 Partieanalyse ansehen</button>`;if(i>=0)h=h.slice(0,i)+b+h.slice(i);else h+=b}return h}
+ if(st.turn===M.me){const m1=(V.local&&V.lvl!=="h")?mate1C(st):null;const opP=st.bd.split("").filter(p=>p!=="."&&colOf(p)!==M.me&&!/[kKpP]/.test(p)).length;
+  const show=m1||opP<=2||V.mtOnly;
+  if(show){const b=`<button class="mtip ${m1&&!V.hint?"pulse":""}" data-a="mtip" ${V.mtBusy?"disabled":""}><span style="font-size:26px">🏁</span><div style="flex:1">${V.mtBusy?"Ich suche ein Matt …":m1?"<b>Du kannst jetzt Schachmatt setzen!</b><br><span class='sm mut'>Findest du den Zug? Sonst tippe hier für den Matt-Tipp.</span>":"<b>Matt-Tipp</b><br><span class='sm mut'>Wie setze ich Schachmatt? Tippe für Hilfe.</span>"}</div></button>`;
+   const tip=V.mtOnly&&V.hintTxt&&!V.hint?`<div class="coachline">${V.hintTxt}</div>`:"";
+   const i=h.indexOf('<div class="chtools"');if(i>=0)h=h.slice(0,i)+b+tip+h.slice(i)}}
+ return h}}
+/* Matt-Tipp-Text zurücksetzen, sobald gezogen wurde */
+window.chessMove=(function(orig){return function(m){V.mtOnly=false;return orig(m)}})(window.chessMove);
+</script>
+
+<style>
+/* ===== Design-Feinschliff ===== */
+:root{--bg:#0b0c26;--bg2:#141640;--card:#1b1e50;--card2:#252a66;--line:#30357a;--acc:#8b6cff;--r:22px}
+body{background:radial-gradient(900px 520px at 85% -12%,#6d4cff40,transparent 70%),radial-gradient(700px 480px at -15% 30%,#ff5fa21c,transparent 70%),radial-gradient(800px 500px at 110% 105%,#2ee5d012,transparent 70%),var(--bg);background-attachment:fixed}
+::selection{background:#8b6cff55}
+h2{font-size:24px;letter-spacing:-.4px;font-weight:900}
+h3{letter-spacing:-.2px}
+.card{background:linear-gradient(165deg,#ffffff0d,#ffffff03 60%),var(--card);border:1px solid #ffffff14;box-shadow:0 12px 32px #00000040,inset 0 1px 0 #ffffff12;border-radius:var(--r)}
+.top{background:#0b0c26b8!important;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid #ffffff10}
+.btn{border-radius:16px;box-shadow:0 4px 0 #3b2bb0,0 10px 22px #6d4cff33;background:linear-gradient(135deg,#8b6cff,#b36bff);letter-spacing:.1px}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #3b2bb0}
+.btn.fire{box-shadow:0 4px 0 #b65300,0 10px 22px #ff7a1840}
+.btn.fire:active:not(:disabled){box-shadow:0 1px 0 #b65300}
+.btn.ghost{background:#ffffff10;border:1px solid #ffffff18;box-shadow:0 3px 0 #00000040}
+.btn:disabled{opacity:.45;filter:saturate(.5)}
+.pill{background:#ffffff12;border:1px solid #ffffff14}
+.li,.mrow{transition:transform .12s,border-color .12s}
+.li:active,.mrow:active{transform:scale(.98)}
+input,select{border-radius:14px;border-width:2px;background:#ffffff0a}
+input:focus,select:focus{box-shadow:0 0 0 4px #8b6cff33}
+.bar{background:#ffffff18}
+.bar i{background:linear-gradient(90deg,#ffcc33,#ff7a18 60%,#ff5fa2)}
+/* Antwort-Buttons mit A B C D */
+.opts{counter-reset:o}
+.opt{position:relative;padding-left:52px;border-radius:16px;transition:transform .1s,border-color .15s,background .15s}
+.opt::before{counter-increment:o;content:counter(o,upper-alpha);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:9px;background:#ffffff14;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:var(--mut)}
+.opt:active:not(:disabled){transform:scale(.985)}
+.opt.ok::before{background:var(--ok);color:#003320;content:"✓"}
+.opt.bad::before{background:var(--bad);color:#fff;content:"✕"}
+.opt.sel::before{background:var(--acc);color:#fff}
+/* schwebende Navigation (Handy) */
+@media (max-width:1079px){
+ .nav{left:10px!important;right:10px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;border-radius:24px;border:1px solid #ffffff16!important;background:#15173fe0!important;-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);box-shadow:0 14px 40px #0008;padding:6px!important}
+ .nav button{border-radius:18px;transition:color .15s}
+ .nav button b{transition:transform .2s}
+ .nav button.on{background:linear-gradient(135deg,#8b6cff,#b36bff)!important;color:#fff!important;box-shadow:0 6px 16px #8b6cff55}
+ .nav button.on b{transform:translateY(-1px) scale(1.08)}
+ html.light .nav{background:#ffffffe6!important;border-color:#e8e0ff!important;box-shadow:0 14px 36px #7c5cff26}
+ #coachfab{bottom:calc(96px + env(safe-area-inset-bottom))}
+ .wrap{padding-bottom:130px}
+}
+/* sanftes Einblenden der Seiten */
+#main>*{animation:fup .35s ease-out both}
+#main>*:nth-child(2){animation-delay:.03s}#main>*:nth-child(3){animation-delay:.06s}#main>*:nth-child(4){animation-delay:.09s}#main>*:nth-child(5){animation-delay:.12s}#main>*:nth-child(n+6){animation-delay:.15s}
+@keyframes fup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.norise #main>*{animation:none}
+/* hell */
+html.light .card{box-shadow:0 12px 34px #7c5cff18,inset 0 1px 0 #fff;border-color:#ffffffd9}
+html.light .top{background:#f6f2ffc9!important;border-bottom-color:#ebe4ff}
+html.light .btn.ghost{background:#efe9ff;border-color:#e4dbff;box-shadow:0 3px 0 #d6cbff}
+html.light .pill{background:#efe9ff;border-color:#e4dbff}
+html.light .opt::before{background:#efe9ff}
+html.light input,html.light select{background:#fff}
+html.light .bar{background:#ebe4ff}
+
+/* ===== Pokale ===== */
+.trmod{text-align:center;position:relative;overflow:hidden;padding-top:8px}
+.trmod .rays{position:absolute;left:50%;top:92px;width:420px;height:420px;margin:-210px 0 0 -210px;background:repeating-conic-gradient(#ffcc3333 0 10deg,transparent 10deg 20deg);border-radius:50%;animation:spin 14s linear infinite;-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.trmod .cup{position:relative;font-size:96px;line-height:1;margin:10px 0 4px;animation:cupin .7s cubic-bezier(.2,1.6,.4,1) both;filter:drop-shadow(0 10px 20px #ffb00066)}
+@keyframes cupin{from{transform:scale(.2) rotate(-25deg);opacity:0}to{transform:none;opacity:1}}
+.trmod h2{position:relative;margin:6px 0 2px}
+.trmod .lbl{position:relative;display:inline-block;margin-top:6px;font-weight:900;font-size:13px;border-radius:999px;padding:5px 12px;background:linear-gradient(135deg,#ffcc33,#ff9a18);color:#3a1a00}
+.shelf{margin-top:10px;border-radius:16px;padding:10px 10px 0;background:linear-gradient(#ffffff08,#ffffff02)}
+.shelf .row2{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding-bottom:6px;border-bottom:7px solid #8a5a3c;border-radius:0 0 4px 4px;margin-bottom:12px;box-shadow:0 6px 0 -2px #00000030;min-height:54px;align-items:end}
+html.light .shelf .row2{border-bottom-color:#c99a72}
+.shelf .tr{font-size:30px;text-align:center;line-height:1.2;cursor:default;filter:drop-shadow(0 3px 4px #0005)}
+.shelf .tr.empty{opacity:.15;filter:grayscale(1)}
+.trsum{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.trsum span{background:#ffffff10;border:1px solid #ffffff14;border-radius:12px;padding:5px 10px;font-weight:900;font-size:13px}
+html.light .trsum span{background:#efe9ff;border-color:#e4dbff}
+</style>
+<script>
+/* ===== Pokale nach jedem Sieg ===== */
+const TROPHY={"cpu-e":{i:"🥉",n:"Bronze-Medaille",d:"Sieg gegen Kiki Küken"},"cpu-m":{i:"🥈",n:"Silber-Medaille",d:"Sieg gegen Fips Fuchs"},"cpu-h":{i:"🏆",n:"Gold-Pokal",d:"Sieg gegen Professor Eule"},
+ "chess":{i:"👑",n:"Schach-Krone",d:"Schach-Sieg gegen"},"quiz":{i:"🏅",n:"Duell-Medaille",d:"Quiz-Duell gewonnen gegen"},"streak":{i:"💎",n:"Diamant-Pokal",d:"3 Siege am Stück gegen"}};
+function troList(){if(!P.tro)P.tro=[];return P.tro}
+function giveTrophy(k,id,extra,silent){const L=troList();if(id&&L.some(t=>t.id===id))return;const T=TROPHY[k];if(!T)return;
+ L.push({k,id:id||("t"+Date.now()),d:(T.d+(extra?" "+extra:"")),t:Date.now()});if(L.length>300)L.shift();P.coins+=silent?0:10;save();
+ if(silent)return;const cnt=L.filter(x=>x.k===k).length;
+ setTimeout(()=>{showModal(`<div class="trmod"><div class="rays"></div><div class="cup">${T.i}</div><h2>${T.n}!</h2><p class="mut" style="position:relative">${esc(T.d+(extra?" "+extra:""))}</p><span class="lbl">Dein ${cnt}. ${T.n} · +10 🪙</span>
+  <div class="row" style="margin-top:16px;position:relative"><button class="btn ghost" style="flex:1" data-a="trshelf">🗄️ Regal</button><button class="btn fire" style="flex:1" data-a="closeModal">Super! 🎉</button></div></div>`);try{confetti(140)}catch(e){};try{navigator.vibrate&&navigator.vibrate([30,40,30])}catch(e){}},650)}
+ACT.trshelf=()=>{closeModal();V={v:"me",shelf:1};render();setTimeout(()=>{const el=document.getElementById("shelf");if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},200)};
+/* Computer-Schach */
+window.cpuEnd=(function(orig){return function(res){const lvl=V.lvl,me=V.me;const pc=chessP()[lvl];const before=pc?pc.cup:0;orig(res);
+ if(res===me&&V.puz==null){const c=cpuOf(lvl);giveTrophy("cpu-"+lvl,null,"");if(pc&&pc.cup>before)setTimeout(()=>giveTrophy("streak",null,c.name),2600)}}})(window.cpuEnd);
+/* Freundes-Matches (Schach & Quiz) – auch wenn der Sieg später erkannt wird */
+function scanWins(){try{if(MODE!=="cloud"||!P||typeof MATCHES==="undefined")return;const ms=Object.values(MATCHES);if(!ms.length)return;
+ const first=!P.troInit;if(first)P.troInit=1;
+ ms.forEach(g=>{if(mStatus(g)!=="w")return;const op=g.p.find(x=>x!==UID);const on=(g.names||{})[op]||((ALLP[op]||{}).name)||"Freundin";
+  if(troList().some(t=>t.id===g.id))return;const visible=(V.v==="chess"&&V.gid===g.id)||(V.v==="duel"&&V.gid===g.id)||V.v==="matches"||V.v==="home";
+  giveTrophy(g.kind==="chess"?"chess":"quiz",g.id,on,first||!visible)});if(first)save()}catch(e){}}
+setInterval(()=>{if(!$("#modal").innerHTML)scanWins()},2500);
+/* Regal im Profil + bei Schach */
+function shelfHTML(){const L=troList();const cnt={};L.forEach(t=>cnt[t.k]=(cnt[t.k]||0)+1);const last=L.slice(-18).reverse();const rows=[];for(let i=0;i<Math.max(2,Math.ceil(last.length/6));i++)rows.push(last.slice(i*6,i*6+6));
+ return `<div class="card" id="shelf"><div class="row" style="justify-content:space-between"><h3>🏆 Mein Pokal-Regal</h3><span class="pill">${L.length} Pokale</span></div>
+ <div class="trsum">${Object.keys(TROPHY).map(k=>`<span title="${TROPHY[k].n}">${TROPHY[k].i} ${cnt[k]||0}</span>`).join("")}</div>
+ <div class="shelf">${rows.map(r=>`<div class="row2">${Array.from({length:6},(_,j)=>{const t=r[j];return t?`<div class="tr" title="${esc(TROPHY[t.k].n+" – "+t.d+" · "+new Date(t.t).toLocaleDateString("de-DE"))}">${TROPHY[t.k].i}</div>`:`<div class="tr empty">🏆</div>`}).join("")}</div>`).join("")}</div>
+ ${L.length?`<p class="mut sm">Zuletzt: ${esc(TROPHY[L[L.length-1].k].n)} – ${esc(L[L.length-1].d)}</p>`:`<p class="mut sm">Gewinne ein Spiel – Schach, Quiz-Duell oder gegen den Computer – und dein erster Pokal landet hier!</p>`}</div>`}
+{const _m=VIEWS.me;VIEWS.me=()=>{const h=_m();const s=shelfHTML();const k0=h.indexOf('<div class="card">');const k=k0>=0?h.indexOf('<div class="card',k0+10):-1;return k>=0?h.slice(0,k)+s+h.slice(k):h+s}}
+{const _p=VIEWS.chesspick;VIEWS.chesspick=()=>{const L=troList();const c=k=>L.filter(t=>t.k===k).length;return _p().replace('<h3 style="margin-top:16px">Deine Farbe</h3>',`<button class="trsum" style="width:100%;border:0;background:none;padding:0;color:inherit" data-a="trshelf"><span>🥉 ${c("cpu-e")}</span><span>🥈 ${c("cpu-m")}</span><span>🏆 ${c("cpu-h")}</span><span>💎 ${c("streak")}</span><span style="margin-left:auto">Regal →</span></button><h3 style="margin-top:16px">Deine Farbe</h3>`)}}
+/* kein Einblenden bei kleinen Updates (z. B. Schachzug) */
+{const _rr=window.rerender;window.rerender=function(){document.body.classList.add("norise");_rr()}}
+{const _r=window.render;window.render=function(){document.body.classList.remove("norise");_r()}}
 </script>
 
 </body>
