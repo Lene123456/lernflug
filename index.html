@@ -3630,5 +3630,27 @@ function shatterIn(h,st,sqAttr){const k=kingSq(st.bd,st.turn);if(k<0)return h;co
  if(pos>=0){h=h.slice(0,pos)+h.slice(pos).replace('<div class="q ',`<div data-k="${k}" class="q `);h=shatterIn(h,st,"data-k")}}return h}}
 </script>
 
+<style>
+a.btn{color:inherit;text-decoration:none}
+.vvoice{display:flex;align-items:center;gap:8px;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.vvoice select{flex:1;min-width:0;padding:9px 10px;font-weight:800;font-size:14px}
+.vvoice .sp{display:flex;gap:4px}
+.vvoice .sp button{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:7px 8px;font-weight:900;font-size:12px;color:var(--txt)}
+.vvoice .sp button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+</style>
+<script>
+/* ===== Stimme direkt im Lernvideo wählen ===== */
+function voiceBar(lang){const pre=lang.slice(0,2);const list=voicesFor(pre).sort((a,b)=>{const r=q=>({Premium:3,Erweitert:2,Google:1}[vQual(q)]||0);return r(b)-r(a)||a.name.localeCompare(b.name)});const cur=bestVoice(lang);const rt=P.vrate||1;
+ return `<div class="vvoice"><span style="font-size:20px">🎤</span>${list.length?`<select data-ch="vsel" data-l="${pre}">${list.map(v=>`<option value="${esc(v.voiceURI||v.name)}" ${cur&&cur.voiceURI===v.voiceURI?"selected":""}>${esc(v.name)}${vQual(v)?" ★ "+vQual(v):""}</option>`).join("")}</select>`:`<span class="mut sm" style="flex:1">Keine ${pre==="de"?"deutsche":""} Stimme gefunden</span>`}
+ <div class="sp">${[[.8,"🐢"],[1,"1×"],[1.2,"🐇"]].map(([r,t])=>`<button class="${Math.abs(rt-r)<.01?"on":""}" data-a="vrate2" data-x="${r}">${t}</button>`).join("")}</div></div>`}
+{const _v=VIEWS.video;VIEWS.video=()=>{let h=_v();const bar=voiceBar("de-DE");const i=h.indexOf('<div class="vctl">');if(i>=0)h=h.slice(0,i)+bar+h.slice(i);return h.split(VOICE_TIP).join("")}}
+function restartSlide(){if(V.v==="video"&&V.playing){try{speechSynthesis.cancel()}catch(e){}setTimeout(()=>playSlide(),120)}else if(V.v==="video"){const sl=V.slides[V.si];sayText(sl.say.slice(0,90),"de-DE")}}
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.dataset&&t.dataset.ch==="vsel"){P.voices=Object.assign({},P.voices,{[t.dataset.l]:t.value});save();if(V.v==="video")restartSlide();else rerender()}});
+ACT.vrate2=x=>{P.vrate=+x;save();rerender();restartSlide()};
+/* Vokabeln vorlesen nutzt jetzt auch die gewählte Stimme */
+window.speak=function(){try{const[s,w]=vWord();sayText(w[1],VOC[V.L].lang)}catch(e){toast("🔇 Vorlesen geht in diesem Browser nicht.")}};
+try{speechSynthesis.addEventListener&&speechSynthesis.addEventListener("voiceschanged",()=>{if(V&&V.v==="video"&&!V.playing)rerender()})}catch(e){}
+</script>
+
 </body>
 </html>
