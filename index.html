@@ -3652,5 +3652,58 @@ window.speak=function(){try{const[s,w]=vWord();sayText(w[1],VOC[V.L].lang)}catch
 try{speechSynthesis.addEventListener&&speechSynthesis.addEventListener("voiceschanged",()=>{if(V&&V.v==="video"&&!V.playing)rerender()})}catch(e){}
 </script>
 
+<style>
+/* ===== Spracherkennung 2.0 ===== */
+.splive{margin:6px auto 0;max-width:320px;min-height:46px;border-radius:14px;padding:10px 12px;background:var(--bg2);border:2px dashed var(--line);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;transition:border-color .2s,background .2s}
+.splive.hear{border-style:solid;border-color:#2ee59d;background:#2ee59d14}
+.splive .bars{display:inline-flex;gap:3px;align-items:flex-end;height:18px}
+.splive .bars i{width:4px;border-radius:2px;background:currentColor;animation:eq .9s ease-in-out infinite}
+.splive .bars i:nth-child(2){animation-delay:.15s}.splive .bars i:nth-child(3){animation-delay:.3s}.splive .bars i:nth-child(4){animation-delay:.45s}
+.splive:not(.hear) .bars i{animation-duration:1.8s;opacity:.45}
+@keyframes eq{0%,100%{height:4px}50%{height:18px}}
+.spneutral{margin-top:12px;border-radius:16px;padding:12px;background:var(--bg2);border:2px solid var(--line);font-weight:700;text-align:center}
+.mic.on{animation:pulse 1.1s infinite;filter:saturate(1.2)}
+</style>
+<script>
+/* ===== Spracherkennung 2.0: wartet wirklich auf deine Stimme ===== */
+let SPK={tok:0,r:null};
+function spScore(txt,target){const t=spN(txt),g=spN(target);if(!t)return 0;let best=simil(t,g);const tw=t.split(" "),n=Math.max(1,g.split(" ").length);
+ for(let k=Math.max(1,n-1);k<=n+1;k++)for(let i=0;i+k<=tw.length;i++)best=Math.max(best,simil(tw.slice(i,i+k).join(" "),g));
+ if(t.includes(stripArt(g))&&stripArt(g).length>=3)best=Math.max(best,.9);return best}
+function spLiveSet(txt,hear){const el=document.getElementById("spLive");if(!el)return;el.classList.toggle("hear",!!hear);el.innerHTML=`<span class="bars"><i></i><i></i><i></i><i></i></span><span>${esc(txt)}</span>`}
+function spStop(silent){const r=SPK.r;SPK.tok++;SPK.r=null;clearTimeout(SPK.sil);clearTimeout(SPK.dl);if(r){try{r.onend=null;r.onresult=null;r.onerror=null;r.abort()}catch(e){}}if(!silent){V.listening=false;rerender()}}
+window.spListen=function(){if(!SR){V.res={none:true,msg:"Spracherkennung geht in diesem Browser nicht. iPhone: Safari benutzen · Samsung: Google Chrome benutzen."};rerender();return}
+ spStop(true);try{speechSynthesis.cancel()}catch(e){}
+ const w=spItem();const target=w[1];const tok=++SPK.tok;const st={best:0,heard:"",voice:false,done:false,starts:0,last:""};const deadline=Date.now()+9000;
+ V.listening=true;V.res=null;rerender();spLiveSet("Warte kurz …",false);
+ const finish=()=>{if(st.done||tok!==SPK.tok)return;st.done=true;spStop(true);V.listening=false;
+  if(!st.heard){V.res={none:true,msg:st.voice?"🤔 Ich konnte dich nicht verstehen. Sprich etwas lauter und halte das Handy näher an den Mund.":"🎤 Ich habe noch nichts gehört. Tippe aufs Mikrofon und sprich das Wort deutlich."};rerender();return}
+  V.tot=(V.tot||0)+1;
+  if(st.best>=0.75){V.res={ok:true,heard:st.heard};V.right=(V.right||0)+1;addXP(5,true);toast("+5 XP ⚡",900);bump("speak");try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
+  else V.res={ok:false,mid:st.best>=0.55,heard:st.best>=0.55?st.heard:(st.last||st.heard)};rerender()};
+ const consider=txt=>{txt=(txt||"").trim();if(!txt)return;const s=spScore(txt,target);st.last=txt;if(s>st.best||!st.heard){if(s>=st.best){st.best=s;st.heard=txt}}if(s>=0.75)setTimeout(finish,250)};
+ const begin=()=>{if(tok!==SPK.tok||st.done)return;let r;try{r=new SR()}catch(e){V.listening=false;V.res={none:true,msg:"Spracherkennung konnte nicht starten."};rerender();return}SPK.r=r;st.starts++;
+  r.lang=VOC[V.L].lang==="en-GB"?"en-GB":"fr-FR";r.interimResults=true;r.maxAlternatives=5;r.continuous=true;
+  r.onaudiostart=()=>{if(tok===SPK.tok&&!st.voice)spLiveSet("Ich höre zu – sprich jetzt!",false)};
+  r.onsoundstart=r.onspeechstart=()=>{if(tok!==SPK.tok)return;st.voice=true;spLiveSet(st.last?"„"+st.last+"“":"Ich höre dich …",true)};
+  r.onresult=e=>{if(tok!==SPK.tok)return;st.voice=true;let live="";for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];for(let j=0;j<res.length;j++)consider(res[j].transcript);live=res[0].transcript}
+   if(live)spLiveSet("„"+live.trim()+"“",true);clearTimeout(SPK.sil);SPK.sil=setTimeout(finish,1400)};
+  r.onerror=e=>{if(tok!==SPK.tok)return;const fatal={"not-allowed":"🔒 Das Mikrofon ist nicht erlaubt. Erlaube es in den Browser-Einstellungen für diese Seite.","service-not-allowed":"🔒 Spracherkennung ist aus. iPhone: Einstellungen → Allgemein → Tastatur → „Diktieren“ einschalten.","audio-capture":"🎤 Kein Mikrofon gefunden.","network":"📶 Für die Spracherkennung brauchst du Internet."}[e.error];
+   if(fatal){st.done=true;spStop(true);V.listening=false;V.res={none:true,msg:fatal};rerender()}};
+  r.onend=()=>{if(tok!==SPK.tok||st.done)return;if(st.heard){finish();return}
+   if(Date.now()<deadline&&st.starts<6)setTimeout(begin,150);else finish()};
+  try{r.start()}catch(e){setTimeout(()=>{if(Date.now()<deadline)begin();else finish()},300)}};
+ SPK.dl=setTimeout(finish,9500);
+ setTimeout(begin,320)};
+ACT.spstop=()=>{const had=SPK.r;spStop(false)};
+{const _sn=ACT.spnext;ACT.spnext=()=>{spStop(true);V.listening=false;_sn()}}
+{const _sb=ACT.spback;if(_sb)ACT.spback=()=>{spStop(true);V.listening=false;_sb()}}
+{const _s=VIEWS.speak;VIEWS.speak=()=>{const r=V.res;let h;if(r&&r.none){V.res=null;h=_s();V.res=r}else h=_s();if(!V.L)return h;
+ if(V.listening){h=h.replace('<div class="mut sm">Ich höre zu … sprich jetzt!</div>',`<div id="spLive" class="splive"><span class="bars"><i></i><i></i><i></i><i></i></span><span>Warte kurz …</span></div><button class="btn ghost sm" style="margin-top:10px" data-a="spstop">⏹ Stopp</button>`)}
+ if(r&&r.none)h=h.replace('<div class="mut sm">Tippe aufs Mikrofon und sprich das Wort.</div>',`<div class="spneutral">${esc(r.msg)}</div>`);
+ return h}}
+{const _r=window.render;window.render=function(){if(V&&V.v!=="speak"&&SPK.r)spStop(true);_r()}}
+</script>
+
 </body>
 </html>
